@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice;
+package de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemover;
 import de.huwi.liberatepdf2.restservice.storage.FilesystemStorageService;
 
 public class LegacyPdftkRestrictionsRemover {

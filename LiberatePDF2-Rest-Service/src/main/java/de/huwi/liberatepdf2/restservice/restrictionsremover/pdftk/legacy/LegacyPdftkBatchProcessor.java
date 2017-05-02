@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice;
+package de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,9 +12,9 @@ import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BatchProcessor {
+public class LegacyPdftkBatchProcessor {
 
-	private final Logger Logger = LoggerFactory.getLogger(BatchProcessor.class);
+	private final Logger Logger = LoggerFactory.getLogger(LegacyPdftkBatchProcessor.class);
 
 	private Path createZip(final Path[] paths) throws IOException {
 		this.Logger.info("Creating ZIP file");

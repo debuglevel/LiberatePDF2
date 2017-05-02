@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice;
+package de.huwi.liberatepdf2.restservice.restrictionsremover;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.qos.logback.classic.Logger;
+import de.huwi.liberatepdf2.restservice.MultipartFileUtils;
+import de.huwi.liberatepdf2.restservice.Pdf;
+import de.huwi.liberatepdf2.restservice.PdfDTO;
+import de.huwi.liberatepdf2.restservice.PdfsDTO;
+import de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.PdftkRestrictionsRemover;
 import de.huwi.liberatepdf2.restservice.storage.StorageService;
 
 @RestController

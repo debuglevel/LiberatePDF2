@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice;
+package de.huwi.liberatepdf2.restservice.restrictionsremover;
 
 import java.nio.file.Path;
 
