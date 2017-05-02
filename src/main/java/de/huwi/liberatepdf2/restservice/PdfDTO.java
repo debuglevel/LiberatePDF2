@@ -8,27 +8,27 @@ import lombok.ToString;
  * A PDF file
  */
 @ToString
-public class PdfsDTO {
+public class PdfDTO {
 	/**
 	 * Byte content of the PDF
 	 */
-	private MultipartFile[] files;
+	private MultipartFile file;
 
 	/**
 	 * File name of the PDF
 	 */
 	private String password;
 
-	public MultipartFile[] getFiles() {
-		return this.files;
+	public MultipartFile getFile() {
+		return this.file;
 	}
 
 	public String getPassword() {
 		return this.password;
 	}
 
-	public void setFiles(final MultipartFile[] files) {
-		this.files = files;
+	public void setFile(final MultipartFile file) {
+		this.file = file;
 	}
 
 	public void setPassword(final String password) {

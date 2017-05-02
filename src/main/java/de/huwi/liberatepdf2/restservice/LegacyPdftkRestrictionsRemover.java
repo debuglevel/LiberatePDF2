@@ -6,22 +6,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.huwi.liberatepdf2.restservice.storage.FilesystemStorageService;
 
 public class LegacyPdftkRestrictionsRemover {
 
 	private final Logger Logger = LoggerFactory.getLogger(RestrictionsRemover.class);
 
-	public File RemoveRestrictions(File fileOriginal, String password) {
-		Logger.info("Filename = \"{}\"", fileOriginal);
-		Logger.info("Password = \"{}\"", password);
+	public File RemoveRestrictions(final File fileOriginal, final String password) {
+		this.Logger.info("Filename = \"{}\"", fileOriginal);
+		this.Logger.info("Password = \"{}\"", password);
 
 		// String exePath = "C:\\Program Files (x86)\\PDFtk\\bin\\pdftk.exe";
 		// String exePath = "/usr/bin/pdftk";
-		String pdftkExecutable = "pdftk";
-		File fileNew = new File(fileOriginal + " (liberated).pdf");
-		Logger.info("New filename = \"{}\"", fileNew);
+		final String pdftkExecutable = "pdftk";
+		final File fileNew = new File(fileOriginal + FilesystemStorageService.SUFFIX_PDF_UNRESTRICTED);
+		this.Logger.info("New filename = \"{}\"", fileNew);
 
 		try {
 			String stdoutLog = "";
@@ -42,11 +45,11 @@ public class LegacyPdftkRestrictionsRemover {
 			}
 
 			// run command
-			Process p = processBuilder.start();
-			Logger.info("Command = \"{}\"", processBuilder.command());
+			final Process p = processBuilder.start();
+			this.Logger.info("Command = \"{}\"", processBuilder.command());
 
-			BufferedReader stdOutput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			final BufferedReader stdOutput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			final BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
 			// read the output from the command
 			while ((s = stdOutput.readLine()) != null) {
@@ -58,22 +61,22 @@ public class LegacyPdftkRestrictionsRemover {
 				stderrLog += s + "\n";
 			}
 
-			Logger.info("Command standard output: {}" + stdoutLog);
-			Logger.info("Command error output: {}" + stderrLog);
-		} catch (IOException e) {
-			Logger.error("Something went wrong during converting PDF", e);
+			this.Logger.info("Command standard output: {}" + stdoutLog);
+			this.Logger.info("Command error output: {}" + stderrLog);
+		} catch (final IOException e) {
+			this.Logger.error("Something went wrong during converting PDF", e);
 			System.exit(-1);
 		}
 
 		return fileNew;
 	}
 
-	public Path[] RemoveRestrictions(Iterable<Path> filesOriginal, String password) {
-		Logger.info("Removing restrictions from multiple files");
-		ArrayList<Path> filesNew = new ArrayList<Path>();
+	public Path[] RemoveRestrictions(final Iterable<Path> filesOriginal, final String password) {
+		this.Logger.info("Removing restrictions from multiple files");
+		final ArrayList<Path> filesNew = new ArrayList<>();
 
-		for (Path fileOriginal : filesOriginal) {
-			Path fileNew = this.RemoveRestrictions(fileOriginal.toFile(), password).toPath();
+		for (final Path fileOriginal : filesOriginal) {
+			final Path fileNew = this.RemoveRestrictions(fileOriginal.toFile(), password).toPath();
 			filesNew.add(fileNew);
 		}
 

@@ -2,19 +2,19 @@ package de.huwi.liberatepdf2.restservice;
 
 public class Greeting {
 
-    private final long id;
-    private final String content;
+	private final String content;
+	private final long id;
 
-    public Greeting(long id, String content) {
-        this.id = id;
-        this.content = content;
-    }
+	public Greeting(final long id, final String content) {
+		this.id = id;
+		this.content = content;
+	}
 
-    public long getId() {
-        return id;
-    }
+	public String getContent() {
+		return this.content;
+	}
 
-    public String getContent() {
-        return content;
-    }
+	public long getId() {
+		return this.id;
+	}
 }

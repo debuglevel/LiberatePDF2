@@ -1,7 +1,7 @@
 package de.huwi.liberatepdf2.restservice;
 
-import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * Removes restrictions from a PDF file using PDFtk
@@ -9,20 +9,25 @@ import java.nio.file.Path;
 public class PdftkRestrictionsRemover implements RestrictionsRemover {
 
 	@Override
-	public Path removeRestrictions(Iterable<Path> originalPdfs, String password) {
-//		final LegacyPdftkRestrictionsRemover legacyPdftkRestrictionsRemover = new LegacyPdftkRestrictionsRemover();
-//		final File unrestrictedPdf = legacyPdftkRestrictionsRemover.RemoveRestrictions(originalPdf.toFile(), password);
-//		
-//		return unrestrictedPdf.toPath();
-		
+	public Path removeRestrictions(final Iterable<Path> originalPdfs) {
+		return this.removeRestrictions(originalPdfs, null);
+	}
+
+	@Override
+	public Path removeRestrictions(final Iterable<Path> originalPdfs, final String password) {
 		final BatchProcessor batchProcessor = new BatchProcessor();
 		final Path unrestrictedPdfOrZip = batchProcessor.RemoveRestrictions(originalPdfs, password);
-		
+
 		return unrestrictedPdfOrZip;
 	}
 
 	@Override
-	public Path removeRestrictions(Iterable<Path> originalPdfs) {
-		return this.removeRestrictions(originalPdfs, null);
+	public Path removeRestrictions(Path original) {
+		return this.removeRestrictions(original, null);
+	}
+
+	@Override
+	public Path removeRestrictions(Path original, String password) {
+		return this.removeRestrictions(Arrays.asList(new Path[] { original }), password);
 	}
 }

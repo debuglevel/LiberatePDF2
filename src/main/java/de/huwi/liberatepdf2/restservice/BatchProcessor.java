@@ -8,77 +8,73 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BatchProcessor {
 
-    private final Logger Logger = LoggerFactory.getLogger(BatchProcessor.class);
+	private final Logger Logger = LoggerFactory.getLogger(BatchProcessor.class);
 
-	private Path createZip(Path[] paths) throws IOException {
-            Logger.info("Creating ZIP file");
+	private Path createZip(final Path[] paths) throws IOException {
+		this.Logger.info("Creating ZIP file");
 		// String zipPath = "PDFs.zip";
-                Path temporaryPath = Files.createTempDirectory("LiberatePDF_zip");
-		File zipFile = new File(temporaryPath+"/PDFs.zip");
+		final Path temporaryPath = Files.createTempDirectory("LiberatePDF_zip");
+		final File zipFile = new File(temporaryPath + "/PDFs.zip");
 
 		// out put file
-		ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(zipFile));
+		final ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(zipFile));
 
-		for (Path path : paths) {
-                    Logger.info("Adding file \"{}\" to ZIP", path.toFile().getName());
-                    
+		for (final Path path : paths) {
+			this.Logger.info("Adding file \"{}\" to ZIP", path.toFile().getName());
+
 			// input file
-			FileInputStream fileStream = new FileInputStream(path.toFile());
+			final FileInputStream fileStream = new FileInputStream(path.toFile());
 
 			// name the file inside the zip file
-			String fileName = path.toFile().getName();
+			final String fileName = path.toFile().getName();
 			zipStream.putNextEntry(new ZipEntry(fileName));
 
 			// buffer size
-			byte[] b = new byte[1024];
+			final byte[] b = new byte[1024];
 			int count;
 
 			while ((count = fileStream.read(b)) > 0) {
-//				System.out.println();
+				// System.out.println();
 				zipStream.write(b, 0, count);
 			}
 
 			fileStream.close();
 		}
 
-                Logger.info("Closing ZIP file");
+		this.Logger.info("Closing ZIP file");
 		zipStream.close();
 
 		return zipFile.toPath();
 	}
 
-	public Path RemoveRestrictions(Iterable<Path> filesOriginal, String password) {
-		LegacyPdftkRestrictionsRemover restrictionsRemover = new LegacyPdftkRestrictionsRemover();
+	public Path RemoveRestrictions(final Iterable<Path> filesOriginal, final String password) {
+		final LegacyPdftkRestrictionsRemover restrictionsRemover = new LegacyPdftkRestrictionsRemover();
 
-		Path[] pathsNew = restrictionsRemover.RemoveRestrictions(filesOriginal, password);
+		final Path[] pathsNew = restrictionsRemover.RemoveRestrictions(filesOriginal, password);
 
-                if (pathsNew.length == 0)
-                {
-                    Logger.error("RestrictionsRemover returned zero files.");
-                }
-                else if (pathsNew.length == 1)
-                {
-                    return pathsNew[0];
-                }
-                else if (pathsNew.length > 1)
-                {
-                	Path zipPath = null;
-                    try {
-                            zipPath = this.createZip(pathsNew);
-                    } catch (IOException e) {
-                        Logger.error("Exception occured during removing restrictions:", e);
-                    }
-                    
-                    return zipPath;
-                }
-                
-                Logger.error("This cannot happen.");
-                return null;
+		if (pathsNew.length == 0) {
+			this.Logger.error("RestrictionsRemover returned zero files.");
+		} else if (pathsNew.length == 1) {
+			return pathsNew[0];
+		} else if (pathsNew.length > 1) {
+			Path zipPath = null;
+			try {
+				zipPath = this.createZip(pathsNew);
+			} catch (final IOException e) {
+				this.Logger.error("Exception occured during removing restrictions:", e);
+			}
+
+			return zipPath;
+		}
+
+		this.Logger.error("This cannot happen.");
+		return null;
 	}
 
 }
