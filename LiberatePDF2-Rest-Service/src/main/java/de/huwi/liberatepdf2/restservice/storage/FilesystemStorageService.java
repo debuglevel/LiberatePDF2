@@ -27,11 +27,11 @@ public class FilesystemStorageService implements StorageService {
 	public static final String SUFFIX_PDF = ".pdf";
 	public static final String SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf";
 
-	private final Path rootLocation;
-
 	private final AtomicLong itemId = new AtomicLong();
 
 	private final HashMap<Long, Pdf> items = new HashMap<>();
+
+	private final Path rootLocation;
 
 	@Autowired
 	public FilesystemStorageService(final StorageProperties properties) {
@@ -41,6 +41,11 @@ public class FilesystemStorageService implements StorageService {
 	@Override
 	public void deleteAll() {
 		FileSystemUtils.deleteRecursively(this.rootLocation.toFile());
+	}
+
+	@Override
+	public Pdf getItem(final Long itemId) {
+		return this.items.get(itemId);
 	}
 
 	@Override
@@ -83,27 +88,23 @@ public class FilesystemStorageService implements StorageService {
 		}
 	}
 
-	public Pdf getItem(Long itemId) {
-		return this.items.get(itemId);
-	}
-
 	@Override
 	public Pdf store(final MultipartFile file) {
-		long itemId = this.itemId.incrementAndGet();
+		final long itemId = this.itemId.incrementAndGet();
 
 		final Pdf pdf = new Pdf(itemId, file.getOriginalFilename());
 		this.items.put(itemId, pdf);
 
-		Path itemLocation = this.rootLocation.resolve(itemId + SUFFIX_PDF);
-		
+		final Path itemLocation = this.rootLocation.resolve(itemId + SUFFIX_PDF);
+
 		try {
 			Files.copy(file.getInputStream(), itemLocation);
 		} catch (final IOException e) {
 			throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
 		}
-		
+
 		pdf.setRestrictedPath(itemLocation);
-		
+
 		return pdf;
 	}
 }

@@ -25,12 +25,12 @@ public class PdftkRestrictionsRemover implements RestrictionsRemover {
 	}
 
 	@Override
-	public Path removeRestrictions(Path original) {
+	public Path removeRestrictions(final Path original) {
 		return this.removeRestrictions(original, null);
 	}
 
 	@Override
-	public Path removeRestrictions(Path original, String password) {
+	public Path removeRestrictions(final Path original, final String password) {
 		return this.removeRestrictions(Arrays.asList(new Path[] { original }), password);
 	}
 }

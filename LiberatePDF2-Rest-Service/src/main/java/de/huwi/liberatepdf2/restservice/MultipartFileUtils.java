@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MultipartFileUtils {
 	/**
 	 * Returns a Path for a MultipartFile by copying/moving its content.
-	 * 
+	 *
 	 * @param multipartFile
 	 * @return
 	 * @throws IOException
@@ -26,7 +26,7 @@ public class MultipartFileUtils {
 
 	/**
 	 * Returns Paths for MultipartFiles by copying/moving their content.
-	 * 
+	 *
 	 * @param restrictedPdf
 	 * @return
 	 * @throws IOException

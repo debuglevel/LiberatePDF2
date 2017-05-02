@@ -19,13 +19,24 @@ public interface StorageService {
 	void deleteAll();
 
 	/**
+	 * Gets the Pdf of an item ID.
+	 *
+	 * @param itemId
+	 *            ID of the item
+	 * @return the Pdf of the item ID, or null if not found
+	 */
+	Pdf getItem(Long itemId);
+
+	/**
 	 * Initializes the storage.
 	 */
 	void init();
 
 	/**
 	 * Returns the path of an item
-	 * @param itemId the ID of an item
+	 * 
+	 * @param itemId
+	 *            the ID of an item
 	 * @return
 	 */
 	Path load(long itemId);
@@ -35,15 +46,8 @@ public interface StorageService {
 	Resource loadAsResource(long itemId);
 
 	/**
-	 * Gets the Pdf of an item ID.
-	 * 
-	 * @param itemId ID of the item
-	 * @return the Pdf of the item ID, or null if not found
-	 */
-	Pdf getItem(Long itemId);
-	
-	/**
 	 * Stores a file
+	 * 
 	 * @param file
 	 */
 	Pdf store(MultipartFile file);
