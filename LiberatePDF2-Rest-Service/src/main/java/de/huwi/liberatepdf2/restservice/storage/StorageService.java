@@ -32,14 +32,14 @@ public interface StorageService {
 	 */
 	void init();
 
-	/**
-	 * Returns the path of an item
-	 * 
-	 * @param itemId
-	 *            the ID of an item
-	 * @return
-	 */
-	Path load(long itemId);
+//	/**
+//	 * Returns the path of an item
+//	 * 
+//	 * @param itemId
+//	 *            the ID of an item
+//	 * @return
+//	 */
+//	Path getPath(long itemId);
 
 	Stream<Path> loadAll();
 

@@ -57,10 +57,10 @@ public class FilesystemStorageService implements StorageService {
 		}
 	}
 
-	@Override
-	public Path load(final long itemId) {
-		return this.rootLocation.resolve(itemId + SUFFIX_PDF + SUFFIX_PDF_UNRESTRICTED);
-	}
+//	@Override
+//	public Path getPath(final long itemId) {
+//		return this.rootLocation.resolve(itemId + SUFFIX_PDF + SUFFIX_PDF_UNRESTRICTED);
+//	}
 
 	@Override
 	public Stream<Path> loadAll() {
@@ -75,7 +75,7 @@ public class FilesystemStorageService implements StorageService {
 	@Override
 	public Resource loadAsResource(final long itemId) {
 		try {
-			final Path file = this.load(itemId);
+			final Path file = this.getItem(itemId).getUnrectrictedPath();
 			final Resource resource = new UrlResource(file.toUri());
 			if (resource.exists() || resource.isReadable()) {
 				return resource;

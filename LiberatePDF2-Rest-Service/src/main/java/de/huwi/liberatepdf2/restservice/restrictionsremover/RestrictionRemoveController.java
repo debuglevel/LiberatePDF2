@@ -1,5 +1,6 @@
 package de.huwi.liberatepdf2.restservice.restrictionsremover;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -31,20 +32,40 @@ public class RestrictionRemoveController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{documentId}")
 	public @ResponseBody FileSystemResource downloadUnrestricted(@PathVariable final Long documentId,
-			final HttpServletResponse response) {
-		final Path documentPath = this.storageService.load(documentId);
+			final HttpServletResponse response) throws IOException {
+		final Pdf pdf = this.storageService.getItem(documentId);
 
-		if (Files.exists(documentPath) == false) {
+		if (pdf == null)
+		{
+			// no item found with this ID (because no request was assigned this ID by now)
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.getWriter().println(String.format("No document found for ID={}", documentId));
 			return null;
 		}
-
-		response.setContentType("application/pdf");
-		final String filename = this.storageService.getItem(documentId).getOriginalFilename();
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-		final FileSystemResource filesystemResource = new FileSystemResource(documentPath.toFile());
-
-		return filesystemResource;
+		else if (pdf.isDone() == false)
+		{
+			// the request exists, but was not transformed by now
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.getWriter().println(String.format("The document was not processed by now. Please try again later."));
+			return null;
+		}
+		else if (Files.exists(pdf.getUnrectrictedPath()) == false)
+		{
+			// the request was transformed, but the file does not exist (somehow failed?)
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.getWriter().println(String.format("The document was processed, but produced no result. Maybe the password was wrong or another error occurred."));
+			return null;
+		}
+		else
+		{
+			// request should be okay
+			response.setContentType("application/pdf");
+			final String filename = this.storageService.getItem(documentId).getOriginalFilename();
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+			final FileSystemResource filesystemResource = new FileSystemResource(pdf.getUnrectrictedPath().toFile());
+	
+			return filesystemResource;
+		}
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/")
