@@ -8,8 +8,10 @@ import org.springframework.context.annotation.Bean;
 
 import de.huwi.liberatepdf2.restservice.storage.StorageProperties;
 import de.huwi.liberatepdf2.restservice.storage.StorageService;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
+@EnableSwagger2
 @EnableConfigurationProperties(StorageProperties.class)
 public class LiberatePdf2RestServiceApplication {
 
