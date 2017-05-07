@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,12 +26,15 @@ public class RestrictionRemoveController {
 
 	private final RestrictionsRemoverService restrictionsRemoverService;
 	private final StorageService storageService;
-
+	private final TaskExecutor taskExecutor;
+	
 	@Autowired
 	public RestrictionRemoveController(final StorageService storageService,
-			final RestrictionsRemoverService restrictionsRemoverService) {
+			final RestrictionsRemoverService restrictionsRemoverService,
+			final TaskExecutor taskExecutor) {
 		this.storageService = storageService;
 		this.restrictionsRemoverService = restrictionsRemoverService;
+		this.taskExecutor = taskExecutor;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{documentId}")
@@ -68,27 +73,27 @@ public class RestrictionRemoveController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/")
-	public long uploadAndRemoveRestrictions(final PdfDTO restrictedPdf) {
+	public @ResponseBody long uploadAndRemoveRestrictions(final PdfDTO restrictedPdf) {
 		final Pdf pdf = this.storageService.store(restrictedPdf.getFile());
 
-		// start background task to remove restrictions
-		final Runnable task = () -> {
-			final String threadName = Thread.currentThread().getName();
-			System.out.println(threadName);
-
-			final Path unrestrictedPdfPath = this.restrictionsRemoverService.removeRestrictions(pdf.getRestrictedPath(),
-					restrictedPdf.getPassword());
-
-			pdf.setUnrectrictedPath(unrestrictedPdfPath);
-			pdf.setDone(true);
-		};
-
-		task.run();
-
-		final Thread thread = new Thread(task);
-		thread.start();
+		this.removeRestrictionsAsync(restrictedPdf, pdf);
 
 		return pdf.getId();
+	}
+	
+	/**
+	 * Enqueue a task to remove removes restrictions
+	 * @param restrictedPdf
+	 * @param pdf
+	 */
+	@Async
+	private void removeRestrictionsAsync(final PdfDTO restrictedPdf, final Pdf pdf)
+	{
+		final Path unrestrictedPdfPath = this.restrictionsRemoverService.removeRestrictions(pdf.getRestrictedPath(),
+				restrictedPdf.getPassword());
+
+		pdf.setUnrectrictedPath(unrestrictedPdfPath);
+		pdf.setDone(true);
 	}
 
 	// @RequestMapping(method = RequestMethod.POST, value = "/legacy")
