@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemover;
+import de.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService;
 import de.huwi.liberatepdf2.restservice.storage.FilesystemStorageService;
 
 public class LegacyPdftkRestrictionsRemover {
 
-	private final Logger Logger = LoggerFactory.getLogger(RestrictionsRemover.class);
+	private final Logger Logger = LoggerFactory.getLogger(RestrictionsRemoverService.class);
 
 	public File RemoveRestrictions(final File fileOriginal, final String password) {
 		this.Logger.info("Filename = \"{}\"", fileOriginal);

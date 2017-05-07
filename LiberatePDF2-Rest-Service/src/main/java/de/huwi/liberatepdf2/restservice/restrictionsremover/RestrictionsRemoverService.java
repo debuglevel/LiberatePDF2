@@ -5,7 +5,7 @@ import java.nio.file.Path;
 /**
  * Removes restrictions from files.
  */
-public interface RestrictionsRemover {
+public interface RestrictionsRemoverService {
 	/**
 	 * Remove restrictions from files.
 	 *

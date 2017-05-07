@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.huwi.liberatepdf2.restservice.Pdf;
 import de.huwi.liberatepdf2.restservice.PdfDTO;
-import de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.PdftkRestrictionsRemover;
 import de.huwi.liberatepdf2.restservice.storage.StorageService;
 
 @RestController
@@ -24,10 +23,12 @@ import de.huwi.liberatepdf2.restservice.storage.StorageService;
 public class RestrictionRemoveController {
 
 	private final StorageService storageService;
-
+	private final RestrictionsRemoverService restrictionsRemoverService;
+	
 	@Autowired
-	public RestrictionRemoveController(final StorageService storageService) {
+	public RestrictionRemoveController(final StorageService storageService, final RestrictionsRemoverService restrictionsRemoverService) {
 		this.storageService = storageService;
+		this.restrictionsRemoverService = restrictionsRemoverService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{documentId}")
@@ -77,8 +78,7 @@ public class RestrictionRemoveController {
 			final String threadName = Thread.currentThread().getName();
 			System.out.println(threadName);
 
-			final RestrictionsRemover restrictionsRemover = new PdftkRestrictionsRemover();
-			final Path unrestrictedPdfPath = restrictionsRemover.removeRestrictions(pdf.getRestrictedPath(),
+			final Path unrestrictedPdfPath = restrictionsRemoverService.removeRestrictions(pdf.getRestrictedPath(),
 					restrictedPdf.getPassword());
 
 			pdf.setUnrectrictedPath(unrestrictedPdfPath);

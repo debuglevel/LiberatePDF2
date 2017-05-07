@@ -3,13 +3,16 @@ package de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import de.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemover;
+import org.springframework.stereotype.Service;
+
+import de.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService;
 import de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy.LegacyPdftkBatchProcessor;
 
 /**
  * Removes restrictions from a PDF file using PDFtk
  */
-public class PdftkRestrictionsRemover implements RestrictionsRemover {
+@Service
+public class PdftkRestrictionsRemoverService implements RestrictionsRemoverService {
 
 	@Override
 	public Path removeRestrictions(final Iterable<Path> originalPdfs) {
