@@ -32,14 +32,14 @@ public interface StorageService {
 	 */
 	void init();
 
-//	/**
-//	 * Returns the path of an item
-//	 * 
-//	 * @param itemId
-//	 *            the ID of an item
-//	 * @return
-//	 */
-//	Path getPath(long itemId);
+	// /**
+	// * Returns the path of an item
+	// *
+	// * @param itemId
+	// * the ID of an item
+	// * @return
+	// */
+	// Path getPath(long itemId);
 
 	Stream<Path> loadAll();
 
@@ -47,7 +47,7 @@ public interface StorageService {
 
 	/**
 	 * Stores a file
-	 * 
+	 *
 	 * @param file
 	 */
 	Pdf store(MultipartFile file);

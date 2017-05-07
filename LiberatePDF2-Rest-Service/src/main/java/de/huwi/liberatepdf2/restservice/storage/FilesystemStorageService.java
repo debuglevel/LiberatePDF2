@@ -57,10 +57,11 @@ public class FilesystemStorageService implements StorageService {
 		}
 	}
 
-//	@Override
-//	public Path getPath(final long itemId) {
-//		return this.rootLocation.resolve(itemId + SUFFIX_PDF + SUFFIX_PDF_UNRESTRICTED);
-//	}
+	// @Override
+	// public Path getPath(final long itemId) {
+	// return this.rootLocation.resolve(itemId + SUFFIX_PDF +
+	// SUFFIX_PDF_UNRESTRICTED);
+	// }
 
 	@Override
 	public Stream<Path> loadAll() {

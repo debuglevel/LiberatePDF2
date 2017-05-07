@@ -22,11 +22,12 @@ import de.huwi.liberatepdf2.restservice.storage.StorageService;
 @RequestMapping("/api/v1/documents/")
 public class RestrictionRemoveController {
 
-	private final StorageService storageService;
 	private final RestrictionsRemoverService restrictionsRemoverService;
-	
+	private final StorageService storageService;
+
 	@Autowired
-	public RestrictionRemoveController(final StorageService storageService, final RestrictionsRemoverService restrictionsRemoverService) {
+	public RestrictionRemoveController(final StorageService storageService,
+			final RestrictionsRemoverService restrictionsRemoverService) {
 		this.storageService = storageService;
 		this.restrictionsRemoverService = restrictionsRemoverService;
 	}
@@ -36,35 +37,32 @@ public class RestrictionRemoveController {
 			final HttpServletResponse response) throws IOException {
 		final Pdf pdf = this.storageService.getItem(documentId);
 
-		if (pdf == null)
-		{
-			// no item found with this ID (because no request was assigned this ID by now)
+		if (pdf == null) {
+			// no item found with this ID (because no request was assigned this
+			// ID by now)
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			response.getWriter().println(String.format("No document found for ID={}", documentId));
 			return null;
-		}
-		else if (pdf.isDone() == false)
-		{
+		} else if (pdf.isDone() == false) {
 			// the request exists, but was not transformed by now
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter().println(String.format("The document was not processed by now. Please try again later."));
+			response.getWriter()
+					.println(String.format("The document was not processed by now. Please try again later."));
 			return null;
-		}
-		else if (Files.exists(pdf.getUnrectrictedPath()) == false)
-		{
-			// the request was transformed, but the file does not exist (somehow failed?)
+		} else if (Files.exists(pdf.getUnrectrictedPath()) == false) {
+			// the request was transformed, but the file does not exist (somehow
+			// failed?)
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter().println(String.format("The document was processed, but produced no result. Maybe the password was wrong or another error occurred."));
+			response.getWriter().println(String.format(
+					"The document was processed, but produced no result. Maybe the password was wrong or another error occurred."));
 			return null;
-		}
-		else
-		{
+		} else {
 			// request should be okay
 			response.setContentType("application/pdf");
 			final String filename = this.storageService.getItem(documentId).getOriginalFilename();
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 			final FileSystemResource filesystemResource = new FileSystemResource(pdf.getUnrectrictedPath().toFile());
-	
+
 			return filesystemResource;
 		}
 	}
@@ -78,7 +76,7 @@ public class RestrictionRemoveController {
 			final String threadName = Thread.currentThread().getName();
 			System.out.println(threadName);
 
-			final Path unrestrictedPdfPath = restrictionsRemoverService.removeRestrictions(pdf.getRestrictedPath(),
+			final Path unrestrictedPdfPath = this.restrictionsRemoverService.removeRestrictions(pdf.getRestrictedPath(),
 					restrictedPdf.getPassword());
 
 			pdf.setUnrectrictedPath(unrestrictedPdfPath);
