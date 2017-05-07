@@ -66,7 +66,7 @@ public class LegacyPdftkRestrictionsRemover {
 			this.Logger.info("Command error output: {}" + stderrLog);
 		} catch (final IOException e) {
 			this.Logger.error("Something went wrong during converting PDF", e);
-			System.exit(-1);
+//			System.exit(-1);
 		}
 
 		return fileNew;
