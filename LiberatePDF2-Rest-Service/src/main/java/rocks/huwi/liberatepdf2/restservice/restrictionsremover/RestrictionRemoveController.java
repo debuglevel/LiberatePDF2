@@ -10,11 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import rocks.huwi.liberatepdf2.restservice.Pdf;
 import rocks.huwi.liberatepdf2.restservice.PdfDTO;
@@ -82,14 +87,15 @@ public class RestrictionRemoveController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/")
-	public @ResponseBody long uploadAndRemoveRestrictions(final PdfDTO restrictedPdf) {
+	public ResponseEntity<?> uploadAndRemoveRestrictions(final PdfDTO restrictedPdf, UriComponentsBuilder uriComponentsBuilder) {
 		log.debug("Received POST request for document {}", restrictedPdf.getFile().getName());
 
 		final Pdf pdf = this.storageService.store(restrictedPdf.getFile());
 		pdf.setPassword(restrictedPdf.getPassword());
 
 		this.restrictionsRemoverService.removeRestrictionsAsync(pdf);
-
-		return pdf.getId();
+		
+		UriComponents uriComponents = uriComponentsBuilder.path("/api/v1/documents/{id}").buildAndExpand(pdf.getId());
+		return ResponseEntity.created(uriComponents.toUri()).body(pdf.getId());
 	}
 }
