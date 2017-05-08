@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice;
+package rocks.huwi.liberatepdf2.restservice;
 
 import java.nio.file.Path;
 
@@ -19,6 +19,8 @@ public class Pdf {
 	 * original filename of the PDF
 	 */
 	private String originalFilename;
+
+	private String password;
 
 	private Path restrictedPath;
 
@@ -41,6 +43,10 @@ public class Pdf {
 
 	public String getOriginalFilename() {
 		return this.originalFilename;
+	}
+
+	public String getPassword() {
+		return this.password;
 	}
 
 	public Path getRestrictedPath() {
@@ -69,6 +75,10 @@ public class Pdf {
 
 	public void setOriginalFilename(final String originalFilename) {
 		this.originalFilename = originalFilename;
+	}
+
+	public void setPassword(final String password) {
+		this.password = password;
 	}
 
 	public void setRestrictedPath(final Path restrictedPath) {

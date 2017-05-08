@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice;
+package rocks.huwi.liberatepdf2.restservice;
 
 import org.springframework.web.multipart.MultipartFile;
 

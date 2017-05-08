@@ -1,12 +1,8 @@
-package de.huwi.liberatepdf2.restservice.storage;
+package rocks.huwi.liberatepdf2.restservice.storage;
 
-import java.nio.file.Path;
-import java.util.stream.Stream;
-
-import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
-import de.huwi.liberatepdf2.restservice.Pdf;
+import rocks.huwi.liberatepdf2.restservice.Pdf;
 
 /**
  * Service to provide read and write access to data.
@@ -41,9 +37,9 @@ public interface StorageService {
 	// */
 	// Path getPath(long itemId);
 
-	Stream<Path> loadAll();
+	// Stream<Path> loadAll();
 
-	Resource loadAsResource(long itemId);
+	// Resource loadAsResource(long itemId);
 
 	/**
 	 * Stores a file

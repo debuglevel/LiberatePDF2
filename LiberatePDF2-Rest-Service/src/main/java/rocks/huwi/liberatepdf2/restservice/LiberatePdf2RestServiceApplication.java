@@ -1,5 +1,7 @@
-package de.huwi.liberatepdf2.restservice;
+package rocks.huwi.liberatepdf2.restservice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,8 +11,8 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import de.huwi.liberatepdf2.restservice.storage.StorageProperties;
-import de.huwi.liberatepdf2.restservice.storage.StorageService;
+import rocks.huwi.liberatepdf2.restservice.storage.StorageProperties;
+import rocks.huwi.liberatepdf2.restservice.storage.StorageService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
@@ -19,24 +21,28 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableConfigurationProperties(StorageProperties.class)
 public class LiberatePdf2RestServiceApplication {
 
+	private static final Logger log = LoggerFactory.getLogger(LiberatePdf2RestServiceApplication.class);
+
 	public static void main(final String[] args) {
 		SpringApplication.run(LiberatePdf2RestServiceApplication.class, args);
 	}
 
 	@Bean
-	CommandLineRunner init(final StorageService storageService) {
+	CommandLineRunner initStorageService(final StorageService storageService) {
 		return (args) -> {
 			storageService.deleteAll();
 			storageService.init();
 		};
 	}
-	
+
 	@Bean
-    public TaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
-        return executor;
-    }
+	public TaskExecutor taskExecutor() {
+		log.debug("Setting up TaskExecutor");
+
+		final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(5);
+		executor.setMaxPoolSize(10);
+		executor.setQueueCapacity(25);
+		return executor;
+	}
 }

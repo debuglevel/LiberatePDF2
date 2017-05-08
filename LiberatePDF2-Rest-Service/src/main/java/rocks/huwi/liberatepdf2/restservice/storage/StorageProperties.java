@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice.storage;
+package rocks.huwi.liberatepdf2.restservice.storage;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

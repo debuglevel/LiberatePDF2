@@ -1,4 +1,4 @@
-package de.huwi.liberatepdf2.restservice.swagger;
+package rocks.huwi.liberatepdf2.restservice.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
