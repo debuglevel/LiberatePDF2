@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,10 @@ import rocks.huwi.liberatepdf2.restservice.storage.StorageService;
 @RequestMapping("/api/v1/documents/")
 public class RestrictionRemoveController {
 
+	private static final int HTTP_STATUS_FAILED = 560;
+
+	private static final int HTTP_STATUS_IN_PROGRESS = 260;
+
 	private static final Logger log = LoggerFactory.getLogger(RestrictionRemoveController.class);
 
 	private final RestrictionsRemoverService restrictionsRemoverService;
@@ -42,7 +47,7 @@ public class RestrictionRemoveController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{documentId}")
-	public @ResponseBody FileSystemResource downloadUnrestricted(@PathVariable final Long documentId,
+	public ResponseEntity<?> downloadUnrestricted(@PathVariable final Long documentId,
 			final HttpServletResponse response) throws IOException {
 		log.debug("Received GET request for document {}", documentId);
 
@@ -52,37 +57,27 @@ public class RestrictionRemoveController {
 			// no item found with this ID (because no request was assigned this
 			// ID by now)
 			log.debug("No document with ID={} found", documentId);
-
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter().println(String.format("No document found for ID={}", documentId));
-			return null;
+			
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(String.format("No document found for ID=%s", documentId));
 		} else if (pdf.isDone() == false) {
 			// the request exists, but was not transformed by now
 			log.debug("Document with ID={} found, but pdf.isDone=false (not processed by now)", documentId);
-
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter()
-					.println(String.format("The document was not processed by now. Please try again later."));
-			return null;
+			
+			return ResponseEntity.status(HTTP_STATUS_IN_PROGRESS).body("The document was not processed by now. Please try again later.");
 		} else if (Files.exists(pdf.getUnrectrictedPath()) == false) {
 			// the request was transformed, but the file does not exist (somehow
 			// failed?)
 			log.debug("Document with ID={} found, but no file exists", documentId);
 
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter().println(String.format(
-					"The document was processed, but produced no result. Maybe the password was wrong or another error occurred."));
-			return null;
+			return ResponseEntity.status(HTTP_STATUS_FAILED).body("The document was processed, but produced no result. Maybe the password was wrong or another error occurred.");
 		} else {
 			// request should be okay
-			response.setContentType("application/pdf");
 			final String filename = this.storageService.getItem(documentId).getOriginalFilename();
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 			final FileSystemResource filesystemResource = new FileSystemResource(pdf.getUnrectrictedPath().toFile());
 
 			log.debug("Document with ID={} found and set for delivery", documentId);
 
-			return filesystemResource;
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).header("Content-Disposition", "attachment; filename=\"" + filename + "\"").body(filesystemResource);
 		}
 	}
 
@@ -96,6 +91,6 @@ public class RestrictionRemoveController {
 		this.restrictionsRemoverService.removeRestrictionsAsync(pdf);
 		
 		UriComponents uriComponents = uriComponentsBuilder.path("/api/v1/documents/{id}").buildAndExpand(pdf.getId());
-		return ResponseEntity.created(uriComponents.toUri()).body(pdf.getId());
+		return ResponseEntity.accepted().location(uriComponents.toUri()).body(pdf.getId());
 	}
 }
