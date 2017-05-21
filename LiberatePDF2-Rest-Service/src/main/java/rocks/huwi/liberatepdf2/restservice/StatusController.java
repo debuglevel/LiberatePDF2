@@ -1,0 +1,54 @@
+package rocks.huwi.liberatepdf2.restservice;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import rocks.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService;
+import rocks.huwi.liberatepdf2.restservice.storage.StorageService;
+
+@RestController
+@RequestMapping("/api/v1/status/")
+public class StatusController {
+	private static final Logger log = LoggerFactory.getLogger(StatusController.class);
+
+	private final StorageService storageService;
+	private final RestrictionsRemoverService restrictionsRemoverService;
+
+	@Autowired
+	public StatusController(final StorageService storageService, final RestrictionsRemoverService restrictionsRemoverService) {
+		this.storageService = storageService;
+		this.restrictionsRemoverService = restrictionsRemoverService;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/ping/{message}")
+	public ResponseEntity<?> ping(@PathVariable final String message,
+			final HttpServletResponse response) {
+		log.debug("Received GET request for ping {}", message);
+
+			return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN)
+					.body("pong: " + message);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/statistics")
+	public ResponseEntity<?> ping() throws JSONException {
+		log.debug("Received GET request for statistics");
+		
+		JSONObject json = new JSONObject();
+		json.put("storedItems", this.storageService.getItemsCount());
+		json.put("processedItems", this.restrictionsRemoverService.getItemsCount());
+		json.put("failedItems", this.restrictionsRemoverService.getFailedItemsCount());
+		
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(json.toString());
+	}
+}

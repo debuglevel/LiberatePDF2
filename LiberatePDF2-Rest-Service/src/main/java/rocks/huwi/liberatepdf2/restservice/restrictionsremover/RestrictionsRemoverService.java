@@ -26,4 +26,16 @@ public interface RestrictionsRemoverService {
 	 */
 	@Async
 	public void removeRestrictionsAsync(Pdf pdf);
+	
+	/**
+	 * Gets the count of processed items.
+	 * @return
+	 */
+	public Long getItemsCount();
+	
+	/**
+	 * Gets the count of unsuccessfully processed items.
+	 * @return
+	 */
+	public Long getFailedItemsCount();
 }

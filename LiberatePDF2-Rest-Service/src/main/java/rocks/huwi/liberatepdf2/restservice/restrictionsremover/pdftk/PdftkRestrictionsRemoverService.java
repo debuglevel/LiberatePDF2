@@ -1,6 +1,7 @@
 package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk;
 
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ public class PdftkRestrictionsRemoverService implements RestrictionsRemoverServi
 
 	private static final Logger log = LoggerFactory.getLogger(PdftkRestrictionsRemoverService.class);
 
+	private final AtomicLong failedItems = new AtomicLong();
+	private final AtomicLong processedItems = new AtomicLong();
+	
 	@Override
 	public void removeRestrictions(final Pdf pdf) {
 		log.debug("Removing restrictions");
@@ -30,10 +34,12 @@ public class PdftkRestrictionsRemoverService implements RestrictionsRemoverServi
 		if (unrestrictedPdfPath == null) {
 			log.debug("Setting PDF to failed, as unrestricted PDF path is null");
 			pdf.setFailed(true);
+			this.failedItems.incrementAndGet();
 		}
 
 		pdf.setUnrectrictedPath(unrestrictedPdfPath);
 		pdf.setDone(true);
+		this.processedItems.incrementAndGet();
 	}
 
 	@Async
@@ -42,5 +48,15 @@ public class PdftkRestrictionsRemoverService implements RestrictionsRemoverServi
 		log.debug("Removing restrictions asynchronously");
 
 		this.removeRestrictions(pdf);
+	}
+
+	@Override
+	public Long getItemsCount() {
+		return this.processedItems.get();
+	}
+
+	@Override
+	public Long getFailedItemsCount() {
+		return this.failedItems.get();
 	}
 }

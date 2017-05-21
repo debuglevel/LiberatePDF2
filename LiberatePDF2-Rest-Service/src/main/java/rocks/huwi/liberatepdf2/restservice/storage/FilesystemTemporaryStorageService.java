@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,6 @@ public class FilesystemTemporaryStorageService implements StorageService {
 
 	public static final String SUFFIX_PDF = ".pdf";
 	public static final String SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf";
-
-	private final AtomicLong count = new AtomicLong();
 
 	private final HashMap<String, Pdf> items = new HashMap<>();
 
@@ -97,7 +94,7 @@ public class FilesystemTemporaryStorageService implements StorageService {
 	@Override
 	public Pdf store(final MultipartFile file) {
 		final String itemId = this.generateID();
-		this.count.incrementAndGet();
+//		this.storedItemsCount.incrementAndGet();
 
 		log.debug("Storing MultipartFile {} as ID={}", file.getName(), itemId);
 
@@ -117,5 +114,10 @@ public class FilesystemTemporaryStorageService implements StorageService {
 		pdf.setRestrictedPath(itemLocation);
 
 		return pdf;
+	}
+
+	@Override
+	public Long getItemsCount() {
+		return (long)this.items.size();
 	}
 }

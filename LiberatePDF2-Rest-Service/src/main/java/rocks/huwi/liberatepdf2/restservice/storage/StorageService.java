@@ -47,4 +47,9 @@ public interface StorageService {
 	 * @param file
 	 */
 	Pdf store(MultipartFile file);
+	
+	/**
+	 * Gets the count of stored items.
+	 */
+	Long getItemsCount();
 }
