@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import rocks.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService;
-import rocks.huwi.liberatepdf2.restservice.storage.FilesystemTemporaryStorageService;
+import rocks.huwi.liberatepdf2.restservice.storage.TemporaryFilesystemStorageService;
 
 public class LegacyPdftkRestrictionsRemover {
 
@@ -63,7 +63,7 @@ public class LegacyPdftkRestrictionsRemover {
 		this.log.debug("password = \"{}\"", password);
 
 		final Path unrestrictedPdfPath = restrictedPdfPath.resolveSibling(
-				restrictedPdfPath.getFileName() + FilesystemTemporaryStorageService.SUFFIX_PDF_UNRESTRICTED);
+				restrictedPdfPath.getFileName() + TemporaryFilesystemStorageService.SUFFIX_PDF_UNRESTRICTED);
 		this.log.debug("unrestricted filename = \"{}\"", unrestrictedPdfPath);
 
 		try {

@@ -20,9 +20,9 @@ import rocks.huwi.liberatepdf2.restservice.Pdf;
  * Storage service which uses the file system.
  */
 @Service
-public class FilesystemTemporaryStorageService implements StorageService {
+public class TemporaryFilesystemStorageService implements StorageService {
 
-	private static final Logger log = LoggerFactory.getLogger(FilesystemTemporaryStorageService.class);
+	private static final Logger log = LoggerFactory.getLogger(TemporaryFilesystemStorageService.class);
 
 	public static final String SUFFIX_PDF = ".pdf";
 	public static final String SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf";
@@ -32,7 +32,7 @@ public class FilesystemTemporaryStorageService implements StorageService {
 	private final Path rootLocation;
 
 	@Autowired
-	public FilesystemTemporaryStorageService(final StorageProperties properties) {
+	public TemporaryFilesystemStorageService(final StorageProperties properties) {
 		this.rootLocation = Paths.get(properties.getLocation());
 	}
 
