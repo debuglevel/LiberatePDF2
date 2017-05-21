@@ -28,10 +28,9 @@ public class LiberatePdf2RestServiceApplication {
 	}
 
 	@Bean
-	CommandLineRunner initStorageService(final StorageService storageService) {
+	CommandLineRunner initializeStorageService(final StorageService storageService) {
 		return (args) -> {
-			storageService.deleteAll();
-			storageService.init();
+			storageService.initialize();
 		};
 	}
 

@@ -31,7 +31,7 @@ public interface StorageService {
 	/**
 	 * Initializes the storage.
 	 */
-	void init();
+	void initialize();
 
 	/**
 	 * Stores a file
