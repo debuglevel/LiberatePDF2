@@ -57,6 +57,8 @@ public class DropWindowController {
 	private final ObservableList<TransferFile> transferFiles;
 	private final ExecutorService uploadTaskExecutor;
 
+	private Long maximumUploadSize;
+
 	public DropWindowController() {
 		this.transferFiles = FXCollections.observableList(new ArrayList<TransferFile>());
 		this.uploadTaskExecutor = Executors.newSingleThreadExecutor();
@@ -133,6 +135,45 @@ public class DropWindowController {
 				}));
 		fiveSecondsWonder.setCycleCount(Animation.INDEFINITE);
 		fiveSecondsWonder.play();
+
+		this.fetchMaximumUploadSize();
+	}
+
+	private void fetchMaximumUploadSize() {
+		try {
+			log.info("GETing maximum upload size");
+
+			String maximumUploadSizeString = Request.Get(HOST + "/api/v1/status/maximum-upload-size").execute()
+					.returnContent().asString();
+			log.info("Maximum upload size is '" + maximumUploadSizeString + "'");
+
+			this.maximumUploadSize = Long.valueOf(maximumUploadSizeString);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Checks if the size of the given file meets the restrictions of the server
+	 * 
+	 * @return true if file size is okay (or unknown), false if file is too big
+	 */
+	private boolean isFileSizeAccepted(Path path) {
+		if (this.maximumUploadSize == null) {
+			return true;
+		} else {
+			try {
+				if (Files.size(path) < this.maximumUploadSize) {
+					return true;
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return false;
 	}
 
 	public void onDragDropped(final DragEvent event) {
@@ -182,50 +223,56 @@ public class DropWindowController {
 
 		final String password = this.passwordTextField.getText();
 
-		final Task<String> uploadTask = new Task<String>() {
-			@Override
-			protected String call() throws Exception {
-				log.info("Building POST request for " + path);
-				final HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-						.setCharset(Charset.defaultCharset()).addBinaryBody("file", path.toFile())
-						.addTextBody("password", password).build();
+		if (isFileSizeAccepted(path) == false) {
+			transferFile.setStatus("file too big");
+		} else {
+			final Task<String> uploadTask = new Task<String>() {
+				@Override
+				protected String call() throws Exception {
+					log.info("Building POST request for " + path);
+					final HttpEntity entity = MultipartEntityBuilder.create()
+							.setMode(HttpMultipartMode.BROWSER_COMPATIBLE).setCharset(Charset.defaultCharset())
+							.addBinaryBody("file", path.toFile()).addTextBody("password", password).build();
 
-				log.info("Sending POST request for " + path);
-				return Request.Post(HOST + "/api/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
-						.body(entity).execute().returnContent().asString();
-			}
-		};
+					log.info("Sending POST request for " + path);
+					return Request.Post(HOST + "/api/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
+							.body(entity).execute().returnContent().asString();
+				}
+			};
 
-		uploadTask.setOnSucceeded(e -> {
-			try {
-				log.info("Upload Task for " + path + " succeeded; got ID=" + uploadTask.get());
-				transferFile.setId(uploadTask.get());
-			} catch (InterruptedException | ExecutionException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			uploadTask.setOnSucceeded(e -> {
+				try {
+					log.info("Upload Task for " + path + " succeeded; got ID=" + uploadTask.get());
+					transferFile.setId(uploadTask.get());
+				} catch (InterruptedException | ExecutionException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 
-			transferFile.setStatus("transfered");
-			this.filesListView.refresh(); // should be better be done via an
-											// property. but works good enough.
-		});
+				transferFile.setStatus("transfered");
+				this.filesListView.refresh(); // should be better be done via an
+												// property. but works good
+												// enough.
+			});
 
-		uploadTask.setOnFailed(e -> {
-			log.info("Upload Task for " + path + " failed");
-			transferFile.setStatus("upload failed");
+			uploadTask.setOnFailed(e -> {
+				log.info("Upload Task for " + path + " failed");
+				transferFile.setStatus("upload failed");
 
-			if (uploadTask.exceptionProperty().get() instanceof SocketException) {
-				log.info("Exception is SocketException; the file MIGHT be too big.");
-				transferFile.setStatus("upload failed (too big?)");
-			}
+				if (uploadTask.exceptionProperty().get() instanceof SocketException) {
+					log.info("Exception is SocketException; the file MIGHT be too big.");
+					transferFile.setStatus("upload failed (too big?)");
+				}
 
-			this.filesListView.refresh(); // should be better be done via an
-											// property. but works good enough.
-			uploadTask.exceptionProperty().get().printStackTrace();
-		});
+				this.filesListView.refresh(); // should be better be done via an
+												// property. but works good
+												// enough.
+				uploadTask.exceptionProperty().get().printStackTrace();
+			});
 
-		log.info("Queueing upload task for " + path);
-		this.uploadTaskExecutor.submit(uploadTask);
+			log.info("Queueing upload task for " + path);
+			this.uploadTaskExecutor.submit(uploadTask);
+		}
 	}
 
 	private void processFiles(final List<Path> paths) {
