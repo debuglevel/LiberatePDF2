@@ -25,6 +25,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -45,16 +46,16 @@ public class DropWindowController {
 
 	private static final Logger log = LoggerFactory.getLogger(DropWindowController.class);
 
+	private final ExecutorService checkTaskExecutor;
+
 	@FXML
 	private ListView<TransferFile> filesListView;
-	
+
 	@FXML
 	private TextField passwordTextField;
 
-	private ObservableList<TransferFile> transferFiles;
-
-	private ExecutorService uploadTaskExecutor;
-	private ExecutorService checkTaskExecutor;
+	private final ObservableList<TransferFile> transferFiles;
+	private final ExecutorService uploadTaskExecutor;
 
 	public DropWindowController() {
 		this.transferFiles = FXCollections.observableList(new ArrayList<TransferFile>());
@@ -62,49 +63,35 @@ public class DropWindowController {
 		this.checkTaskExecutor = Executors.newSingleThreadExecutor();
 	}
 
-	@FXML
-	public void initialize() {
-		this.filesListView.setItems(transferFiles);
-
-		Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				checkFilesStatus();
-			}
-		}));
-		fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-		fiveSecondsWonder.play();
-	}
-
 	private void checkFilesStatus() {
 		log.info("Checking status of files");
 
-		transferFiles.stream().filter(tf -> tf.isDone() == false && tf.getId() != null).forEach(tf -> {
-			checkTaskExecutor.submit(new Task<Void>() {
+		this.transferFiles.stream().filter(tf -> (tf.isDone() == false) && (tf.getId() != null)).forEach(tf -> {
+			this.checkTaskExecutor.submit(new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
 					// check again if pre-conditions for checking status are
 					// still met. (although conditions were filtered, the queue
 					// MIGHT contain duplicates if checking the whole queue
 					// lasts longer than the checking interval?)
-					if (tf.isDone() == false && tf.getId() != null) {
-						checkFileStatus(tf);
+					if ((tf.isDone() == false) && (tf.getId() != null)) {
+						DropWindowController.this.checkFileStatus(tf);
 					}
-					
+
 					return null;
 				}
 			});
 		});
 	}
 
-	private void checkFileStatus(TransferFile transferFile) {
+	private void checkFileStatus(final TransferFile transferFile) {
 		try {
-			String url = HOST + "/api/v1/documents/" + transferFile.getId();
+			final String url = HOST + "/api/v1/documents/" + transferFile.getId();
 
 			log.info("Checking status of file " + transferFile + " via " + url);
 
-			HttpResponse response = Request.Get(url).execute().returnResponse();
-			int statuscode = response.getStatusLine().getStatusCode();
+			final HttpResponse response = Request.Get(url).execute().returnResponse();
+			final int statuscode = response.getStatusLine().getStatusCode();
 
 			log.info("Got status code " + statuscode + " for " + transferFile);
 			if (statuscode == 200) {
@@ -112,7 +99,7 @@ public class DropWindowController {
 				transferFile.setStatus("done");
 				transferFile.setDone(true);
 
-				saveFile(transferFile, response.getEntity().getContent());
+				this.saveFile(transferFile, response.getEntity().getContent());
 			} else if (statuscode == 260) {
 				// file is still in progress
 				transferFile.setStatus("in progress");
@@ -127,45 +114,38 @@ public class DropWindowController {
 
 			this.filesListView.refresh(); // should be better be done via an
 											// property. but works good enough.
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	private void saveFile(TransferFile transferFile, InputStream inputStream) {
-		try {
-			Path originalPath = transferFile.getPath();
-			File destinationFile = originalPath.resolveSibling(originalPath.getFileName() + " (unrestricted).pdf")
-					.toFile();
+	@FXML
+	public void initialize() {
+		this.filesListView.setItems(this.transferFiles);
 
-			log.info("Copying " + transferFile + " to " + destinationFile);
-
-			FileUtils.copyInputStreamToFile(inputStream, destinationFile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		final Timeline fiveSecondsWonder = new Timeline(
+				new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
+					@Override
+					public void handle(final ActionEvent event) {
+						DropWindowController.this.checkFilesStatus();
+					}
+				}));
+		fiveSecondsWonder.setCycleCount(Animation.INDEFINITE);
+		fiveSecondsWonder.play();
 	}
 
-	public void onDragOver(DragEvent event) {
-		if (event.getGestureSource() != filesListView && event.getDragboard().hasFiles()) {
-			event.acceptTransferModes(TransferMode.ANY);
-		}
-
-		event.consume();
-	}
-
-	public void onDragDropped(DragEvent event) {
-		Dragboard db = event.getDragboard();
+	public void onDragDropped(final DragEvent event) {
+		final Dragboard db = event.getDragboard();
 		boolean success = false;
 		if (db.hasFiles()) {
-			List<File> files = db.getFiles();
+			final List<File> files = db.getFiles();
 
 			final Task<Void> processFilesTask = new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
-					processFiles(files.stream().map(f -> f.toPath()).collect(Collectors.toList()));
+					DropWindowController.this
+							.processFiles(files.stream().map(f -> f.toPath()).collect(Collectors.toList()));
 					return null;
 				}
 			};
@@ -174,7 +154,7 @@ public class DropWindowController {
 			// processFilesTask.exceptionProperty().get().printStackTrace();
 			// });
 
-			Thread thread = new Thread(processFilesTask);
+			final Thread thread = new Thread(processFilesTask);
 			thread.setDaemon(true);
 			thread.start();
 
@@ -186,41 +166,27 @@ public class DropWindowController {
 		event.consume();
 	}
 
-	private void processFiles(List<Path> paths) {
-		log.info("Processing " + paths.size() + " dropped files");
-
-		for (Path path : paths) {
-			if (Files.isDirectory(path)) {
-				log.info(path + " is a directory");
-
-				// String[] extensions = null;
-				String[] extensions = new String[] { "pdf", "PDF" };
-				Collection<File> files = FileUtils.listFiles(path.toFile(), extensions, true);
-				log.info("Found " + files.size() + " files in directory " + path);
-
-				files.stream().forEach(f -> this.processFile(f.toPath()));
-			} else if (Files.isRegularFile(path) && Files.isReadable(path)) {
-				log.info(path + " is a regular and readable file");
-				processFile(path);
-			} else {
-				// do nothing because strange
-			}
+	public void onDragOver(final DragEvent event) {
+		if ((event.getGestureSource() != this.filesListView) && event.getDragboard().hasFiles()) {
+			event.acceptTransferModes(TransferMode.ANY);
 		}
+
+		event.consume();
 	}
 
-	private void processFile(Path path) {
+	private void processFile(final Path path) {
 		log.info("Processing file " + path);
 
-		TransferFile transferFile = new TransferFile(path, "uploading");
+		final TransferFile transferFile = new TransferFile(path, "uploading");
 		this.transferFiles.add(transferFile);
-		
-		String password = this.passwordTextField.getText();
+
+		final String password = this.passwordTextField.getText();
 
 		final Task<String> uploadTask = new Task<String>() {
 			@Override
 			protected String call() throws Exception {
 				log.info("Building POST request for " + path);
-				HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+				final HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
 						.setCharset(Charset.defaultCharset()).addBinaryBody("file", path.toFile())
 						.addTextBody("password", password).build();
 
@@ -247,19 +213,55 @@ public class DropWindowController {
 		uploadTask.setOnFailed(e -> {
 			log.info("Upload Task for " + path + " failed");
 			transferFile.setStatus("upload failed");
-			
-			if (uploadTask.exceptionProperty().get() instanceof SocketException)
-			{
+
+			if (uploadTask.exceptionProperty().get() instanceof SocketException) {
 				log.info("Exception is SocketException; the file MIGHT be too big.");
 				transferFile.setStatus("upload failed (too big?)");
 			}
-			
+
 			this.filesListView.refresh(); // should be better be done via an
 											// property. but works good enough.
 			uploadTask.exceptionProperty().get().printStackTrace();
 		});
 
 		log.info("Queueing upload task for " + path);
-		uploadTaskExecutor.submit(uploadTask);
+		this.uploadTaskExecutor.submit(uploadTask);
+	}
+
+	private void processFiles(final List<Path> paths) {
+		log.info("Processing " + paths.size() + " dropped files");
+
+		for (final Path path : paths) {
+			if (Files.isDirectory(path)) {
+				log.info(path + " is a directory");
+
+				// String[] extensions = null;
+				final String[] extensions = new String[] { "pdf", "PDF" };
+				final Collection<File> files = FileUtils.listFiles(path.toFile(), extensions, true);
+				log.info("Found " + files.size() + " files in directory " + path);
+
+				files.stream().forEach(f -> this.processFile(f.toPath()));
+			} else if (Files.isRegularFile(path) && Files.isReadable(path)) {
+				log.info(path + " is a regular and readable file");
+				this.processFile(path);
+			} else {
+				// do nothing because strange
+			}
+		}
+	}
+
+	private void saveFile(final TransferFile transferFile, final InputStream inputStream) {
+		try {
+			final Path originalPath = transferFile.getPath();
+			final File destinationFile = originalPath.resolveSibling(originalPath.getFileName() + " (unrestricted).pdf")
+					.toFile();
+
+			log.info("Copying " + transferFile + " to " + destinationFile);
+
+			FileUtils.copyInputStreamToFile(inputStream, destinationFile);
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

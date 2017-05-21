@@ -42,10 +42,19 @@ public class FilesystemTemporaryStorageService implements StorageService {
 		FileSystemUtils.deleteRecursively(this.rootLocation.toFile());
 	}
 
+	private String generateID() {
+		return UUID.randomUUID().toString();
+	}
+
 	@Override
 	public Pdf getItem(final String itemId) {
 		log.debug("Getting PDF with ID={} from HashMap", itemId);
 		return this.items.get(itemId);
+	}
+
+	@Override
+	public Long getItemsCount() {
+		return (long) this.items.size();
 	}
 
 	@Override
@@ -58,43 +67,10 @@ public class FilesystemTemporaryStorageService implements StorageService {
 		}
 	}
 
-	// @Override
-	// public Stream<Path> loadAll() {
-	// try {
-	// return Files.walk(this.rootLocation, 1).filter(path ->
-	// !path.equals(this.rootLocation))
-	// .map(path -> this.rootLocation.relativize(path));
-	// } catch (final IOException e) {
-	// throw new StorageException("Failed to read stored files", e);
-	// }
-	// }
-
-	// @Override
-	// public Resource loadAsResource(final long itemId) {
-	// try {
-	// final Path file = this.getItem(itemId).getUnrectrictedPath();
-	// final Resource resource = new UrlResource(file.toUri());
-	// if (resource.exists() || resource.isReadable()) {
-	// return resource;
-	// } else {
-	// throw new StorageFileNotFoundException("Could not read file: " + itemId);
-	//
-	// }
-	// } catch (final MalformedURLException e) {
-	// throw new StorageFileNotFoundException("Could not read file: " + itemId,
-	// e);
-	// }
-	// }
-	
-	private String generateID()
-	{
-		return UUID.randomUUID().toString();
-	}
-
 	@Override
 	public Pdf store(final MultipartFile file) {
 		final String itemId = this.generateID();
-//		this.storedItemsCount.incrementAndGet();
+		// this.storedItemsCount.incrementAndGet();
 
 		log.debug("Storing MultipartFile {} as ID={}", file.getName(), itemId);
 
@@ -114,10 +90,5 @@ public class FilesystemTemporaryStorageService implements StorageService {
 		pdf.setRestrictedPath(itemLocation);
 
 		return pdf;
-	}
-
-	@Override
-	public Long getItemsCount() {
-		return (long)this.items.size();
 	}
 }

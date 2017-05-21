@@ -3,52 +3,52 @@ package rocks.huwi.liberatepdf2.javafx;
 import java.nio.file.Path;
 
 public class TransferFile {
-	private Path path;
-	private String id;
-	private String status;
 	private boolean done;
-	
-	public TransferFile(Path path, String status) {
+	private String id;
+	private Path path;
+	private String status;
+
+	public TransferFile(final Path path, final String status) {
 		super();
 		this.path = path;
 		this.done = false;
 		this.status = status;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("(%s) [%s] %s", id, status, path.getFileName());
+	public String getId() {
+		return this.id;
 	}
 
 	public Path getPath() {
-		return path;
-	}
-
-	public void setPath(Path path) {
-		this.path = path;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
+		return this.path;
 	}
 
 	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
+		return this.status;
 	}
 
 	public boolean isDone() {
-		return done;
+		return this.done;
 	}
 
-	public void setDone(boolean done) {
+	public void setDone(final boolean done) {
 		this.done = done;
+	}
+
+	public void setId(final String id) {
+		this.id = id;
+	}
+
+	public void setPath(final Path path) {
+		this.path = path;
+	}
+
+	public void setStatus(final String status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("(%s) [%s] %s", this.id, this.status, this.path.getFileName());
 	}
 }

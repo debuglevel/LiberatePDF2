@@ -22,7 +22,17 @@ public class PdftkRestrictionsRemoverService implements RestrictionsRemoverServi
 
 	private final AtomicLong failedItems = new AtomicLong();
 	private final AtomicLong processedItems = new AtomicLong();
-	
+
+	@Override
+	public Long getFailedItemsCount() {
+		return this.failedItems.get();
+	}
+
+	@Override
+	public Long getItemsCount() {
+		return this.processedItems.get();
+	}
+
 	@Override
 	public void removeRestrictions(final Pdf pdf) {
 		log.debug("Removing restrictions");
@@ -48,15 +58,5 @@ public class PdftkRestrictionsRemoverService implements RestrictionsRemoverServi
 		log.debug("Removing restrictions asynchronously");
 
 		this.removeRestrictions(pdf);
-	}
-
-	@Override
-	public Long getItemsCount() {
-		return this.processedItems.get();
-	}
-
-	@Override
-	public Long getFailedItemsCount() {
-		return this.failedItems.get();
 	}
 }

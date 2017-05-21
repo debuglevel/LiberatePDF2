@@ -24,22 +24,14 @@ public interface StorageService {
 	Pdf getItem(String itemId);
 
 	/**
+	 * Gets the count of stored items.
+	 */
+	Long getItemsCount();
+
+	/**
 	 * Initializes the storage.
 	 */
 	void init();
-
-	// /**
-	// * Returns the path of an item
-	// *
-	// * @param itemId
-	// * the ID of an item
-	// * @return
-	// */
-	// Path getPath(long itemId);
-
-	// Stream<Path> loadAll();
-
-	// Resource loadAsResource(long itemId);
 
 	/**
 	 * Stores a file
@@ -47,9 +39,4 @@ public interface StorageService {
 	 * @param file
 	 */
 	Pdf store(MultipartFile file);
-	
-	/**
-	 * Gets the count of stored items.
-	 */
-	Long getItemsCount();
 }
