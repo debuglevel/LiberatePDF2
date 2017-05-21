@@ -13,7 +13,7 @@ public class Pdf {
 
 	private Boolean failed;
 
-	private Long id;
+	private String id;
 
 	/**
 	 * original filename of the PDF
@@ -26,7 +26,7 @@ public class Pdf {
 
 	private Path unrectrictedPath;
 
-	public Pdf(final Long id, final String originalFilename) {
+	public Pdf(final String id, final String originalFilename) {
 		this.id = id;
 		this.originalFilename = originalFilename;
 		this.done = false;
@@ -37,7 +37,7 @@ public class Pdf {
 		return this.failed;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return this.id;
 	}
 
@@ -69,7 +69,7 @@ public class Pdf {
 		this.failed = failed;
 	}
 
-	public void setId(final Long id) {
+	public void setId(final String id) {
 		this.id = id;
 	}
 

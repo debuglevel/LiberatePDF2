@@ -45,7 +45,7 @@ public class RestrictionRemoveController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{documentId}")
-	public ResponseEntity<?> downloadUnrestricted(@PathVariable final Long documentId,
+	public ResponseEntity<?> downloadUnrestricted(@PathVariable final String documentId,
 			final HttpServletResponse response) throws IOException {
 		log.debug("Received GET request for document {}", documentId);
 

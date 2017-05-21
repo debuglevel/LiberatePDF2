@@ -21,7 +21,7 @@ public interface StorageService {
 	 *            ID of the item
 	 * @return the Pdf of the item ID, or null if not found
 	 */
-	Pdf getItem(Long itemId);
+	Pdf getItem(String itemId);
 
 	/**
 	 * Initializes the storage.
