@@ -8,8 +8,6 @@ public class TransferFile {
 	private String status;
 	private boolean done;
 	
-	
-	
 	public TransferFile(Path path, String status) {
 		super();
 		this.path = path;

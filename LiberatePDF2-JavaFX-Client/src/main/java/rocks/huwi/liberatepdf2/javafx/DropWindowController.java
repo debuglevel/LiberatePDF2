@@ -34,6 +34,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -46,6 +47,9 @@ public class DropWindowController {
 
 	@FXML
 	private ListView<TransferFile> filesListView;
+	
+	@FXML
+	private TextField passwordTextField;
 
 	private ObservableList<TransferFile> transferFiles;
 
@@ -209,6 +213,8 @@ public class DropWindowController {
 
 		TransferFile transferFile = new TransferFile(path, "uploading");
 		this.transferFiles.add(transferFile);
+		
+		String password = this.passwordTextField.getText();
 
 		final Task<String> uploadTask = new Task<String>() {
 			@Override
@@ -216,7 +222,7 @@ public class DropWindowController {
 				log.info("Building POST request for " + path);
 				HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
 						.setCharset(Charset.defaultCharset()).addBinaryBody("file", path.toFile())
-						.addTextBody("password", "none").build();
+						.addTextBody("password", password).build();
 
 				log.info("Sending POST request for " + path);
 				return Request.Post(HOST + "/api/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
