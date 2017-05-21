@@ -3,14 +3,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>rocks.huwi</groupId>
-	<artifactId>LiberatePDF2-Rest-Service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-
-	<name>LiberatePDF2-Rest-Service</name>
-	<description>LiberatePDF2 RESTful web service</description>
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -18,58 +10,66 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
+	<groupId>rocks.huwi.liberatepdf2</groupId>
+	<artifactId>LiberatePDF2-Rest-Service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>LiberatePDF2 REST Service</name>
+	<description>RESTful web service for the LiberatePDF2</description>
+
+	<packaging>jar</packaging>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<java.version>1.8</java.version>
 	</properties>
 
+	<!-- needed only by "mvn versions:display-plugin-updates" and yields a warning during usual mvn runs -->
+	<!-- <prerequisites>
+		<maven>3.2.1</maven>
+	</prerequisites> -->
+	
 	<dependencies>
-
-		<!-- Apache Commons -->
+		<!-- Apache -->
 		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
-		    <version>2.5</version>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.5</version>
 		</dependency>
-
-
-	<!-- Swagger -->
-		<dependency>
-		    <groupId>io.springfox</groupId>
-		    <artifactId>springfox-swagger2</artifactId>
-		    <version>2.6.1</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>io.springfox</groupId>
-		    <artifactId>springfox-swagger-ui</artifactId>
-		    <version>2.6.1</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload -->
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.3.2</version>
 		</dependency>
-		
+
+		<!-- Swagger -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.6.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			</dependency>
+		</dependency>
 
-
+		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jersey</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -100,6 +100,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
