@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,11 +25,13 @@ public class StatusController {
 
 	private final StorageService storageService;
 	private final RestrictionsRemoverService restrictionsRemoverService;
-
+	private final Environment environment;
+	
 	@Autowired
-	public StatusController(final StorageService storageService, final RestrictionsRemoverService restrictionsRemoverService) {
+	public StatusController(final StorageService storageService, final RestrictionsRemoverService restrictionsRemoverService, final Environment environment) {
 		this.storageService = storageService;
 		this.restrictionsRemoverService = restrictionsRemoverService;
+		this.environment = environment;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/ping/{message}")
@@ -41,7 +44,7 @@ public class StatusController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/statistics")
-	public ResponseEntity<?> ping() throws JSONException {
+	public ResponseEntity<?> statistics() throws JSONException {
 		log.debug("Received GET request for statistics");
 		
 		JSONObject json = new JSONObject();
@@ -50,5 +53,18 @@ public class StatusController {
 		json.put("failedItems", this.restrictionsRemoverService.getFailedItemsCount());
 		
 		return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(json.toString());
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/maximum-upload-size")
+	public ResponseEntity<?> maximumUploadSize() {
+		log.debug("Received GET request for maximum-upload-size");
+		
+		// fetch the values of those two properties and take the smaller one
+		String size1 = environment.getProperty("spring.http.multipart.max-file-size");
+		String size2 = environment.getProperty("spring.http.multipart.max-request-size");
+		
+		Long size = Math.min(Long.valueOf(size1), Long.valueOf(size2));
+		
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(size);
 	}
 }
