@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>rocks.huwi.liberatepdf2</groupId>
+	<artifactId>javafx</artifactId>
+	<name>javafx</name>
+
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<organization>
+		<!-- Used as the 'Vendor' for JNLP generation -->
+		<name>Fachschaft Humanwissenschaften</name>
+	</organization>
+
+	<properties>
+		<slf4j.version>1.7.12</slf4j.version>
+		<log4j.version>1.2.17</log4j.version>
+	</properties>
+
+	<build>
+
+		<finalName>javafx</finalName>
+
+		<plugins>
+
+			<plugin>
+				<groupId>com.zenjava</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>8.1.5</version>
+				<configuration>
+
+					<mainClass>rocks.huwi.liberatepdf2.javafx.MainApp</mainClass>
+
+					<!-- only required if signing the jar file -->
+					<keyStoreAlias>example-user</keyStoreAlias>
+					<keyStorePassword>example-password</keyStorePassword>
+					<allPermissions>true</allPermissions>
+
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>fluent-hc</artifactId>
+			<version>4.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.5.3</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+		<!-- MigLayout -->
+
+		<dependency>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-javafx</artifactId>
+			<version>5.0</version>
+		</dependency>
+
+		<!-- Apache Commons -->
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<!-- Logging -->
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<!-- <dependency> <groupId>rocks.huwi.liberatepdf2.swagger</groupId> <artifactId>swagger-java-client</artifactId> 
+			<version>0.0.1-SNAPSHOT</version> </dependency> -->
+	</dependencies>
+
+</project>

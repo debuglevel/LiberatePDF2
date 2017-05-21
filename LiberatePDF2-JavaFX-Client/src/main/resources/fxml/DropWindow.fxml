@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="rocks.huwi.liberatepdf2.javafx.DropWindowController">
+		
+	<ListView fx:id="filesListView" onDragDropped="#onDragDropped" onDragOver="#onDragOver" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+   <Label text="Please drag'n'drop your PDF files into this field:" />
+
+	<columnConstraints>
+		<ColumnConstraints />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints />
+      <RowConstraints />
+	</rowConstraints>
+
+</GridPane>
