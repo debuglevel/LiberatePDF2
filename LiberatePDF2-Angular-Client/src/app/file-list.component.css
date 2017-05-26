@@ -1,0 +1,16 @@
+.upload-failed, .failed, .unknown-failed {
+	background-color: #f2dede;
+}
+
+.uploaded, .uploading, .in-progress {
+	background-color: #d9edf7;
+}
+
+.done {
+	background-color: #dff0d8;
+}
+
+/* buttons in table rows make them a little bit higher. normal single-lined text is awkwardly aligned therefore */
+.table > tbody > tr > td {
+     vertical-align: middle;
+}

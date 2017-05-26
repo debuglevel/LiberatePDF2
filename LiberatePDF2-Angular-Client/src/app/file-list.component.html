@@ -1,0 +1,50 @@
+<!-- <div>
+	<h2>Maximum file size</h2>
+	<p>Check out, what's the maximum file size allowed for upload.</p>
+	<button class="btn btn-secondary" (click)="getMaximumFileSize();">Get
+		Maximum File Size</button>
+	<p *ngIf="maximumFileSize">
+		<label>Maximum File Size:</label> <span>{{maximumFileSize/1024/1024}}
+			MB</span>
+	</p>
+</div> -->
+
+<div>
+<!-- 	<h2>Upload PDF files</h2> -->
+
+	<div class="form-group">
+		<label>Password for encrypted PDF files (leave empty if none)
+			<input type="text" class="form-control" #password
+			placeholder="Password" />
+		</label>
+	</div>
+
+	<div class="form-group">
+		<label>Select the PDF files you want to be unrestricted. The
+			selected files will be uploaded immediately.<br> <label
+			class="btn btn-primary">Browse and upload files<input
+				hidden="hidden" type="file"
+				(change)="onFileChanged($event, password.value)"
+				placeholder="Upload file" accept=".pdf" multiple="multiple">
+		</label>
+		</label>
+	</div>
+</div>
+
+<div *ngIf="transferFiles.length > 0">
+	<h2>Files</h2>
+	<table class="table">
+		<thead>
+			<th>File</th>
+			<th>Status</th>
+		</thead>
+		<tbody>
+			<tr *ngFor="let transferFile of transferFiles"
+				class="{{transferFile.status}}">
+				<td><a class="btn"
+					href="{{url}}/api/v1/documents/{{transferFile.id}}">{{transferFile.name}}</a></td>
+				<td>{{transferFile.statusText}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
