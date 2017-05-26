@@ -2,7 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 
 
-temporary-storage-directory/
+storage-directory/
 
 ### STS ###
 .apt_generated
