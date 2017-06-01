@@ -27,6 +27,8 @@ export class FileListComponent implements OnInit {
   ngOnInit() {
     let timer = Observable.timer(5000, 5000);
     timer.subscribe(t => this.checkFiles(t));
+    
+    this.getMaximumFileSize();
   }
 
   checkFiles(t: any): void {
