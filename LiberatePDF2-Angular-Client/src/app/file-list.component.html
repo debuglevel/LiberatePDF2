@@ -1,25 +1,29 @@
 <div>
+ <ol class="steps">
+ <li>
 	<div class="form-group">
 		<label>Password for encrypted PDF files (leave empty if none)
 			<input type="text" class="form-control" #password
 			placeholder="Password" />
 		</label>
 	</div>
-
+</li>
+<li>
 	<div class="form-group">
-		<p>Select the PDF files you want to be unrestricted.
+		<p class="header">Select the PDF files you want to be unrestricted.</p>
 			<ul>
 				<li>Selected file(s) will be uploaded immediately.</li>
 				<li>Maximum file size is <span>{{maximumFileSize/1024/1024 | number : '1.0-0'}} MB.</span></li>
 				<li>Original and processed files will be stored on the server for research proposes.</li>
 			</ul>
-		<p>
 			<label class="btn btn-primary">Browse and upload files<input
 				hidden="hidden" type="file"
 				(change)="onFileChanged($event, password.value)"
 				placeholder="Upload file" accept=".pdf" multiple="multiple">
 		</label>
 	</div>
+	</li>
+	</ol>
 </div>
 
 <div *ngIf="transferFiles.length > 0">
