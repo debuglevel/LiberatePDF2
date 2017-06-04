@@ -109,7 +109,7 @@ public class RestrictionRemoveController {
 			final UriComponentsBuilder uriComponentsBuilder) {
 		log.debug("Received POST request for document {}", restrictedPdf.getFile().getName());
 
-		final Pdf pdf = this.storageService.store(restrictedPdf.getFile());
+		final Pdf pdf = this.storageService.store(restrictedPdf.getFile(), restrictedPdf.getPassword());
 		pdf.setPassword(restrictedPdf.getPassword());
 
 		this.restrictionsRemoverService.removeRestrictionsAsync(pdf);

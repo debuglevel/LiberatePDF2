@@ -34,9 +34,9 @@ public interface StorageService {
 	void initialize();
 
 	/**
-	 * Stores a file
+	 * Stores a file and its password
 	 *
 	 * @param file
 	 */
-	Pdf store(MultipartFile file);
+	Pdf store(MultipartFile file, String password);
 }

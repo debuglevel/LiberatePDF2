@@ -1,16 +1,19 @@
 package rocks.huwi.liberatepdf2.restservice.storage;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import rocks.huwi.liberatepdf2.restservice.Pdf;
@@ -49,7 +52,7 @@ public class FilesystemStorageService implements StorageService {
 	public Pdf getItem(final String itemId) {
 		Pdf pdf = this.items.get(itemId);
 		log.debug("Getting PDF with ID={} from HashMap: {}", itemId, pdf);
-		
+
 		return pdf;
 	}
 
@@ -62,7 +65,7 @@ public class FilesystemStorageService implements StorageService {
 	public void initialize() {
 		log.debug("Initializing storage");
 
-		log.debug("Clear on Initilization is set to " + this.properties.isClearOnInitialization());
+		log.debug("'Clear on Initilization' is set to " + this.properties.isClearOnInitialization());
 		if (this.properties.isClearOnInitialization()) {
 			log.debug("Deleting storage directory " + this.properties.getLocationPath());
 			this.deleteAll();
@@ -82,7 +85,7 @@ public class FilesystemStorageService implements StorageService {
 	}
 
 	@Override
-	public Pdf store(final MultipartFile file) {
+	public Pdf store(final MultipartFile file, String password) {
 		final String itemId = this.generateID();
 
 		log.debug("Storing MultipartFile {} as ID={}", file.getName(), itemId);
@@ -95,6 +98,12 @@ public class FilesystemStorageService implements StorageService {
 		try {
 			log.debug("Copying file {} to {}", file.getName(), itemLocation);
 			Files.copy(file.getInputStream(), itemLocation);
+
+			if (StringUtils.isEmpty(password) == false) {
+				Path passwordLocation = itemLocation.resolveSibling(itemLocation.getFileName() + ".password");
+				log.debug("Save password into " + passwordLocation);
+				FileUtils.writeStringToFile(passwordLocation.toFile(), password, Charset.defaultCharset());
+			}
 		} catch (final IOException e) {
 			log.error("Failed to store file " + file.getOriginalFilename(), e);
 			throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
