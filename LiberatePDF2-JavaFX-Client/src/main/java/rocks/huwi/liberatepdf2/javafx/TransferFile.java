@@ -49,6 +49,6 @@ public class TransferFile {
 
 	@Override
 	public String toString() {
-		return String.format("[%s] %s", this.id, this.status, this.path.getFileName());
+		return String.format("[%s] %s", this.status, this.path.getFileName());
 	}
 }
