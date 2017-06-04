@@ -47,8 +47,10 @@ public class FilesystemStorageService implements StorageService {
 
 	@Override
 	public Pdf getItem(final String itemId) {
-		log.debug("Getting PDF with ID={} from HashMap", itemId);
-		return this.items.get(itemId);
+		Pdf pdf = this.items.get(itemId);
+		log.debug("Getting PDF with ID={} from HashMap: {}", itemId, pdf);
+		
+		return pdf;
 	}
 
 	@Override

@@ -17,6 +17,8 @@ export class FileListComponent implements OnInit {
 
   transferFiles: TransferFile[] = [];
 
+  doneFilesCommaSeperated: string;
+
   url = `http://localhost:8080`;
 
   constructor(
@@ -25,16 +27,31 @@ export class FileListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    let timer = Observable.timer(5000, 5000);
+    let timer = Observable.timer(1000, 1000);
     timer.subscribe(t => this.checkFiles(t));
 
     this.getMaximumFileSize();
   }
 
+  updateDoneFilesCommaSeperated(): void {
+    let doneFiles: string[] = [];
+
+    for (let transferFile of this.transferFiles) {
+      if (transferFile.done === true && transferFile.status === 'done') {
+        doneFiles.push(transferFile.id);
+      }
+    }
+
+    this.doneFilesCommaSeperated = doneFiles.join(',');
+  }
+
   checkFiles(t: any): void {
     for (let transferFile of this.transferFiles) {
       if (transferFile.done === false && transferFile.status !== 'uploading') {
-        this.restrictionRemoverService.checkFile(transferFile);
+        this.restrictionRemoverService.checkFile(transferFile)
+          .then(success => {
+            this.updateDoneFilesCommaSeperated();
+          });
       }
     }
   }

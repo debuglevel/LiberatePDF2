@@ -19,34 +19,49 @@
 					<li>Original and processed files will be stored on the server
 						for research purposes.</li>
 				</ul>
-				<label class="btn btn-primary">Browse and upload files<input
-					hidden="hidden" type="file"
+				<label class="btn"
+					[ngClass]="transferFiles.length === 0 ? 'btn-primary' : 'btn-secondary'"><i
+					class="fa fa-upload" aria-hidden="true"></i> Browse and upload
+					files<input hidden="hidden" type="file"
 					(change)="onFileChanged($event, password.value)"
 					placeholder="Upload file" accept=".pdf" multiple="multiple">
 				</label>
 			</div>
 		</li>
-	</ol>
-</div>
 
-<div *ngIf="transferFiles.length > 0">
-	<h2>Files</h2>
-	<table class="table">
-		<thead>
-			<tr>
-				<th>File</th>
-				<th>Status</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let transferFile of transferFiles"
-				class="{{transferFile.status}}">
-				<td><a class="btn"
-					href="{{url}}/api/v1/documents/{{transferFile.id}}">{{transferFile.name}}</a></td>
-				<td>{{transferFile.statusText}}</td>
-			</tr>
-		</tbody>
-	</table>
+		<li *ngIf="transferFiles.length > 0">
+			<div *ngIf="transferFiles.length > 0">
+
+				<p>Wait for your files to be processed and download them when
+					they are ready:</p>
+
+				<table class="table">
+					<thead>
+						<tr>
+							<th>File</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let transferFile of transferFiles"
+							class="{{transferFile.status}}">
+							<td><a class="btn"
+								href="{{url}}/api/v1/documents/{{transferFile.id}}">{{transferFile.name}}</a></td>
+							<td>{{transferFile.statusText}}</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div *ngIf="transferFiles.length > 1">
+					<a class="btn btn-primary"
+						href="{{url}}/api/v1/documents/zip?id={{doneFilesCommaSeperated}}"><i
+						class="fa fa-download" aria-hidden="true"></i> Download all ready
+						files</a>
+				</div>
+
+			</div>
+		</li>
+	</ol>
 </div>
 
 <!-- 

@@ -2,9 +2,11 @@ package rocks.huwi.liberatepdf2.restservice.restrictionsremover;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.util.buf.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import rocks.huwi.liberatepdf2.restservice.Pdf;
 import rocks.huwi.liberatepdf2.restservice.PdfDTO;
 import rocks.huwi.liberatepdf2.restservice.storage.StorageService;
+import rocks.huwi.liberatepdf2.restservice.storage.ZipService;
 
 @RestController
 @RequestMapping("/api/v1/documents/")
@@ -36,12 +40,28 @@ public class RestrictionRemoveController {
 
 	private final RestrictionsRemoverService restrictionsRemoverService;
 	private final StorageService storageService;
+	private final ZipService zipService;
 
 	@Autowired
 	public RestrictionRemoveController(final StorageService storageService,
-			final RestrictionsRemoverService restrictionsRemoverService, final TaskExecutor taskExecutor) {
+			final RestrictionsRemoverService restrictionsRemoverService, final ZipService zipService, final TaskExecutor taskExecutor) {
 		this.storageService = storageService;
 		this.restrictionsRemoverService = restrictionsRemoverService;
+		this.zipService = zipService;
+	}
+	
+	@RequestMapping(method = { RequestMethod.GET } , value = "/zip")
+	public ResponseEntity<?> downloadZip(@RequestParam final String[] id,
+			final HttpServletResponse response) throws IOException {
+		log.debug("Received GET or HEAD request for multiple {} documents {}", id.length, StringUtils.join(id));
+		
+		Path zip = this.zipService.createZip(id);
+		
+		final FileSystemResource filesystemResource = new FileSystemResource(zip.toFile());
+
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.header("Content-Disposition", "attachment; filename=\"" + "unrestricted PDFs.zip" + "\"")
+				.body(filesystemResource);
 	}
 
 	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD } , value = "/{documentId}")
