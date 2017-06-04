@@ -27,8 +27,8 @@ public class FilesystemStorageService implements StorageService {
 	public static final String SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf";
 
 	private final HashMap<String, Pdf> items = new HashMap<>();
-	
-	private StorageProperties properties;
+
+	private final StorageProperties properties;
 
 	@Autowired
 	public FilesystemStorageService(final StorageProperties properties) {
@@ -59,21 +59,20 @@ public class FilesystemStorageService implements StorageService {
 	@Override
 	public void initialize() {
 		log.debug("Initializing storage");
-		
+
 		log.debug("Clear on Initilization is set to " + this.properties.isClearOnInitialization());
-		if (this.properties.isClearOnInitialization())
-		{
+		if (this.properties.isClearOnInitialization()) {
 			log.debug("Deleting storage directory " + this.properties.getLocationPath());
 			this.deleteAll();
 		}
-		
+
 		try {
-			if (Files.exists(this.properties.getLocationPath()) == false)
-			{
+			if (Files.exists(this.properties.getLocationPath()) == false) {
 				log.debug("Creating storage directory " + this.properties.getLocationPath());
 				Files.createDirectory(this.properties.getLocationPath());
-			}else{
-				log.debug("Skipping creation of storage directory " + this.properties.getLocationPath() + " because it already exists");
+			} else {
+				log.debug("Skipping creation of storage directory " + this.properties.getLocationPath()
+						+ " because it already exists");
 			}
 		} catch (final IOException e) {
 			throw new StorageException("Could not initialize storage", e);

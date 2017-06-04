@@ -11,33 +11,33 @@
 }
 
 /* buttons in table rows make them a little bit higher. normal single-lined text is awkwardly aligned therefore */
-.table > tbody > tr > td {
-     vertical-align: middle;
+.table>tbody>tr>td {
+	vertical-align: middle;
 }
 
 .steps {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
 }
 
-.steps > li {
-  counter-increment: step-counter;
-  margin-bottom: 10px;
+.steps>li {
+	counter-increment: step-counter;
+	margin-bottom: 10px;
 }
 
-.steps > li::before {
-  content: counter(step-counter);
-  margin-right: 0.3em;
-  font-size: 2em;
-  background-color: LightSteelBlue;
-  color: white;
-  font-weight: bold;
-  padding: 0.2em 0.6em;
-  border-radius: 1em;
+.steps>li::before {
+	content: counter(step-counter);
+	margin-right: 0.3em;
+	font-size: 2em;
+	background-color: LightSteelBlue;
+	color: white;
+	font-weight: bold;
+	padding: 0.2em 0.6em;
+	border-radius: 1em;
 }
 
-.steps > li > div {
+.steps>li>div {
 	display: inline-block;
 	vertical-align: top;
 }

@@ -51,13 +51,13 @@ public class DropWindowController {
 	@FXML
 	private ListView<TransferFile> filesListView;
 
+	private Long maximumUploadSize;
+
 	@FXML
 	private TextField passwordTextField;
-
 	private final ObservableList<TransferFile> transferFiles;
-	private final ExecutorService uploadTaskExecutor;
 
-	private Long maximumUploadSize;
+	private final ExecutorService uploadTaskExecutor;
 
 	public DropWindowController() {
 		this.transferFiles = FXCollections.observableList(new ArrayList<TransferFile>());
@@ -122,6 +122,21 @@ public class DropWindowController {
 		}
 	}
 
+	private void fetchMaximumUploadSize() {
+		try {
+			log.info("GETing maximum upload size");
+
+			final String maximumUploadSizeString = Request.Get(HOST + "/api/v1/status/maximum-upload-size").execute()
+					.returnContent().asString();
+			log.info("Maximum upload size is '" + maximumUploadSizeString + "'");
+
+			this.maximumUploadSize = Long.valueOf(maximumUploadSizeString);
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	@FXML
 	public void initialize() {
 		this.filesListView.setItems(this.transferFiles);
@@ -139,27 +154,12 @@ public class DropWindowController {
 		this.fetchMaximumUploadSize();
 	}
 
-	private void fetchMaximumUploadSize() {
-		try {
-			log.info("GETing maximum upload size");
-
-			String maximumUploadSizeString = Request.Get(HOST + "/api/v1/status/maximum-upload-size").execute()
-					.returnContent().asString();
-			log.info("Maximum upload size is '" + maximumUploadSizeString + "'");
-
-			this.maximumUploadSize = Long.valueOf(maximumUploadSizeString);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * Checks if the size of the given file meets the restrictions of the server
-	 * 
+	 *
 	 * @return true if file size is okay (or unknown), false if file is too big
 	 */
-	private boolean isFileSizeAccepted(Path path) {
+	private boolean isFileSizeAccepted(final Path path) {
 		if (this.maximumUploadSize == null) {
 			return true;
 		} else {
@@ -167,7 +167,7 @@ public class DropWindowController {
 				if (Files.size(path) < this.maximumUploadSize) {
 					return true;
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -223,7 +223,7 @@ public class DropWindowController {
 
 		final String password = this.passwordTextField.getText();
 
-		if (isFileSizeAccepted(path) == false) {
+		if (this.isFileSizeAccepted(path) == false) {
 			transferFile.setStatus("file too big");
 		} else {
 			final Task<String> uploadTask = new Task<String>() {

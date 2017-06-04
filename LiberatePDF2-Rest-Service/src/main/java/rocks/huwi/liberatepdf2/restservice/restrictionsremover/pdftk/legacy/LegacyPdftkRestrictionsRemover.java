@@ -62,8 +62,8 @@ public class LegacyPdftkRestrictionsRemover {
 		this.log.debug("restricted filename = \"{}\"", restrictedPdfPath);
 		this.log.debug("password = \"{}\"", password);
 
-		final Path unrestrictedPdfPath = restrictedPdfPath.resolveSibling(
-				restrictedPdfPath.getFileName() + FilesystemStorageService.SUFFIX_PDF_UNRESTRICTED);
+		final Path unrestrictedPdfPath = restrictedPdfPath
+				.resolveSibling(restrictedPdfPath.getFileName() + FilesystemStorageService.SUFFIX_PDF_UNRESTRICTED);
 		this.log.debug("unrestricted filename = \"{}\"", unrestrictedPdfPath);
 
 		try {
