@@ -44,10 +44,10 @@ public class RestrictionRemoveController {
 		this.restrictionsRemoverService = restrictionsRemoverService;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/{documentId}")
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD } , value = "/{documentId}")
 	public ResponseEntity<?> downloadUnrestricted(@PathVariable final String documentId,
 			final HttpServletResponse response) throws IOException {
-		log.debug("Received GET request for document {}", documentId);
+		log.debug("Received GET or HEAD request for document {}", documentId);
 
 		final Pdf pdf = this.storageService.getItem(documentId);
 

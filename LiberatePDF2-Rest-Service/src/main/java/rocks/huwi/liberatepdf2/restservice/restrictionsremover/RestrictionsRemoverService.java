@@ -32,7 +32,7 @@ public interface RestrictionsRemoverService {
 	public void removeRestrictions(Pdf pdf);
 
 	/**
-	 * Enqueue a task to remove removes restrictions
+	 * Enqueue a task to remove restrictions
 	 *
 	 * @param original
 	 *            file to remove restrictions from

@@ -47,7 +47,7 @@ export class RestrictionRemoverService {
   }
 
   checkFile(transferFile: TransferFile): void {
-    this.http.get(this.url + '/api/v1/documents/' + transferFile.id)
+    this.http.head(this.url + '/api/v1/documents/' + transferFile.id)
       .toPromise()
       .then(successResponse => {
         if (successResponse.status === 200) {
