@@ -61,7 +61,13 @@ export class FileListComponent implements OnInit {
       };
       this.transferFiles.push(transferFile);
 
-      this.restrictionRemoverService.uploadDocument(transferFile);
+      if (file.size <= this.maximumFileSize) {
+        this.restrictionRemoverService.uploadDocument(transferFile);
+      } else {
+        transferFile.done = true;
+        transferFile.status = 'too-big-failed';
+        transferFile.statusText = 'file is too big, did not upload';
+      }
     }
   }
 }
