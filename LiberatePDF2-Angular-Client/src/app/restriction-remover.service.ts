@@ -17,6 +17,13 @@ export class RestrictionRemoverService {
       .then(response => Number(response.text()))
       .catch(this.handleError);
   }
+  
+  getStatistics(): Promise<any> {
+    return this.http.get(this.url + '/api/v1/status/statistics')
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError);
+  }
 
   uploadDocument(transferFile: TransferFile) {
     let formData: FormData = new FormData();
