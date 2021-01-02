@@ -21,8 +21,7 @@ FROM openjdk:8-jre-alpine3.8
 RUN apk add --no-cache curl pdftk
 
 WORKDIR /app
-#COPY --from=builder /src/build/libs/*-all.jar /app/microservice.jar
-COPY --from=builder /src/build/libs/*.jar /app/microservice.jar
+COPY --from=builder /src/build/libs/*-all.jar /app/microservice.jar
 
 # set the default port to 80
 ENV MICRONAUT_SERVER_PORT 80

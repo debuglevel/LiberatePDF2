@@ -1,36 +1,33 @@
 package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk
 
-import org.slf4j.LoggerFactory
-import org.springframework.scheduling.annotation.Async
-import org.springframework.stereotype.Service
+import mu.KotlinLogging
 import rocks.huwi.liberatepdf2.restservice.Pdf
 import rocks.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
 import rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy.LegacyPdftkRestrictionsRemover
 import java.util.concurrent.atomic.AtomicLong
+import javax.inject.Singleton
 
 /**
  * Removes restrictions from a PDF file using PDFtk
  */
-@Service
+@Singleton
 class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
-    private val log = LoggerFactory.getLogger(PdftkRestrictionsRemoverService::class.java)
+    private val logger = KotlinLogging.logger {}
 
     private val failedItems = AtomicLong()
     private val processedItems = AtomicLong()
-    override val failedItemsCount
-        get() = failedItems.get()
-    override val itemsCount
-        get() = processedItems.get()
+    override val failedItemsCount = failedItems.get()
+    override val itemsCount = processedItems.get()
 
     override fun removeRestrictions(pdf: Pdf) {
-        log.debug("Removing restrictions")
+        logger.debug { ("Removing restrictions") }
         val restrictionsRemover = LegacyPdftkRestrictionsRemover()
         val unrestrictedPdfPath = restrictionsRemover.removeRestrictions(
             pdf.restrictedPath,
             pdf.password
         )
         if (unrestrictedPdfPath == null) {
-            log.debug("Setting PDF to failed, as unrestricted PDF path is null")
+            logger.debug { ("Setting PDF to failed, as unrestricted PDF path is null") }
             pdf.failed = true
             failedItems.incrementAndGet()
         }
@@ -39,9 +36,9 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
         processedItems.incrementAndGet()
     }
 
-    @Async
+    //@Async
     override fun removeRestrictionsAsync(pdf: Pdf) {
-        log.debug("Removing restrictions asynchronously")
+        logger.debug { ("Removing restrictions asynchronously") }
         removeRestrictions(pdf)
     }
 }

@@ -1,6 +1,5 @@
 package rocks.huwi.liberatepdf2.restservice.restrictionsremover
 
-import org.springframework.scheduling.annotation.Async
 import rocks.huwi.liberatepdf2.restservice.Pdf
 
 /**
@@ -37,6 +36,6 @@ interface RestrictionsRemoverService {
      * file to remove restrictions from
      * @return
      */
-    @Async
+    //@Async
     fun removeRestrictionsAsync(pdf: Pdf)
 }

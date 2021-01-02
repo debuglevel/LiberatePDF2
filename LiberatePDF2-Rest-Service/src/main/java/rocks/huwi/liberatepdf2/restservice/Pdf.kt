@@ -1,14 +1,13 @@
 package rocks.huwi.liberatepdf2.restservice
 
-import lombok.ToString
 import java.nio.file.Path
+import java.util.*
 
 /**
  * A PDF file
  */
-@ToString
 class Pdf(
-    var id: String,
+    var id: UUID,
     /**
      * original filename of the PDF
      */

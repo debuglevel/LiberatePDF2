@@ -1,7 +1,8 @@
 package rocks.huwi.liberatepdf2.restservice.storage
 
-import org.springframework.web.multipart.MultipartFile
 import rocks.huwi.liberatepdf2.restservice.Pdf
+import java.io.InputStream
+import java.util.*
 
 /**
  * Service to provide read and write access to data.
@@ -19,7 +20,7 @@ interface StorageService {
      * ID of the item
      * @return the Pdf of the item ID, or null if not found
      */
-    fun getItem(itemId: String): Pdf?
+    fun getItem(itemId: UUID): Pdf?
 
     /**
      * Gets the count of stored items.
@@ -36,5 +37,5 @@ interface StorageService {
      *
      * @param file
      */
-    fun store(file: MultipartFile, password: String?): Pdf
+    fun store(filename: String, inputStream: InputStream, password: String): Pdf
 }
