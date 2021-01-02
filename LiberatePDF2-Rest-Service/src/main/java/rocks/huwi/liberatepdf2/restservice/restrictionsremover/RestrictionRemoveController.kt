@@ -61,7 +61,7 @@ class RestrictionRemoveController @Autowired constructor(
             )
             ResponseEntity.status(HTTP_STATUS_IN_PROGRESS)
                 .body("The document was not processed by now. Please try again later.")
-        } else if (Files.exists(pdf.unrectrictedPath) == false) {
+        } else if (Files.exists(pdf.unrestrictedPath) == false) {
             // the request was transformed, but the file does not exist (somehow
             // failed?)
             log.debug("Document with ID={} found, but no file exists", documentId)
@@ -71,7 +71,7 @@ class RestrictionRemoveController @Autowired constructor(
         } else {
             // request should be okay
             val filename = storageService.getItem(documentId)!!.originalFilename
-            val filesystemResource = FileSystemResource(pdf.unrectrictedPath!!.toFile())
+            val filesystemResource = FileSystemResource(pdf.unrestrictedPath!!.toFile())
             log.debug("Document with ID={} found and set for delivery", documentId)
             ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
                 .header("Content-Disposition", "attachment; filename=\"$filename\"")

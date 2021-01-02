@@ -19,6 +19,6 @@ class Pdf(
 
     var password: String? = null
     var restrictedPath: Path? = null
-    var unrectrictedPath: Path? = null
+    var unrestrictedPath: Path? = null
 
 }

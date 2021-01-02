@@ -33,8 +33,8 @@ class ZipService @Autowired constructor(
                 val pdf = storageService.getItem(id)
                 if (pdf != null) {
                     val pathInZipfile = zipFilesystem.getPath("/" + pdf.originalFilename)
-                    log.debug("Copying PDF file {} into {} ", pdf.unrectrictedPath, pathInZipfile)
-                    Files.copy(pdf.unrectrictedPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING)
+                    log.debug("Copying PDF file {} into {} ", pdf.unrestrictedPath, pathInZipfile)
+                    Files.copy(pdf.unrestrictedPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
             zipFilesystem.close()

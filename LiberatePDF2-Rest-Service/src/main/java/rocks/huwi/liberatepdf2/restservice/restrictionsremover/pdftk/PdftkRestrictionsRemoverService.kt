@@ -32,7 +32,7 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
             pdf.failed = true
             failedItems.incrementAndGet()
         }
-        pdf.unrectrictedPath = unrestrictedPdfPath
+        pdf.unrestrictedPath = unrestrictedPdfPath
         pdf.isDone = true
         processedItems.incrementAndGet()
     }
