@@ -1,116 +1,89 @@
-package rocks.huwi.liberatepdf2.restservice.storage;
+package rocks.huwi.liberatepdf2.restservice.storage
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.UUID;
-
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import rocks.huwi.liberatepdf2.restservice.Pdf;
+import org.apache.commons.io.FileUtils
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import org.springframework.util.FileSystemUtils
+import org.springframework.util.StringUtils
+import org.springframework.web.multipart.MultipartFile
+import rocks.huwi.liberatepdf2.restservice.Pdf
+import java.io.IOException
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.util.*
 
 /**
  * Storage service which uses the file system.
  */
 @Service
-public class FilesystemStorageService implements StorageService {
+class FilesystemStorageService @Autowired constructor(private val properties: StorageProperties) : StorageService {
+    private val items = HashMap<String, Pdf>()
+    override fun deleteAll() {
+        log.debug("Deleting all files in {}", properties.locationPath)
+        FileSystemUtils.deleteRecursively(properties.locationPath?.toFile())
+    }
 
-	private static final Logger log = LoggerFactory.getLogger(FilesystemStorageService.class);
+    private fun generateID(): String {
+        return UUID.randomUUID().toString()
+    }
 
-	public static final String SUFFIX_PDF = ".pdf";
-	public static final String SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf";
+    override fun getItem(itemId: String): Pdf? {
+        val pdf = items[itemId]
+        log.debug("Getting PDF with ID={} from HashMap: {}", itemId, pdf)
+        return pdf
+    }
 
-	private final HashMap<String, Pdf> items = new HashMap<>();
+    override val itemsCount: Long
+        get() = items.size.toLong()
 
-	private final StorageProperties properties;
+    override fun initialize() {
+        log.debug("Initializing storage")
+        log.debug("'Clear on Initilization' is set to " + properties.isClearOnInitialization)
+        if (properties.isClearOnInitialization) {
+            log.debug("Deleting storage directory " + properties.locationPath)
+            deleteAll()
+        }
+        try {
+            if (Files.exists(properties.locationPath) == false) {
+                log.debug("Creating storage directory " + properties.locationPath)
+                Files.createDirectory(properties.locationPath)
+            } else {
+                log.debug(
+                    "Skipping creation of storage directory " + properties.locationPath
+                            + " because it already exists"
+                )
+            }
+        } catch (e: IOException) {
+            throw StorageException("Could not initialize storage", e)
+        }
+    }
 
-	@Autowired
-	public FilesystemStorageService(final StorageProperties properties) {
-		this.properties = properties;
-	}
+    override fun store(file: MultipartFile, password: String?): Pdf {
+        val itemId = generateID()
+        log.debug("Storing MultipartFile {} as ID={}", file.name, itemId)
+        val pdf = Pdf(itemId, file.originalFilename)
+        items[itemId] = pdf
+        val itemLocation = properties.locationPath?.resolve(itemId + SUFFIX_PDF)
+        try {
+            log.debug("Copying file {} to {}", file.name, itemLocation)
+            Files.copy(file.inputStream, itemLocation)
+            if (StringUtils.isEmpty(password) == false) {
+                val passwordLocation = itemLocation?.resolveSibling(itemLocation.fileName.toString() + ".password")
+                log.debug("Save password into $passwordLocation")
+                FileUtils.writeStringToFile(passwordLocation?.toFile(), password, Charset.defaultCharset())
+            }
+        } catch (e: IOException) {
+            log.error("Failed to store file " + file.originalFilename, e)
+            throw StorageException("Failed to store file " + file.originalFilename, e)
+        }
+        pdf.restrictedPath = itemLocation
+        return pdf
+    }
 
-	@Override
-	public void deleteAll() {
-		log.debug("Deleting all files in {}", this.properties.getLocationPath());
-		FileSystemUtils.deleteRecursively(this.properties.getLocationPath().toFile());
-	}
-
-	private String generateID() {
-		return UUID.randomUUID().toString();
-	}
-
-	@Override
-	public Pdf getItem(final String itemId) {
-		Pdf pdf = this.items.get(itemId);
-		log.debug("Getting PDF with ID={} from HashMap: {}", itemId, pdf);
-
-		return pdf;
-	}
-
-	@Override
-	public Long getItemsCount() {
-		return (long) this.items.size();
-	}
-
-	@Override
-	public void initialize() {
-		log.debug("Initializing storage");
-
-		log.debug("'Clear on Initilization' is set to " + this.properties.isClearOnInitialization());
-		if (this.properties.isClearOnInitialization()) {
-			log.debug("Deleting storage directory " + this.properties.getLocationPath());
-			this.deleteAll();
-		}
-
-		try {
-			if (Files.exists(this.properties.getLocationPath()) == false) {
-				log.debug("Creating storage directory " + this.properties.getLocationPath());
-				Files.createDirectory(this.properties.getLocationPath());
-			} else {
-				log.debug("Skipping creation of storage directory " + this.properties.getLocationPath()
-						+ " because it already exists");
-			}
-		} catch (final IOException e) {
-			throw new StorageException("Could not initialize storage", e);
-		}
-	}
-
-	@Override
-	public Pdf store(final MultipartFile file, String password) {
-		final String itemId = this.generateID();
-
-		log.debug("Storing MultipartFile {} as ID={}", file.getName(), itemId);
-
-		final Pdf pdf = new Pdf(itemId, file.getOriginalFilename());
-		this.items.put(itemId, pdf);
-
-		final Path itemLocation = this.properties.getLocationPath().resolve(itemId + SUFFIX_PDF);
-
-		try {
-			log.debug("Copying file {} to {}", file.getName(), itemLocation);
-			Files.copy(file.getInputStream(), itemLocation);
-
-			if (StringUtils.isEmpty(password) == false) {
-				Path passwordLocation = itemLocation.resolveSibling(itemLocation.getFileName() + ".password");
-				log.debug("Save password into " + passwordLocation);
-				FileUtils.writeStringToFile(passwordLocation.toFile(), password, Charset.defaultCharset());
-			}
-		} catch (final IOException e) {
-			log.error("Failed to store file " + file.getOriginalFilename(), e);
-			throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
-		}
-
-		pdf.setRestrictedPath(itemLocation);
-
-		return pdf;
-	}
+    companion object {
+        private val log = LoggerFactory.getLogger(FilesystemStorageService::class.java)
+        const val SUFFIX_PDF = ".pdf"
+        const val SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf"
+    }
 }

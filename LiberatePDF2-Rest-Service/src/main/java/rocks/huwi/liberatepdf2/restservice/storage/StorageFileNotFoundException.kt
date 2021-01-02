@@ -1,13 +1,10 @@
-package rocks.huwi.liberatepdf2.restservice.storage;
+package rocks.huwi.liberatepdf2.restservice.storage
 
-public class StorageFileNotFoundException extends StorageException {
-	private static final long serialVersionUID = 8134337840028689194L;
+class StorageFileNotFoundException : StorageException {
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
 
-	public StorageFileNotFoundException(final String message) {
-		super(message);
-	}
-
-	public StorageFileNotFoundException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
+    companion object {
+        private const val serialVersionUID = 8134337840028689194L
+    }
 }

@@ -1,49 +1,30 @@
-package rocks.huwi.liberatepdf2.restservice.storage;
+package rocks.huwi.liberatepdf2.restservice.storage
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @ConfigurationProperties("storage")
-public class StorageProperties {
+class StorageProperties {
+    /**
+     * Whether the storage directory should be cleared during initialization
+     */
+    var isClearOnInitialization = false
+    /**
+     * Gets the storage location
+     */
+    /**
+     * Folder location for storing files
+     */
+    var location = "storage-directory"
+        set(location) {
+            field = location
+            locationPath = Paths.get(location)
+        }
 
-	/**
-	 * Whether the storage directory should be cleared during initialization
-	 */
-	private boolean clearOnInitialization = false;
-
-	/**
-	 * Folder location for storing files
-	 */
-	private String location = "storage-directory";
-
-	private Path locationPath;
-
-	/**
-	 * Gets the storage location
-	 */
-	public String getLocation() {
-		return this.location;
-	}
-
-	/**
-	 * Gets the storage location as Path
-	 */
-	public Path getLocationPath() {
-		return this.locationPath;
-	}
-
-	public boolean isClearOnInitialization() {
-		return this.clearOnInitialization;
-	}
-
-	public void setClearOnInitialization(final boolean clearOnInitialization) {
-		this.clearOnInitialization = clearOnInitialization;
-	}
-
-	public void setLocation(final String location) {
-		this.location = location;
-		this.locationPath = Paths.get(location);
-	}
+    /**
+     * Gets the storage location as Path
+     */
+    var locationPath: Path? = null
+        private set
 }

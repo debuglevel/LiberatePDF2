@@ -1,4 +1,4 @@
-package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy;
+package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy
 
 // package de.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy;
 //

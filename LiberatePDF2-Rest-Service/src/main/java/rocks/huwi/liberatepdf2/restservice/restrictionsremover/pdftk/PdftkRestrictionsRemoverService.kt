@@ -1,62 +1,49 @@
-package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk;
+package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk
 
-import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import rocks.huwi.liberatepdf2.restservice.Pdf;
-import rocks.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService;
-import rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy.LegacyPdftkRestrictionsRemover;
+import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Service
+import rocks.huwi.liberatepdf2.restservice.Pdf
+import rocks.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
+import rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy.LegacyPdftkRestrictionsRemover
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Removes restrictions from a PDF file using PDFtk
  */
 @Service
-public class PdftkRestrictionsRemoverService implements RestrictionsRemoverService {
+class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
+    private val failedItems = AtomicLong()
+    private val processedItems = AtomicLong()
+    override val failedItemsCount: Long
+        get() = failedItems.get()
+    override val itemsCount: Long
+        get() = processedItems.get()
 
-	private static final Logger log = LoggerFactory.getLogger(PdftkRestrictionsRemoverService.class);
+    override fun removeRestrictions(pdf: Pdf) {
+        log.debug("Removing restrictions")
+        val restrictionsRemover = LegacyPdftkRestrictionsRemover()
+        val unrestrictedPdfPath = restrictionsRemover.removeRestrictions(
+            pdf.restrictedPath,
+            pdf.password
+        )
+        if (unrestrictedPdfPath == null) {
+            log.debug("Setting PDF to failed, as unrestricted PDF path is null")
+            pdf.failed = true
+            failedItems.incrementAndGet()
+        }
+        pdf.unrectrictedPath = unrestrictedPdfPath
+        pdf.isDone = true
+        processedItems.incrementAndGet()
+    }
 
-	private final AtomicLong failedItems = new AtomicLong();
-	private final AtomicLong processedItems = new AtomicLong();
+    @Async
+    override fun removeRestrictionsAsync(pdf: Pdf) {
+        log.debug("Removing restrictions asynchronously")
+        removeRestrictions(pdf)
+    }
 
-	@Override
-	public Long getFailedItemsCount() {
-		return this.failedItems.get();
-	}
-
-	@Override
-	public Long getItemsCount() {
-		return this.processedItems.get();
-	}
-
-	@Override
-	public void removeRestrictions(final Pdf pdf) {
-		log.debug("Removing restrictions");
-
-		final LegacyPdftkRestrictionsRemover restrictionsRemover = new LegacyPdftkRestrictionsRemover();
-		final Path unrestrictedPdfPath = restrictionsRemover.removeRestrictions(pdf.getRestrictedPath(),
-				pdf.getPassword());
-
-		if (unrestrictedPdfPath == null) {
-			log.debug("Setting PDF to failed, as unrestricted PDF path is null");
-			pdf.setFailed(true);
-			this.failedItems.incrementAndGet();
-		}
-
-		pdf.setUnrectrictedPath(unrestrictedPdfPath);
-		pdf.setDone(true);
-		this.processedItems.incrementAndGet();
-	}
-
-	@Async
-	@Override
-	public void removeRestrictionsAsync(final Pdf pdf) {
-		log.debug("Removing restrictions asynchronously");
-
-		this.removeRestrictions(pdf);
-	}
+    companion object {
+        private val log = LoggerFactory.getLogger(PdftkRestrictionsRemoverService::class.java)
+    }
 }

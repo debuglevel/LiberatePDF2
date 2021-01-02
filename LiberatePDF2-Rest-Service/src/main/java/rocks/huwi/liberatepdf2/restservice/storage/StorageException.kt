@@ -1,14 +1,10 @@
-package rocks.huwi.liberatepdf2.restservice.storage;
+package rocks.huwi.liberatepdf2.restservice.storage
 
-public class StorageException extends RuntimeException {
+open class StorageException : RuntimeException {
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
 
-	private static final long serialVersionUID = -4413651601072818152L;
-
-	public StorageException(final String message) {
-		super(message);
-	}
-
-	public StorageException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
+    companion object {
+        private const val serialVersionUID = -4413651601072818152L
+    }
 }
