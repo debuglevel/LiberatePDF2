@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
 import rocks.huwi.liberatepdf2.restservice.storage.StorageProperties;
 import rocks.huwi.liberatepdf2.restservice.storage.StorageService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -19,12 +18,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableAsync
 @EnableConfigurationProperties(StorageProperties.class)
-public class LiberatePdf2RestServiceApplication {
+public class Application {
 
-	private static final Logger log = LoggerFactory.getLogger(LiberatePdf2RestServiceApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
 	public static void main(final String[] args) {
-		SpringApplication.run(LiberatePdf2RestServiceApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 	@Bean
