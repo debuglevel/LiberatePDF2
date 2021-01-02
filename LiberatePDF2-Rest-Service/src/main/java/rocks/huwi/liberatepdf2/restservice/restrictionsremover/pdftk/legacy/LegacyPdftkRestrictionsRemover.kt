@@ -3,13 +3,15 @@ package rocks.huwi.liberatepdf2.restservice.restrictionsremover.pdftk.legacy
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import rocks.huwi.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
-import rocks.huwi.liberatepdf2.restservice.storage.FilesystemStorageService
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 class LegacyPdftkRestrictionsRemover {
     private val log = LoggerFactory.getLogger(RestrictionsRemoverService::class.java)
+
+    val SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf"
+
     private fun buildProcess(
         restrictedPdfPath: Path?, password: String?,
         unrestrictedPdfPath: Path
@@ -55,7 +57,7 @@ class LegacyPdftkRestrictionsRemover {
         log.debug("restricted filename = \"{}\"", restrictedPdfPath)
         log.debug("password = \"{}\"", password)
         val unrestrictedPdfPath: Path = restrictedPdfPath
-            ?.resolveSibling(restrictedPdfPath.fileName.toString() + FilesystemStorageService.SUFFIX_PDF_UNRESTRICTED)!!
+            ?.resolveSibling(restrictedPdfPath.fileName.toString() + SUFFIX_PDF_UNRESTRICTED)!!
         log.debug("unrestricted filename = \"{}\"", unrestrictedPdfPath)
         try {
             val processBuilder = buildProcess(restrictedPdfPath, password, unrestrictedPdfPath)

@@ -13,11 +13,13 @@ import java.util.concurrent.atomic.AtomicLong
  */
 @Service
 class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
+    private val log = LoggerFactory.getLogger(PdftkRestrictionsRemoverService::class.java)
+
     private val failedItems = AtomicLong()
     private val processedItems = AtomicLong()
-    override val failedItemsCount: Long
+    override val failedItemsCount
         get() = failedItems.get()
-    override val itemsCount: Long
+    override val itemsCount
         get() = processedItems.get()
 
     override fun removeRestrictions(pdf: Pdf) {
@@ -41,9 +43,5 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
     override fun removeRestrictionsAsync(pdf: Pdf) {
         log.debug("Removing restrictions asynchronously")
         removeRestrictions(pdf)
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(PdftkRestrictionsRemoverService::class.java)
     }
 }

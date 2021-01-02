@@ -18,6 +18,10 @@ import java.util.*
  */
 @Service
 class FilesystemStorageService @Autowired constructor(private val properties: StorageProperties) : StorageService {
+    private val log = LoggerFactory.getLogger(FilesystemStorageService::class.java)
+    val SUFFIX_PDF = ".pdf"
+
+
     private val items = HashMap<String, Pdf>()
     override fun deleteAll() {
         log.debug("Deleting all files in {}", properties.locationPath)
@@ -34,18 +38,19 @@ class FilesystemStorageService @Autowired constructor(private val properties: St
         return pdf
     }
 
-    override val itemsCount: Long
+    override val itemsCount
         get() = items.size.toLong()
 
     override fun initialize() {
         log.debug("Initializing storage")
+
         log.debug("'Clear on Initilization' is set to " + properties.isClearOnInitialization)
         if (properties.isClearOnInitialization) {
             log.debug("Deleting storage directory " + properties.locationPath)
             deleteAll()
         }
         try {
-            if (Files.exists(properties.locationPath) == false) {
+            if (!Files.exists(properties.locationPath)) {
                 log.debug("Creating storage directory " + properties.locationPath)
                 Files.createDirectory(properties.locationPath)
             } else {
@@ -61,6 +66,7 @@ class FilesystemStorageService @Autowired constructor(private val properties: St
 
     override fun store(file: MultipartFile, password: String?): Pdf {
         val itemId = generateID()
+
         log.debug("Storing MultipartFile {} as ID={}", file.name, itemId)
         val pdf = Pdf(itemId, file.originalFilename)
         items[itemId] = pdf
@@ -68,7 +74,7 @@ class FilesystemStorageService @Autowired constructor(private val properties: St
         try {
             log.debug("Copying file {} to {}", file.name, itemLocation)
             Files.copy(file.inputStream, itemLocation)
-            if (StringUtils.isEmpty(password) == false) {
+            if (!StringUtils.isEmpty(password)) {
                 val passwordLocation = itemLocation?.resolveSibling(itemLocation.fileName.toString() + ".password")
                 log.debug("Save password into $passwordLocation")
                 FileUtils.writeStringToFile(passwordLocation?.toFile(), password, Charset.defaultCharset())
@@ -79,11 +85,5 @@ class FilesystemStorageService @Autowired constructor(private val properties: St
         }
         pdf.restrictedPath = itemLocation
         return pdf
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(FilesystemStorageService::class.java)
-        const val SUFFIX_PDF = ".pdf"
-        const val SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf"
     }
 }
