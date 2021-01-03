@@ -1,30 +1,5 @@
 package de.debuglevel.liberatepdf2.javafx;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -40,11 +15,36 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.util.Duration;
+import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class DropWindowController {
-	private static final String HOST = "http://localhost:8080";
+	private static final Logger logger = LoggerFactory.getLogger(DropWindowController.class);
 
-	private static final Logger log = LoggerFactory.getLogger(DropWindowController.class);
+	private static final String HOST = "http://localhost:8080";
 
 	private final ExecutorService checkTaskExecutor;
 
@@ -66,7 +66,7 @@ public class DropWindowController {
 	}
 
 	private void checkFilesStatus() {
-		log.info("Checking status of files");
+		logger.info("Checking status of files...");
 
 		this.transferFiles.stream().filter(tf -> (tf.isDone() == false) && (tf.getId() != null)).forEach(tf -> {
 			this.checkTaskExecutor.submit(new Task<Void>() {
@@ -90,28 +90,28 @@ public class DropWindowController {
 		try {
 			final String url = HOST + "/api/v1/documents/" + transferFile.getId();
 
-			log.info("Checking status of file " + transferFile + " via " + url);
+			logger.info("Checking status of file " + transferFile + " via " + url);
 
 			final HttpResponse response = Request.Get(url).execute().returnResponse();
-			final int statuscode = response.getStatusLine().getStatusCode();
+			final int statusCode = response.getStatusLine().getStatusCode();
 
-			log.info("Got status code " + statuscode + " for " + transferFile);
-			if (statuscode == 200) {
+			logger.info("Got status code " + statusCode + " for " + transferFile);
+			if (statusCode == 200) {
 				// file was successfully processed
 				transferFile.setStatus("done");
 				transferFile.setDone(true);
 
 				this.saveFile(transferFile, response.getEntity().getContent());
-			} else if (statuscode == 260) {
+			} else if (statusCode == 260) {
 				// file is still in progress
 				transferFile.setStatus("in progress");
-			} else if (statuscode == 560) {
+			} else if (statusCode == 560) {
 				// processing failed
 				transferFile.setStatus("processing failed");
 				transferFile.setDone(true);
 			} else {
 				// unknown
-				transferFile.setStatus("unknown statuscode");
+				transferFile.setStatus("unknown status code");
 			}
 
 			this.filesListView.refresh(); // should be better be done via an
@@ -124,11 +124,11 @@ public class DropWindowController {
 
 	private void fetchMaximumUploadSize() {
 		try {
-			log.info("GETing maximum upload size");
+			logger.info("Querying service for maximum upload size...");
 
 			final String maximumUploadSizeString = Request.Get(HOST + "/api/v1/status/maximum-upload-size").execute()
 					.returnContent().asString();
-			log.info("Maximum upload size is '" + maximumUploadSizeString + "'");
+			logger.info("Maximum upload size is '" + maximumUploadSizeString + "'");
 
 			this.maximumUploadSize = Long.valueOf(maximumUploadSizeString);
 		} catch (final IOException e) {
@@ -216,7 +216,7 @@ public class DropWindowController {
 	}
 
 	private void processFile(final Path path) {
-		log.info("Processing file " + path);
+		logger.info("Processing file " + path);
 
 		final TransferFile transferFile = new TransferFile(path, "uploading");
 		this.transferFiles.add(transferFile);
@@ -229,12 +229,12 @@ public class DropWindowController {
 			final Task<String> uploadTask = new Task<String>() {
 				@Override
 				protected String call() throws Exception {
-					log.info("Building POST request for " + path);
+					logger.info("Building POST request for " + path + "...");
 					final HttpEntity entity = MultipartEntityBuilder.create()
 							.setMode(HttpMultipartMode.BROWSER_COMPATIBLE).setCharset(Charset.defaultCharset())
 							.addBinaryBody("file", path.toFile()).addTextBody("password", password).build();
 
-					log.info("Sending POST request for " + path);
+					logger.info("Sending POST request for " + path + "...");
 					return Request.Post(HOST + "/api/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
 							.body(entity).execute().returnContent().asString();
 				}
@@ -242,7 +242,7 @@ public class DropWindowController {
 
 			uploadTask.setOnSucceeded(e -> {
 				try {
-					log.info("Upload Task for " + path + " succeeded; got ID=" + uploadTask.get());
+					logger.info("Upload Task for " + path + " succeeded; got ID=" + uploadTask.get());
 					transferFile.setId(uploadTask.get());
 				} catch (InterruptedException | ExecutionException e1) {
 					// TODO Auto-generated catch block
@@ -256,11 +256,11 @@ public class DropWindowController {
 			});
 
 			uploadTask.setOnFailed(e -> {
-				log.info("Upload Task for " + path + " failed");
+				logger.info("Upload Task for " + path + " failed");
 				transferFile.setStatus("upload failed");
 
 				if (uploadTask.exceptionProperty().get() instanceof SocketException) {
-					log.info("Exception is SocketException; the file MIGHT be too big.");
+					logger.info("Exception is SocketException; the file MIGHT be too big.");
 					transferFile.setStatus("upload failed (too big?)");
 				}
 
@@ -270,26 +270,26 @@ public class DropWindowController {
 				uploadTask.exceptionProperty().get().printStackTrace();
 			});
 
-			log.info("Queueing upload task for " + path);
+			logger.info("Queueing upload task for " + path + "...");
 			this.uploadTaskExecutor.submit(uploadTask);
 		}
 	}
 
 	private void processFiles(final List<Path> paths) {
-		log.info("Processing " + paths.size() + " dropped files");
+		logger.info("Processing " + paths.size() + " files...");
 
 		for (final Path path : paths) {
 			if (Files.isDirectory(path)) {
-				log.info(path + " is a directory");
+				logger.info(path + " is a directory");
 
 				// String[] extensions = null;
 				final String[] extensions = new String[] { "pdf", "PDF" };
 				final Collection<File> files = FileUtils.listFiles(path.toFile(), extensions, true);
-				log.info("Found " + files.size() + " files in directory " + path);
+				logger.info("Found " + files.size() + " files in directory " + path);
 
 				files.stream().forEach(f -> this.processFile(f.toPath()));
 			} else if (Files.isRegularFile(path) && Files.isReadable(path)) {
-				log.info(path + " is a regular and readable file");
+				logger.info(path + " is a regular and readable file");
 				this.processFile(path);
 			} else {
 				// do nothing because strange
@@ -303,7 +303,7 @@ public class DropWindowController {
 			final File destinationFile = originalPath.resolveSibling(originalPath.getFileName() + " (unrestricted).pdf")
 					.toFile();
 
-			log.info("Copying " + transferFile + " to " + destinationFile);
+			logger.info("Copying " + transferFile + " to " + destinationFile + "...");
 
 			FileUtils.copyInputStreamToFile(inputStream, destinationFile);
 		} catch (final IOException e) {
