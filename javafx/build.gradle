@@ -29,7 +29,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
-group = 'rocks.huwi.liberatepdf2'
+group = 'de.debuglevel.liberatepdf2'
 version = '0.0.1-SNAPSHOT'
 description = 'LiberatePDF2 JavaFX Client'
 sourceCompatibility = '1.8'

@@ -97,7 +97,7 @@
 				<artifactId>javafx-maven-plugin</artifactId>
 				<version>8.8.3</version>
 				<configuration>
-					<mainClass>rocks.huwi.liberatepdf2.javafx.MainApp</mainClass>
+					<mainClass>de.debuglevel.liberatepdf2.javafx.MainApp</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

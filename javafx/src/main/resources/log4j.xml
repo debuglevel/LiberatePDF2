@@ -10,7 +10,7 @@
         </layout>
     </appender>
 
-    <logger name="rocks.huwi.liberatepdf2">
+    <logger name="de.debuglevel.liberatepdf2">
         <level value="DEBUG"/>
     </logger>
 

@@ -3,7 +3,7 @@
  */
 
 allprojects {
-    group = 'rocks.huwi.liberatepdf2'
+    group = 'de.debuglevel.liberatepdf2'
     version = '0.0.1-SNAPSHOT'
 }
 

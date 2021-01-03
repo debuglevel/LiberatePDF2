@@ -1,4 +1,4 @@
-package rocks.huwi.liberatepdf2.javafx;
+package de.debuglevel.liberatepdf2.javafx;
 
 import java.nio.file.Path;
 
