@@ -93,7 +93,7 @@ class RestrictionRemoveController(
         val pdf = storageService.store(file.filename, file.inputStream, password)
         pdf.password = password
 
-        restrictionsRemoverService.removeRestrictionsAsync(pdf)
+        restrictionsRemoverService.removeRestrictions(pdf)
         val uri = URI("/documents/${pdf.id}")
 
         //return ResponseEntity.accepted().location(uriComponents.toUri()).body(pdf.id)

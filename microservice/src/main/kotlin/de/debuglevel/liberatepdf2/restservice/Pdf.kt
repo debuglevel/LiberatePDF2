@@ -7,11 +7,11 @@ import java.util.*
  * A PDF file
  */
 class Pdf(
-    var id: UUID,
+    val id: UUID,
     /**
      * original filename of the PDF
      */
-    var originalFilename: String
+    val originalFilename: String
 ) {
     var isDone = false
     var failed: Boolean? = null
@@ -19,5 +19,4 @@ class Pdf(
     var password: String? = null
     var restrictedPath: Path? = null
     var unrestrictedPath: Path? = null
-
 }

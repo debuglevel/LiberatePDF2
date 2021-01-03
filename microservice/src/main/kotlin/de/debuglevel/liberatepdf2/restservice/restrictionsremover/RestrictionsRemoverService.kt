@@ -7,35 +7,23 @@ import de.debuglevel.liberatepdf2.restservice.Pdf
  */
 interface RestrictionsRemoverService {
     /**
-     * Gets the count of unsuccessfully processed items.
-     *
-     * @return
+     * Count of unsuccessfully processed items.
      */
     val failedItemsCount: Long
 
     /**
-     * Gets the count of processed items.
-     *
-     * @return
+     * Count of successfully processed items.
+     */
+    val successfulItemsCount: Long
+
+    /**
+     * Count of all items.
      */
     val itemsCount: Long
+        get() = failedItemsCount + successfulItemsCount
 
     /**
      * Remove restrictions from file.
-     *
-     * @param original
-     * file to remove restrictions from
-     * @return
      */
     fun removeRestrictions(pdf: Pdf)
-
-    /**
-     * Enqueue a task to remove restrictions
-     *
-     * @param original
-     * file to remove restrictions from
-     * @return
-     */
-    //@Async
-    fun removeRestrictionsAsync(pdf: Pdf)
 }
