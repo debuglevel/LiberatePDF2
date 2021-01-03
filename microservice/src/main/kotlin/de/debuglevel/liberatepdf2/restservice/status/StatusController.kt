@@ -34,7 +34,8 @@ class StatusController(
         return GetStatisticResponse(
             storageService.itemsCount,
             restrictionsRemoverService.itemsCount,
-            restrictionsRemoverService.failedItemsCount
+            restrictionsRemoverService.failedItemsCount,
+            restrictionsRemoverService.successfulItemsCount,
         )
     }
 }
