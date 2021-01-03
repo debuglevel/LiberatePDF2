@@ -1,109 +1,46 @@
-.idea
-node_modules
-jspm_packages
-npm-debug.log
-debug.log
-src/**/*.js
-!src/systemjs.config.extras.js
-!src/systemjs.config.js
-!src/systemjs-angular-loader.js
-*.js.map
-e2e/**/*.js
-e2e/**/*.js.map
-_test-output
-_temp
+# See http://help.github.com/ignore-files/ for more about ignoring files.
 
-
-# Created by https://www.gitignore.io/api/eclipse,angular
-
-### Angular ###
-## Angular ##
 # compiled output
 /dist
 /tmp
-/app/**/*.js
-/app/**/*.js.map
+/out-tsc
+# Only exists if Bazel was run
+/bazel-out
 
 # dependencies
 /node_modules
-/bower_components
+
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
 
 # IDEs and editors
 /.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
 
 # misc
 /.sass-cache
 /connect.lock
-/coverage/*
+/coverage
 /libpeerconnection.log
 npm-debug.log
+yarn-error.log
 testem.log
 /typings
 
-# e2e
-/e2e/*.js
-/e2e/*.map
-
-#System Files
+# System Files
 .DS_Store
-
-### Eclipse ###
-
-.metadata
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-.recommenders
-
-# External tool builders
-.externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
-
-# CDT-specific (C/C++ Development Tooling)
-.cproject
-
-# Java annotation processor (APT)
-.factorypath
-
-# PDT-specific (PHP Development Tools)
-.buildpath
-
-# sbteclipse plugin
-.target
-
-# Tern plugin
-.tern-project
-
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
-
-# Code Recommenders
-.recommenders/
-
-# Scala IDE specific (Scala & Java development for Eclipse)
-.cache-main
-.scala_dependencies
-.worksheet
-
-### Eclipse Patch ###
-# Eclipse Core		
-.project
-
-# JDT-specific (Eclipse Java Development Tools)		
-.classpath
-
-# End of https://www.gitignore.io/api/eclipse,angular
+Thumbs.db

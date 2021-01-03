@@ -1,17 +1,25 @@
-import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpModule } from '@angular/http';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { AppComponent } from './app.component';
+import { NgModule } from '@angular/core';
+
 import { AppRoutingModule } from './app-routing.module';
-import { FileListComponent } from './file-list.component';
-import { StatisticsComponent } from './statistics.component';
+import { AppComponent } from './app.component';
+import { StatisticsComponent } from './statistics/statistics.component';
+import { FileListComponent } from './file-list/file-list.component';
+
+import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RestrictionRemoverService } from './restriction-remover.service';
 
 @NgModule({
-  imports: [BrowserModule, HttpModule, NgbModule.forRoot(), AppRoutingModule],
-  declarations: [AppComponent, FileListComponent, StatisticsComponent],
-  bootstrap: [AppComponent],
+  declarations: [AppComponent, StatisticsComponent, FileListComponent],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    //NgbModule.forRoot(),
+    NgbModule,
+  ],
   providers: [RestrictionRemoverService],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

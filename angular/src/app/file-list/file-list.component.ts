@@ -1,34 +1,33 @@
 import { Component, OnInit } from '@angular/core';
-import { RestrictionRemoverService } from './restriction-remover.service';
-import { Http } from '@angular/http';
-import { TransferFile } from './transfer-file';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
-import { Observable } from 'rxjs/Rx';
+import { RestrictionRemoverService } from '../restriction-remover.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { TransferFile } from '../transfer-file';
+//import 'rxjs/add/operator/map';
+//import 'rxjs/add/operator/toPromise';
+import { timer } from 'rxjs';
 
 @Component({
-  selector: 'file-list',
+  selector: 'app-file-list',
   templateUrl: './file-list.component.html',
-  styleUrls: ['./file-list.component.css']
+  styleUrls: ['./file-list.component.css'],
 })
 export class FileListComponent implements OnInit {
-
-  maximumFileSize: number;
+  maximumFileSize!: number;
 
   transferFiles: TransferFile[] = [];
 
-  doneFilesCommaSeperated: string;
+  doneFilesCommaSeperated!: string;
 
   url = `http://localhost:8080`;
 
   constructor(
     private restrictionRemoverService: RestrictionRemoverService,
-    private http: Http
-  ) { }
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
-    let timer = Observable.timer(1000, 1000);
-    timer.subscribe(t => this.checkFiles(t));
+    let timerx = timer(1000, 1000);
+    timerx.subscribe((t: any) => this.checkFiles(t));
 
     this.getMaximumFileSize();
   }
@@ -38,7 +37,7 @@ export class FileListComponent implements OnInit {
 
     for (let transferFile of this.transferFiles) {
       if (transferFile.done === true && transferFile.status === 'done') {
-        doneFiles.push(transferFile.id);
+        doneFiles.push(String(transferFile.id));
       }
     }
 
@@ -48,8 +47,9 @@ export class FileListComponent implements OnInit {
   checkFiles(t: any): void {
     for (let transferFile of this.transferFiles) {
       if (transferFile.done === false && transferFile.status !== 'uploading') {
-        this.restrictionRemoverService.checkFile(transferFile)
-          .then(success => {
+        this.restrictionRemoverService
+          .checkFile(transferFile)
+          .then((success) => {
             this.updateDoneFilesCommaSeperated();
           });
       }
@@ -57,9 +57,11 @@ export class FileListComponent implements OnInit {
   }
 
   getMaximumFileSize(): void {
-    this.restrictionRemoverService.getMaximumFileSize().then(maximumFileSize => {
-      this.maximumFileSize = maximumFileSize;
-    });
+    this.restrictionRemoverService
+      .getMaximumFileSize()
+      .then((maximumFileSize) => {
+        this.maximumFileSize = maximumFileSize;
+      });
   }
 
   onFileChanged(event: any, password: string) {
@@ -74,7 +76,7 @@ export class FileListComponent implements OnInit {
         password: password,
         status: 'uploading',
         statusText: 'uploading',
-        done: false
+        done: false,
       };
       this.transferFiles.push(transferFile);
 
