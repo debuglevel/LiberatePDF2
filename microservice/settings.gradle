@@ -28,4 +28,4 @@ gradleEnterprise {
     }
 }
 
-rootProject.name = 'LiberatePDF2-REST-Service'
+rootProject.name = 'microservice'
