@@ -1,17 +1,15 @@
 package de.debuglevel.liberatepdf2.javafx;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MainApp extends Application {
+public class Application extends javafx.application.Application {
 
-	private static final Logger log = LoggerFactory.getLogger(MainApp.class);
+	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
 	public static void main(final String[] args) throws Exception {
 		launch(args);
@@ -25,7 +23,7 @@ public class MainApp extends Application {
 		final String fxmlFile = "/fxml/DropWindow.fxml";
 		log.debug("Loading FXML for main view from: {}", fxmlFile);
 		final FXMLLoader loader = new FXMLLoader();
-		final Parent rootNode = (Parent) loader.load(this.getClass().getResourceAsStream(fxmlFile));
+		final Parent rootNode = loader.load(this.getClass().getResourceAsStream(fxmlFile));
 
 		log.debug("Showing JFX scene");
 		final Scene scene = new Scene(rootNode, 500, 500);
