@@ -1,11 +1,11 @@
 package de.debuglevel.liberatepdf2.restservice.status
 
+import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
+import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
-import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
-import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 
 @Controller("/api/v1/status")
 @Tag(name = "status")

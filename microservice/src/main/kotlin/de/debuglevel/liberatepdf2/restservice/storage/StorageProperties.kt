@@ -8,7 +8,7 @@ class StorageProperties {
     /**
      * Whether the storage directory should be cleared during initialization
      */
-    var isClearOnInitialization = false
+    var clearOnInitialization = false
 
     /**
      * Folder location for storing files

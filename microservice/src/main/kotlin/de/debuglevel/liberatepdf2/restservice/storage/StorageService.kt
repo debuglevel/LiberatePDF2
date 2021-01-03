@@ -16,8 +16,7 @@ interface StorageService {
     /**
      * Gets the Pdf of an item ID.
      *
-     * @param itemId
-     * ID of the item
+     * @param itemId ID of the item
      * @return the Pdf of the item ID, or null if not found
      */
     fun getItem(itemId: UUID): Pdf?

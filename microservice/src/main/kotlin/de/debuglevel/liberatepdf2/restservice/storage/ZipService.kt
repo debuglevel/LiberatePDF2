@@ -17,28 +17,29 @@ class ZipService(
     private val logger = KotlinLogging.logger {}
 
     fun createZip(ids: Array<UUID>): Path {
-        logger.debug { ("Creating ZIP file for ids ${ids.joinToString()}") }
+        logger.debug { "Creating ZIP file for ids ${ids.joinToString()}..." }
+
         val env: MutableMap<String, String?> = HashMap()
         env["create"] = "true"
         // locate file system by using the syntax
         // defined in java.net.JarURLConnection
-        val zipPath = properties.locationPath?.resolve(ids.joinToString(""))
+        val zipPath = properties.locationPath.resolve(ids.joinToString(","))
 
-        logger.debug { ("Path of ZIP file: $zipPath") }
-        val uri = URI.create("jar:" + zipPath?.toUri())
+        logger.debug { "Path of ZIP file: $zipPath" }
+        val uri = URI.create("jar:" + zipPath.toUri())
 
-        logger.debug { ("URI of ZIP file: $uri") }
-        FileSystems.newFileSystem(uri, env).use { zipFilesystem ->
+        logger.debug { "URI of ZIP file: $uri" }
+        return FileSystems.newFileSystem(uri, env).use { zipFilesystem ->
             for (id in ids) {
                 val pdf = storageService.getItem(id)
                 if (pdf != null) {
                     val pathInZipfile = zipFilesystem.getPath("/${pdf.originalFilename}")
-                    logger.debug { ("Copying PDF file {} into {} " + pdf.unrestrictedPath + pathInZipfile) }
+                    logger.debug { "Copying PDF file ${pdf.unrestrictedPath} into $pathInZipfile..." }
                     Files.copy(pdf.unrestrictedPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
             zipFilesystem.close()
-            return zipPath!!
+            zipPath
         }
     }
 }

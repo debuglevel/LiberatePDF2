@@ -1,5 +1,7 @@
 package de.debuglevel.liberatepdf2.restservice.restrictionsremover
 
+import de.debuglevel.liberatepdf2.restservice.storage.StorageService
+import de.debuglevel.liberatepdf2.restservice.storage.ZipService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
@@ -11,8 +13,6 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.SystemFile
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
-import de.debuglevel.liberatepdf2.restservice.storage.StorageService
-import de.debuglevel.liberatepdf2.restservice.storage.ZipService
 import java.net.URI
 import java.nio.file.Files
 import java.util.*
@@ -56,7 +56,7 @@ class RestrictionRemoveController(
             logger.debug { "No document with ID=$documentId found" }
 
             HttpResponse.notFound("No document found for ID=$documentId")
-        } else if (!pdf.isDone) {
+        } else if (!pdf.done) {
             // the request exists, but was not transformed by now
             logger.debug { "Document with ID=${documentId} found, but pdf.isDone=false (not processed by now)" }
             HttpResponse.status<Any>(HttpStatus.PROCESSING) // .status(HTTP_STATUS_IN_PROGRESS) // CAVEAT/TODO

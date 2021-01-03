@@ -1,8 +1,8 @@
 package de.debuglevel.liberatepdf2.restservice.restrictionsremover.pdftk
 
-import mu.KotlinLogging
 import de.debuglevel.liberatepdf2.restservice.Pdf
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
+import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -35,9 +35,9 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
             logger.debug { "Unrestricted PDF path is null; setting failed=true" }
             pdf.failed = true // TODO: might better throw an exception
             failedItems.incrementAndGet()
-        }else {
+        } else {
             pdf.unrestrictedPath = unrestrictedPdfPath
-            pdf.isDone = true
+            pdf.done = true
             successfulItems.incrementAndGet()
         }
 
@@ -65,7 +65,14 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
             processArguments.add(password)
         }
 
-        processArguments.addAll(listOf("output", unrestrictedPdfPath.toAbsolutePath().toString(), "allow", "AllFeatures"))
+        processArguments.addAll(
+            listOf(
+                "output",
+                unrestrictedPdfPath.toAbsolutePath().toString(),
+                "allow",
+                "AllFeatures"
+            )
+        )
         val processBuilder = ProcessBuilder(*processArguments.toTypedArray())
 
         logger.debug { "PDFtk command: " + processBuilder.command().joinToString(" ") }

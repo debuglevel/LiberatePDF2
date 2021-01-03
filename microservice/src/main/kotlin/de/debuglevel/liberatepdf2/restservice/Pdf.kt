@@ -13,7 +13,7 @@ class Pdf(
      */
     val originalFilename: String
 ) {
-    var isDone = false
+    var done = false
     var failed: Boolean? = null
 
     var password: String? = null
