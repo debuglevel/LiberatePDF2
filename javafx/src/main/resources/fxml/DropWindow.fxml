@@ -3,15 +3,12 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-
+<?import javafx.scene.layout.*?>
 <GridPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.debuglevel.liberatepdf2.javafx.DropWindowController">
 		
 	<ListView fx:id="filesListView" onDragDropped="#onDragDropped" onDragOver="#onDragOver" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
    <Label text="Drag-and-Drop the PDF files you want to be unrestricted.&#10;• Selected file(s) will be uploaded immediately.&#10;• Unrestricted files will be downloaded automatically beside the original ones.&#10;• Original and processed files will be stored on the server for research purposes." GridPane.rowIndex="1" />
-   <TextField fx:id="passwordTextField" promptText="Password for encrypted PDF files (leave empty if none)" />
+   <TextField fx:id="passwordTextField" promptText="Password for upcoming encrypted PDF files (leave empty if none)" />
 
 	<columnConstraints>
 		<ColumnConstraints />
