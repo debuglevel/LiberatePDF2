@@ -68,7 +68,7 @@ public class DropWindowController {
 	private void checkFilesStatus() {
 		logger.info("Checking status of files...");
 
-		this.transferFiles.stream().filter(tf -> (tf.isDone() == false) && (tf.getId() != null)).forEach(tf -> {
+		this.transferFiles.stream().filter(tf -> (!tf.isDone()) && (tf.getId() != null)).forEach(tf -> {
 			this.checkTaskExecutor.submit(new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
@@ -76,7 +76,7 @@ public class DropWindowController {
 					// still met. (although conditions were filtered, the queue
 					// MIGHT contain duplicates if checking the whole queue
 					// lasts longer than the checking interval?)
-					if ((tf.isDone() == false) && (tf.getId() != null)) {
+					if ((!tf.isDone()) && (tf.getId() != null)) {
 						DropWindowController.this.checkFileStatus(tf);
 					}
 
@@ -115,7 +115,9 @@ public class DropWindowController {
 			}
 
 			this.filesListView.refresh(); // should be better be done via an
-											// property. but works good enough.
+			// property. but works good enough.
+		} catch (final HttpHostConnectException e) {
+			logger.error("Connection to host failed: " + e.getMessage());
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -131,6 +133,8 @@ public class DropWindowController {
 			logger.info("Maximum upload size is '" + maximumUploadSizeString + "'");
 
 			this.maximumUploadSize = Long.valueOf(maximumUploadSizeString);
+		} catch (final HttpHostConnectException e) {
+			logger.error("Connection to host failed: " + e.getMessage());
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,7 +190,7 @@ public class DropWindowController {
 				@Override
 				protected Void call() throws Exception {
 					DropWindowController.this
-							.processFiles(files.stream().map(f -> f.toPath()).collect(Collectors.toList()));
+							.processFiles(files.stream().map(File::toPath).collect(Collectors.toList()));
 					return null;
 				}
 			};
@@ -249,10 +253,10 @@ public class DropWindowController {
 					e1.printStackTrace();
 				}
 
-				transferFile.setStatus("transfered");
+				transferFile.setStatus("transferred");
 				this.filesListView.refresh(); // should be better be done via an
-												// property. but works good
-												// enough.
+				// property. but works good
+				// enough.
 			});
 
 			uploadTask.setOnFailed(e -> {
@@ -265,8 +269,8 @@ public class DropWindowController {
 				}
 
 				this.filesListView.refresh(); // should be better be done via an
-												// property. but works good
-												// enough.
+				// property. but works good
+				// enough.
 				uploadTask.exceptionProperty().get().printStackTrace();
 			});
 
@@ -283,7 +287,7 @@ public class DropWindowController {
 				logger.info(path + " is a directory");
 
 				// String[] extensions = null;
-				final String[] extensions = new String[] { "pdf", "PDF" };
+				final String[] extensions = new String[]{"pdf", "PDF"};
 				final Collection<File> files = FileUtils.listFiles(path.toFile(), extensions, true);
 				logger.info("Found " + files.size() + " files in directory " + path);
 
