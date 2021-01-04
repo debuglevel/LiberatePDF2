@@ -14,7 +14,7 @@ export class RestrictionRemoverService {
   ) {}
 
   getMaximumFileSize(): Promise<number> {
-    console.log('Querying maximum file size...');
+    console.debug('Querying maximum file size...');
     return this.http
       .get(
         this.settingsService.settings.apiUrl +
@@ -22,7 +22,7 @@ export class RestrictionRemoverService {
       )
       .toPromise()
       .then((response) => {
-        console.log(
+        console.debug(
           `Queried maximum upload size: ${response} (${Number(response)})`
         );
         return Number(response);

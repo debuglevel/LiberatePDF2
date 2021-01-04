@@ -18,7 +18,10 @@ export class FileListComponent implements OnInit {
   constructor(private restrictionRemoverService: RestrictionRemoverService) {}
 
   ngOnInit() {
-    console.log('Initializing...');
+    console.debug('Initializing...');
+    console.log(
+      'Reminder: Set log level to verbose in your Browser to see console.debug() messages'
+    );
 
     let timerx = timer(1000, 1000);
     timerx.subscribe((t: any) => this.checkFiles(t));
@@ -51,13 +54,13 @@ export class FileListComponent implements OnInit {
   }
 
   getMaximumFileSize(): void {
-    console.log('Getting maximum file size...');
+    console.debug('Getting maximum file size...');
     this.restrictionRemoverService
       .getMaximumFileSize()
       .then((maximumFileSize) => {
-        console.log(`Got maximum maximum file size: ${maximumFileSize}`);
+        console.debug(`Got maximum maximum file size: ${maximumFileSize}`);
         this.maximumFileSize = maximumFileSize;
-        console.log(`Set maximum maximum file size: ${this.maximumFileSize}`);
+        console.debug(`Set maximum maximum file size: ${this.maximumFileSize}`);
       });
   }
 
