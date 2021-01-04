@@ -42,6 +42,7 @@ export class FileListComponent implements OnInit {
   }
 
   checkFiles(t: any): void {
+    console.debug('Checking files...');
     for (let transferFile of this.transferFiles) {
       if (transferFile.done === false && transferFile.status !== 'uploading') {
         this.restrictionRemoverService
@@ -81,11 +82,13 @@ export class FileListComponent implements OnInit {
       this.transferFiles.push(transferFile);
 
       if (file.size <= this.maximumFileSize) {
+        console.debug('The file is small enough for the server to accept.');
         this.restrictionRemoverService.uploadDocument(transferFile);
       } else {
+        console.debug('The file is bigger than the server would accept.');
         transferFile.done = true;
         transferFile.status = 'too-big-failed';
-        transferFile.statusText = 'file is too big, did not upload';
+        transferFile.statusText = 'File is too big, did not upload.';
       }
     }
   }

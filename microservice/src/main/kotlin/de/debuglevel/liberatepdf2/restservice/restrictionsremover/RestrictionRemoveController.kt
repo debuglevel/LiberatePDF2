@@ -5,10 +5,7 @@ import de.debuglevel.liberatepdf2.restservice.storage.ZipService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.Consumes
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.SystemFile
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -82,6 +79,7 @@ class RestrictionRemoveController(
 
     @Post("/")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
     fun uploadAndRemoveRestrictions(
         file: CompletedFileUpload,
         password: String,
@@ -96,12 +94,7 @@ class RestrictionRemoveController(
         restrictionsRemoverService.removeRestrictions(pdf)
         val uri = URI("/documents/${pdf.id}")
 
-        //return ResponseEntity.accepted().location(uriComponents.toUri()).body(pdf.id)
-        val x = HttpResponse.accepted<String>(uri).body(pdf.id.toString())
-        return x
-
-        return HttpResponse.accepted(uri) // CAVEAT: maybe needs to return id, how?
-        //return pdf.id
+        return HttpResponse.accepted<String>(uri).body(pdf.id.toString())
     }
 
     companion object {
