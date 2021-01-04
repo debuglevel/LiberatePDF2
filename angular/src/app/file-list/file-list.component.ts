@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RestrictionRemoverService } from '../restriction-remover.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { TransferFile } from '../transfer-file';
-//import 'rxjs/add/operator/map';
-//import 'rxjs/add/operator/toPromise';
 import { timer } from 'rxjs';
 
 @Component({
@@ -12,20 +9,17 @@ import { timer } from 'rxjs';
   styleUrls: ['./file-list.component.css'],
 })
 export class FileListComponent implements OnInit {
-  maximumFileSize!: number;
+  maximumFileSize: number | undefined;
 
   transferFiles: TransferFile[] = [];
 
   doneFilesCommaSeperated!: string;
 
-  url = `http://localhost:8080`;
-
-  constructor(
-    private restrictionRemoverService: RestrictionRemoverService,
-    private http: HttpClient
-  ) {}
+  constructor(private restrictionRemoverService: RestrictionRemoverService) {}
 
   ngOnInit() {
+    console.log('Initializing...');
+
     let timerx = timer(1000, 1000);
     timerx.subscribe((t: any) => this.checkFiles(t));
 
@@ -57,10 +51,13 @@ export class FileListComponent implements OnInit {
   }
 
   getMaximumFileSize(): void {
+    console.log('Getting maximum file size...');
     this.restrictionRemoverService
       .getMaximumFileSize()
       .then((maximumFileSize) => {
+        console.log(`Got maximum maximum file size: ${maximumFileSize}`);
         this.maximumFileSize = maximumFileSize;
+        console.log(`Set maximum maximum file size: ${this.maximumFileSize}`);
       });
   }
 

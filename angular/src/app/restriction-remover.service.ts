@@ -1,11 +1,7 @@
 import { TransferFile } from './transfer-file';
 import { Injectable } from '@angular/core';
-//import { Http, Headers, RequestOptions } from '@angular/http';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { HttpClientModule } from '@angular/common/http';
-//import 'rxjs/add/operator/map';
 import { map } from 'rxjs/operators';
-//import 'rxjs/add/operator/toPromise';
 import { SettingsService } from './settings.service';
 
 @Injectable({
@@ -18,13 +14,19 @@ export class RestrictionRemoverService {
   ) {}
 
   getMaximumFileSize(): Promise<number> {
+    console.log('Querying maximum file size...');
     return this.http
       .get(
         this.settingsService.settings.apiUrl +
           '/api/v1/status/maximum-upload-size'
       )
       .toPromise()
-      .then((response: any) => Number(response.text()))
+      .then((response) => {
+        console.log(
+          `Queried maximum upload size: ${response} (${Number(response)})`
+        );
+        return Number(response);
+      })
       .catch(this.handleError);
   }
 
