@@ -5,6 +5,9 @@ services:
     image: liberatepdf2-angular
     ports:
       - "8082:80"
+    environment:
+      # port 80 is actually already defined as default for docker as ENV in Dockerfile
+      - API_URL=http://localhost:8081
   rest:
     build: microservice
     image: liberatepdf2-microservice

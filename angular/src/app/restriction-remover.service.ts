@@ -6,18 +6,23 @@ import { HttpClientModule } from '@angular/common/http';
 //import 'rxjs/add/operator/map';
 import { map } from 'rxjs/operators';
 //import 'rxjs/add/operator/toPromise';
+import { SettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RestrictionRemoverService {
-  url = `http://localhost:8080`;
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private settingsService: SettingsService
+  ) {}
 
   getMaximumFileSize(): Promise<number> {
     return this.http
-      .get(this.url + '/api/v1/status/maximum-upload-size')
+      .get(
+        this.settingsService.settings.apiUrl +
+          '/api/v1/status/maximum-upload-size'
+      )
       .toPromise()
       .then((response: any) => Number(response.text()))
       .catch(this.handleError);
@@ -25,7 +30,7 @@ export class RestrictionRemoverService {
 
   getStatistics(): Promise<any> {
     return this.http
-      .get(this.url + '/api/v1/status/statistics')
+      .get(this.settingsService.settings.apiUrl + '/api/v1/status/statistics')
       .toPromise()
       .then((response: any) => response.json())
       .catch(this.handleError);
@@ -41,7 +46,11 @@ export class RestrictionRemoverService {
     };
 
     this.http
-      .post(this.url + '/api/v1/documents/', formData, options)
+      .post(
+        this.settingsService.settings.apiUrl + '/api/v1/documents/',
+        formData,
+        options
+      )
       .pipe(
         map((res: any) => res.text())
         //.catch(this.handleError)
@@ -63,7 +72,11 @@ export class RestrictionRemoverService {
 
   checkFile(transferFile: TransferFile): Promise<void> {
     return this.http
-      .head(this.url + '/api/v1/documents/' + transferFile.id)
+      .head(
+        this.settingsService.settings.apiUrl +
+          '/api/v1/documents/' +
+          transferFile.id
+      )
       .toPromise()
       .then(
         (successResponse: any) => {
