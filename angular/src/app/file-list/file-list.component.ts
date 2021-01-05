@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RestrictionRemoverService } from '../restriction-remover.service';
 import { TransferFile } from '../transfer-file';
 import { timer } from 'rxjs';
+import { SettingsService } from '../settings.service';
 
 @Component({
   selector: 'app-file-list',
@@ -15,7 +16,12 @@ export class FileListComponent implements OnInit {
 
   doneFilesCommaSeperated!: string;
 
-  constructor(private restrictionRemoverService: RestrictionRemoverService) {}
+  url = this.settingsService.settings.apiUrl;
+
+  constructor(
+    private restrictionRemoverService: RestrictionRemoverService,
+    private settingsService: SettingsService
+  ) {}
 
   ngOnInit() {
     console.debug('Initializing...');
