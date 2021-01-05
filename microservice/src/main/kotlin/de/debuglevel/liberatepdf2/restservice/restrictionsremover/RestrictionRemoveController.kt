@@ -65,10 +65,11 @@ class RestrictionRemoveController(
                 .body("The document was processed, but produced no result. Maybe the password was wrong or another error occurred.")
         } else {
             // request should be okay
-            val filename = storageService.getItem(documentId)!!.originalFilename
             val filesystemResource = pdf.unrestrictedPath!!.toFile()
-            logger.debug { ("Document with ID=${documentId} found and set for delivery") }
+            logger.debug { "Document with ID=${documentId} found and set for delivery" }
 
+            // TODO: rename "foo.pdf" to "foo.unrestricted.pdf" or the like
+            val filename = storageService.getItem(documentId)!!.originalFilename
             HttpResponse.ok(SystemFile(filesystemResource).attach(filename))
 
 //            HttpResponse.ok().contentType(MediaType.APPLICATION_PDF)
