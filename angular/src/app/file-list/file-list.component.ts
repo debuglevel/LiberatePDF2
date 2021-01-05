@@ -81,7 +81,7 @@ export class FileListComponent implements OnInit {
       };
       this.transferFiles.push(transferFile);
 
-      if (file.size <= this.maximumFileSize) {
+      if (file.size <= this.maximumFileSize!) {
         console.debug('The file is small enough for the server to accept.');
         this.restrictionRemoverService.uploadDocument(transferFile);
       } else {
