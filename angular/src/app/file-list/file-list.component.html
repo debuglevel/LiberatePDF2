@@ -1,9 +1,20 @@
 <div>
+  <div class="introduction">
+    <p>
+      Sometimes you've got a PDF that has some restrictions (e.g. unable to copy
+      text from it, print it or comment it).
+    </p>
+    <p>
+      LiberatePDF2 allows you to remove all restrictions and enable you to work
+      with your PDF as you want to.
+    </p>
+  </div>
   <ol class="steps">
     <li>
       <div class="form-group">
         <label
-          >Password for encrypted PDF files (leave empty if none)
+          >If the next PDFs you upload need an password to be viewed,<br />
+          enter it here (leave empty if none is needed):
           <input
             type="text"
             class="form-control"
@@ -15,17 +26,18 @@
     </li>
     <li>
       <div class="form-group">
-        <p class="header">Select the PDF files you want to be unrestricted.</p>
+        <p class="header">Select the PDF you want to be unrestricted.</p>
         <ul>
-          <li>Selected file(s) will be uploaded immediately.</li>
+          <li>The selected PDFs will be uploaded immediately.</li>
           <li>
-            Maximum file size is
+            The maximum file size is
             <span
               >{{ maximumFileSize! / 1024 / 1024 | number: "1.0-1" }} MB.</span
             >
           </li>
           <li>
-            Original and processed files will be stored on the server for
+            The original and processed PDFs will be stored on the server<br />
+            for
             <span
               class="tooltip-available"
               title="1) we would like to try some data mining 2) and preserve knowledge in case of 'de-publication'"
@@ -39,7 +51,7 @@
             transferFiles.length === 0 ? 'btn-primary' : 'btn-secondary'
           "
           ><i class="fa fa-upload" aria-hidden="true"></i> Browse and upload
-          files<input
+          PDFs<input
             hidden="hidden"
             type="file"
             (change)="onFileChanged($event, password.value)"
@@ -54,8 +66,8 @@
     <li *ngIf="transferFiles.length > 0">
       <div *ngIf="transferFiles.length > 0">
         <p>
-          Wait for your files to be processed and download them when they are
-          ready:
+          Please wait for your PDFs to be processed and download them when they
+          are ready:
         </p>
 
         <table class="table">
