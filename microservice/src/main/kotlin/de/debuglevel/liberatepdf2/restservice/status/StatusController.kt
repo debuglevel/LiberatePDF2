@@ -1,5 +1,6 @@
 package de.debuglevel.liberatepdf2.restservice.status
 
+import de.debuglevel.liberatepdf2.restservice.configuration.ConfigurationService
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
 import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import io.micronaut.http.annotation.Controller
@@ -12,15 +13,15 @@ import mu.KotlinLogging
 class StatusController(
     private val storageService: StorageService,
     private val restrictionsRemoverService: RestrictionsRemoverService,
+    private val configurationService: ConfigurationService,
 ) {
     private val logger = KotlinLogging.logger {}
 
+    @Deprecated("superseded by /api/v1/configuration/")
     @Get("/maximum-upload-size")
     fun maximumUploadSize(): Long {
         logger.debug { "Received GET request for maximum-upload-size" }
-
-        //TODO("no yet implemented, if there is a limit in micronaut at all")
-        return 100000 // TODO: fake.
+        return configurationService.maximumMultipartUploadSize
     }
 
     @Get("/ping")

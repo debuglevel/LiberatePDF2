@@ -18,6 +18,10 @@ micronaut:
     instance:
       id: ${random.shortuuid} # instance ID should be set random if Consul registration is active to avoid collisions (default ID would be the port number)
   server:
+    max-request-size: 20mb
+    multipart:
+      #enabled: true # TODO: might be needed or not depending on https://github.com/micronaut-projects/micronaut-core/issues/4773
+      max-file-size: 20mb
     port: 8080 # default: -1 (random port)
     cors:
       enabled: true # default: false
