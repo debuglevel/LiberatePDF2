@@ -1,13 +1,11 @@
 package de.debuglevel.liberatepdf2.restservice.configuration
 
 import io.micronaut.http.server.HttpServerConfiguration
-import io.micronaut.runtime.server.EmbeddedServer
 import mu.KotlinLogging
 import javax.inject.Singleton
 
 @Singleton
 class ConfigurationService(
-    private val embeddedServer: EmbeddedServer,
     httpServerConfiguration: HttpServerConfiguration,
 ) {
     private val logger = KotlinLogging.logger {}
