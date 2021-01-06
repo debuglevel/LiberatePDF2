@@ -39,4 +39,9 @@ interface StorageService {
     fun store(filename: String, inputStream: InputStream, password: String): Pdf
 
     data class StorageException(val msg: String, val inner: Throwable) : Exception(msg, inner)
+    data class InitializationException(val inner: Throwable) : Exception("Could not initialize storage", inner)
+    data class StoreException(val filename: String, val inner: Throwable) :
+        Exception("Failed to store file $filename", inner)
+
+    data class FileNotFoundException(val msg: String, val inner: Throwable) : Exception(msg, inner)
 }
