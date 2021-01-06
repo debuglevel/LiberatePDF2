@@ -17,25 +17,25 @@ class ZipService(
     private val logger = KotlinLogging.logger {}
 
     fun createZip(ids: Array<UUID>): Path {
-        logger.debug { "Creating ZIP file for ids ${ids.joinToString()}..." }
+        logger.debug { "Creating ZIP file for documents ${ids.joinToString()}..." }
 
-        val env: MutableMap<String, String?> = HashMap()
-        env["create"] = "true"
-        // locate file system by using the syntax
-        // defined in java.net.JarURLConnection
-        val zipPath = properties.locationPath.resolve(ids.joinToString(","))
+        val properties: MutableMap<String, String?> = HashMap()
+        properties["create"] = "true"
 
+        // locate file system by using the syntax defined in java.net.JarURLConnection
+        val zipPath =
+            this.properties.locationPath.resolve(ids.joinToString(",")) // TODO: this will probably break on too many ids
         logger.debug { "Path of ZIP file: $zipPath" }
-        val uri = URI.create("jar:" + zipPath.toUri())
 
+        val uri = URI.create("jar:" + zipPath.toUri())
         logger.debug { "URI of ZIP file: $uri" }
-        return FileSystems.newFileSystem(uri, env).use { zipFilesystem ->
+
+        return FileSystems.newFileSystem(uri, properties).use { zipFilesystem ->
             for (id in ids) {
-                val pdf = storageService.getItem(id)
-                if (pdf != null) {
-                    val pathInZipfile = zipFilesystem.getPath("/${pdf.originalFilename}")
-                    logger.debug { "Copying PDF file ${pdf.unrestrictedPath} into $pathInZipfile..." }
-                    Files.copy(pdf.unrestrictedPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING)
+                storageService.getItem(id)?.let { pdf ->
+                    val pathInZipFile = zipFilesystem.getPath("/${pdf.originalFilename}")
+                    logger.debug { "Copying PDF file ${pdf.unrestrictedPath} into $pathInZipFile..." }
+                    Files.copy(pdf.unrestrictedPath, pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
             zipFilesystem.close()
