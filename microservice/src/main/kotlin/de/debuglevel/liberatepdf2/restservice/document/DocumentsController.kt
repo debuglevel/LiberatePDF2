@@ -102,7 +102,7 @@ class DocumentsController(
         executor.submit { restrictionsRemoverService.removeRestrictions(pdf) }
 
         val uri = URI("/documents/${pdf.id}")
-        logger.debug { "Returning PDF id $pdf.id" }
+        logger.debug { "Returning PDF id=$pdf.id" }
         return HttpResponse.accepted<String>(uri).body(pdf.id.toString())
     }
 
