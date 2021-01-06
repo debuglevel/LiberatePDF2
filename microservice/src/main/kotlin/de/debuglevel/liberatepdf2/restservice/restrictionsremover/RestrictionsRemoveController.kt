@@ -16,8 +16,6 @@ import java.nio.file.Files
 import java.util.*
 import java.util.concurrent.Executors
 
-//import javax.servlet.http.HttpServletResponse
-
 @Controller("/api/v1/documents")
 @Tag(name = "documents")
 class RestrictionsRemoveController(
