@@ -2,8 +2,8 @@ app:
   liberatepdf2:
     default-language: "null" # note that "null" must be enclosed by quotation marks, as it would be unset otherwise
     unknown-language: "unknown" # note that key should not be camelCase, as uppercase characters may lead to problems in configuration binding
-    #backend: "openpdf"
-    backend: "pdftk-cli"
+    backend: "openpdf"
+    #backend: "pdftk-cli"
     storage:
       # location where uploaded and converted files should be save
       location: "storage-directory"
