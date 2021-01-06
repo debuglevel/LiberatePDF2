@@ -31,11 +31,11 @@ class DocumentsController(
 
     @Get("/zip{?id}")
     fun downloadZip(
-        id: Array<UUID>?,
+        ids: Array<UUID>?,
     ): HttpResponse<*> {
-        return if (!id.isNullOrEmpty()) {
-            logger.debug { "GET /zip for ${id.size} documents ${id.joinToString()}" }
-            val zip = zipService.createZip(id)
+        return if (!ids.isNullOrEmpty()) {
+            logger.debug { "GET /zip for ${ids.size} documents ${ids.joinToString()}" }
+            val zip = zipService.createZip(ids)
             val filesystemResource = zip.toFile()
 
             HttpResponse.ok(SystemFile(filesystemResource).attach("unrestricted PDFs.zip"))
