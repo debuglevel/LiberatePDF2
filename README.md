@@ -1,6 +1,6 @@
 # LiberatePDF 2
 
-LiberatePDF2 is a frontend to `pdftk input.pdf input_pw $password output output.pdf allow AllFeatures`, e.g. it removes the PDF encryption and removes all restrcitions (e.g. printing disabled, commenting disabled, et cetera).
+LiberatePDF2 is a frontend for OpenPDF (fork of iText) or PDFtk (which uses iText) to remove the PDF encryption and all restrictions (e.g. printing disabled, commenting disabled, et cetera).
 
 ![Angular client of LiberatePDF2](images/angular.png)
 
