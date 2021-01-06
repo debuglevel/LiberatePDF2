@@ -42,16 +42,16 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
 
         logger.debug { "'Clear on Initialization' is set to ${properties.clearOnInitialization}" }
         if (properties.clearOnInitialization) {
-            logger.debug { "Deleting storage directory ${properties.locationPath}" }
+            logger.debug { "Deleting storage directory '${properties.locationPath}'" }
             deleteAll()
         }
 
         try {
             if (!Files.exists(properties.locationPath)) {
-                logger.debug { "Creating storage directory ${properties.locationPath}..." }
+                logger.debug { "Creating storage directory '${properties.locationPath}'..." }
                 Files.createDirectory(properties.locationPath)
             } else {
-                logger.debug { "Skipping creation of storage directory ${properties.locationPath} because it already exists..." }
+                logger.debug { "Skipping creation of storage directory '${properties.locationPath}' because it already exists..." }
             }
         } catch (e: IOException) {
             throw StorageService.InitializationException(e)
@@ -60,7 +60,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
 
     override fun store(filename: String, inputStream: InputStream, password: String): Pdf {
         val itemId = generateID()
-        logger.debug { "Storing '$filename' as ID=${itemId}..." }
+        logger.debug { "Storing '$filename' as id=${itemId}..." }
 
         val pdf = Pdf(itemId, filename)
 
