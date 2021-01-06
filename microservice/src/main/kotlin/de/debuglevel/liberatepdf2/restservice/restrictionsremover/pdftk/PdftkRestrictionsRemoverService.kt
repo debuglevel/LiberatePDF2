@@ -2,6 +2,7 @@ package de.debuglevel.liberatepdf2.restservice.restrictionsremover.pdftk
 
 import de.debuglevel.liberatepdf2.restservice.Pdf
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
+import io.micronaut.context.annotation.Requires
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
 import java.io.IOException
@@ -14,6 +15,7 @@ import javax.inject.Singleton
  * Removes restrictions from a PDF file using the command line version of PDFtk.
  */
 @Singleton
+@Requires(property = "app.liberatepdf2.backend", value = "pdftk-cli")
 class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
     private val logger = KotlinLogging.logger {}
 

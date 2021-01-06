@@ -2,9 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="javafx" target="1.8" />
-      <module name="javafx.main" target="1.8" />
-      <module name="javafx.test" target="1.8" />
       <module name="LiberatePDF2-JavaFX-Client.main" target="1.8" />
       <module name="LiberatePDF2-JavaFX-Client.test" target="1.8" />
       <module name="LiberatePDF2-REST-Service" target="1.8" />
