@@ -46,7 +46,7 @@ class DocumentsController(
     }
 
     @Get("/{documentId}")
-    fun downloadUnrestricted(
+    fun getOne(
         documentId: UUID,
     ): HttpResponse<*> {
         logger.debug { "Received GET or HEAD request for document $documentId" }
@@ -90,7 +90,7 @@ class DocumentsController(
     @Post("/")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    fun uploadAndRemoveRestrictions(
+    fun postOne(
         file: CompletedFileUpload,
         password: String,
     ): HttpResponse<String> {
