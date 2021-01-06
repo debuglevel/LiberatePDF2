@@ -53,7 +53,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
                 logger.debug { "Skipping creation of storage directory ${properties.locationPath} because it already exists..." }
             }
         } catch (e: IOException) {
-            throw StorageException("Could not initialize storage", e)
+            throw StorageService.StorageException("Could not initialize storage", e)
         }
     }
 
@@ -78,7 +78,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
             }
         } catch (e: IOException) {
             logger.error(e) { "Failed to store file $filename" }
-            throw StorageException("Failed to store file $filename", e)
+            throw StorageService.StorageException("Failed to store file $filename", e)
         }
 
         pdf.restrictedPath = filePath

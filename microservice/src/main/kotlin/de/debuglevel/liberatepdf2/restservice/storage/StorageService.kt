@@ -37,4 +37,6 @@ interface StorageService {
      * @param file
      */
     fun store(filename: String, inputStream: InputStream, password: String): Pdf
+
+    data class StorageException(val msg: String, val inner: Throwable) : Exception(msg, inner)
 }
