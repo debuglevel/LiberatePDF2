@@ -12,7 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class ZipService(
     private val storageService: StorageService,
-    private val properties: StorageProperties
+    private val storageProperties: StorageProperties
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -23,7 +23,7 @@ class ZipService(
         properties["create"] = "true"
 
         // locate file system by using the syntax defined in java.net.JarURLConnection
-        val zipPath = this.properties.locationPath.resolve(UUID.randomUUID().toString())
+        val zipPath = this.storageProperties.locationPath.resolve(UUID.randomUUID().toString())
         logger.debug { "Path of ZIP file: $zipPath" }
 
         val uri = URI.create("jar:" + zipPath.toUri())
