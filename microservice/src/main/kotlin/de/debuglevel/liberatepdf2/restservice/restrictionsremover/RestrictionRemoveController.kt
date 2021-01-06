@@ -58,6 +58,11 @@ class RestrictionRemoveController(
             logger.debug { "Document with ID=${documentId} found, but pdf.isDone=false (not processed by now)" }
             HttpResponse.status<Any>(HttpStatus.PROCESSING) // .status(HTTP_STATUS_IN_PROGRESS) // CAVEAT/TODO
                 .body("The document was not processed by now. Please try again later.")
+        } else if (pdf.failed == true) {
+            // the request exists, but transformation failed
+            logger.debug { "Document with ID=${documentId} found, but transformation failed" }
+            HttpResponse.status<Any>(HttpStatus.INTERNAL_SERVER_ERROR) // .status(HTTP_STATUS_FAILED) // CAVEAT/TODO
+                .body("The document transformation failed: ${pdf.error}")
         } else if (!Files.exists(pdf.unrestrictedPath)) {
             // the request was transformed, but the file does not exist (somehow failed?)
             logger.debug { "Document with ID=${documentId} found, but no file exists" }
