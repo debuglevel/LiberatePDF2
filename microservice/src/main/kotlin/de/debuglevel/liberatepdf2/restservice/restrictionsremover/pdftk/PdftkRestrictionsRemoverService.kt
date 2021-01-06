@@ -36,6 +36,7 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
         if (unrestrictedPdfPath == null) {
             logger.debug { "Unrestricted PDF path is null; setting failed=true" }
             pdf.failed = true // TODO: might better throw an exception
+            pdf.done = true
             failedItems.incrementAndGet()
         } else {
             pdf.unrestrictedPath = unrestrictedPdfPath
