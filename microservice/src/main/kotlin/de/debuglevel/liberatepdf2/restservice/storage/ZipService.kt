@@ -37,7 +37,6 @@ class ZipService(
                     Files.copy(pdf.unrestrictedPath, pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
                 }
             }
-            zipFilesystem.close()
             zipPath
         }
     }
