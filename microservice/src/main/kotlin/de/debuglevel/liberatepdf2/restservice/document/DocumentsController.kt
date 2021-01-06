@@ -31,25 +31,20 @@ class DocumentsController(
 
     @Get("/zip{?id}")
     fun downloadZip(
-        id: Array<UUID>?, // CAVEAT: multiple query
-        //response: HttpServletResponse?
+        id: Array<UUID>?,
     ): HttpResponse<*> {
-        logger.debug { "Received GET or HEAD request for multiple ${id?.size} documents ${id?.joinToString()}" }
+        logger.debug { "GET /zip for ${id?.size} documents ${id?.joinToString()}" }
         val zip = zipService.createZip(id!!)
         val filesystemResource = zip.toFile()
 
         return HttpResponse.ok(SystemFile(filesystemResource).attach("unrestricted PDFs.zip"))
-
-//        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-//            .header("Content-Disposition", "attachment; filename=\"" + "unrestricted PDFs.zip" + "\"")
-//            .body(filesystemResource)
     }
 
     @Get("/{documentId}")
     fun getOne(
         documentId: UUID,
     ): HttpResponse<*> {
-        logger.debug { "Received GET or HEAD request for document id=$documentId" }
+        logger.debug { "GET / or HEAD / for document id=$documentId" }
 
         val pdf = storageService.getItem(documentId)
         return if (pdf == null) {
