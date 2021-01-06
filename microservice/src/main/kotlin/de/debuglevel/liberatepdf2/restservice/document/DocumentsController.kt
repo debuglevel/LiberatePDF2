@@ -49,33 +49,33 @@ class DocumentsController(
     fun getOne(
         documentId: UUID,
     ): HttpResponse<*> {
-        logger.debug { "Received GET or HEAD request for document $documentId" }
+        logger.debug { "Received GET or HEAD request for document id=$documentId" }
 
         val pdf = storageService.getItem(documentId)
         return if (pdf == null) {
             // no item found with this ID (because no request was assigned this ID by now)
-            logger.debug { "No document with ID=$documentId found" }
+            logger.debug { "No document with id=$documentId found" }
 
-            HttpResponse.notFound("No document found for ID=$documentId")
+            HttpResponse.notFound("No document found for id=$documentId")
         } else if (!pdf.done) {
             // the request exists, but was not transformed by now
-            logger.debug { "Document with ID=${documentId} found, but pdf.isDone=false (not processed by now)" }
+            logger.debug { "Document with id=${documentId} found, but pdf.isDone=false (not processed by now)" }
             HttpResponse.status<Any>(HttpStatus.PROCESSING) // .status(HTTP_STATUS_IN_PROGRESS) // CAVEAT/TODO
                 .body("The document was not processed by now. Please try again later.")
         } else if (pdf.failed == true) {
             // the request exists, but transformation failed
-            logger.debug { "Document with ID=${documentId} found, but transformation failed" }
+            logger.debug { "Document with id=${documentId} found, but transformation failed" }
             HttpResponse.status<Any>(HttpStatus.INTERNAL_SERVER_ERROR) // .status(HTTP_STATUS_FAILED) // CAVEAT/TODO
                 .body("The document transformation failed: ${pdf.error}")
         } else if (!Files.exists(pdf.unrestrictedPath)) {
             // the request was transformed, but the file does not exist (somehow failed?)
-            logger.debug { "Document with ID=${documentId} found, but no file exists" }
+            logger.debug { "Document with id=${documentId} found, but no file exists" }
             HttpResponse.status<String>(HttpStatus.INTERNAL_SERVER_ERROR) // .status(HTTP_STATUS_FAILED) // CAVEAT/TODO
                 .body("The document was processed, but produced no result. Maybe the password was wrong or another error occurred.")
         } else {
             // request should be okay
             val filesystemResource = pdf.unrestrictedPath!!.toFile()
-            logger.debug { "Document with ID=${documentId} found and set for delivery" }
+            logger.debug { "Document with id=${documentId} found and set for delivery" }
 
             // TODO: rename "foo.pdf" to "foo.unrestricted.pdf" or the like
             val filename = storageService.getItem(documentId)!!.originalFilename
