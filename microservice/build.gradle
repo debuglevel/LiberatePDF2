@@ -151,6 +151,11 @@ dependencies {
 
     //
     implementation 'commons-io:commons-io:2.5'
+
+    // OpenPDF
+    implementation platform("com.github.librepdf:openpdf:$openpdfVersion")
+    implementation "com.github.librepdf:openpdf:$openpdfVersion"
+    implementation "org.bouncycastle:bcprov-jdk15on"
 }
 
 // Java configuration
