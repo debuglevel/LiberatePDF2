@@ -6,7 +6,7 @@ import java.util.*
 /**
  * A PDF file
  */
-class Pdf(
+data class Pdf(
     val id: UUID,
     /**
      * original filename of the PDF
@@ -15,6 +15,7 @@ class Pdf(
 ) {
     var done = false
     var failed: Boolean? = null
+    var error: String? = null
 
     var password: String? = null
     var restrictedPath: Path? = null
