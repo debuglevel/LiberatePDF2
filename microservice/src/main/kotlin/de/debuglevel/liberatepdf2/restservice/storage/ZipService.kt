@@ -23,8 +23,7 @@ class ZipService(
         properties["create"] = "true"
 
         // locate file system by using the syntax defined in java.net.JarURLConnection
-        val zipPath =
-            this.properties.locationPath.resolve(ids.joinToString(",")) // TODO: this will probably break on too many ids
+        val zipPath = this.properties.locationPath.resolve(UUID.randomUUID().toString())
         logger.debug { "Path of ZIP file: $zipPath" }
 
         val uri = URI.create("jar:" + zipPath.toUri())
