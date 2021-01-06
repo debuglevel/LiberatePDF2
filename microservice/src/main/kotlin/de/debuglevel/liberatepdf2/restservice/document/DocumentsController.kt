@@ -33,11 +33,16 @@ class DocumentsController(
     fun downloadZip(
         id: Array<UUID>?,
     ): HttpResponse<*> {
-        logger.debug { "GET /zip for ${id?.size} documents ${id?.joinToString()}" }
-        val zip = zipService.createZip(id!!)
-        val filesystemResource = zip.toFile()
+        return if (!id.isNullOrEmpty()) {
+            logger.debug { "GET /zip for ${id.size} documents ${id.joinToString()}" }
+            val zip = zipService.createZip(id)
+            val filesystemResource = zip.toFile()
 
-        return HttpResponse.ok(SystemFile(filesystemResource).attach("unrestricted PDFs.zip"))
+            HttpResponse.ok(SystemFile(filesystemResource).attach("unrestricted PDFs.zip"))
+        } else {
+            logger.warn { "GET /zip with missing id parameter" }
+            HttpResponse.badRequest("id parameter must be supplied")
+        }
     }
 
     @Get("/{documentId}")
