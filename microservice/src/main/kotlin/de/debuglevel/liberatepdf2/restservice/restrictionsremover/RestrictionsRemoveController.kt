@@ -2,6 +2,7 @@ package de.debuglevel.liberatepdf2.restservice.restrictionsremover
 
 import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import de.debuglevel.liberatepdf2.restservice.storage.ZipService
+import io.micronaut.context.annotation.Property
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
@@ -13,7 +14,7 @@ import mu.KotlinLogging
 import java.net.URI
 import java.nio.file.Files
 import java.util.*
-import kotlin.concurrent.thread
+import java.util.concurrent.Executors
 
 //import javax.servlet.http.HttpServletResponse
 
@@ -22,9 +23,12 @@ import kotlin.concurrent.thread
 class RestrictionsRemoveController(
     private val storageService: StorageService,
     private val restrictionsRemoverService: RestrictionsRemoverService,
-    private val zipService: ZipService
+    private val zipService: ZipService,
+    @Property(name = "app.liberatepdf2.worker-threads") workerThreadsCount: Int,
 ) {
     private val logger = KotlinLogging.logger {}
+
+    private val executor = Executors.newFixedThreadPool(workerThreadsCount)
 
     @Get("/zip{?id}")
     fun downloadZip(
@@ -98,10 +102,7 @@ class RestrictionsRemoveController(
         val pdf = storageService.store(file.filename, file.inputStream, password)
         pdf.password = password
 
-        // TODO: this might be a bad idea for heavy load, as it immediately spins up a new thread. A worker queue should be used instead.
-        thread {
-            restrictionsRemoverService.removeRestrictions(pdf)
-        }
+        executor.submit { restrictionsRemoverService.removeRestrictions(pdf) }
 
         val uri = URI("/documents/${pdf.id}")
         logger.debug { "Returning PDF id $pdf.id" }
