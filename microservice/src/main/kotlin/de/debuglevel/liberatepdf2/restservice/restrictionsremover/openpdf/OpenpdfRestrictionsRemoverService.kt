@@ -29,13 +29,8 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
     override fun removeRestrictions(pdf: Pdf) {
         logger.debug { "Removing restrictions from PDF $pdf..." }
 
-        val password = if (pdf.password.isNullOrEmpty()) {
-            null
-        } else {
-            java.lang.String(pdf.password).bytes
-        }
-
         try {
+            val password = pdf.password?.encodeToByteArray()
             val pdfReader = PdfReader(pdf.restrictedPath!!.toFile().inputStream(), password)
 
             val restrictedFilename = pdf.restrictedPath!!.fileName.toString()
