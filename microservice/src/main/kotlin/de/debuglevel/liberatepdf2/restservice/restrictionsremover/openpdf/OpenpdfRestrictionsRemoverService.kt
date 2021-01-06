@@ -31,15 +31,20 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
 
         try {
             val password = pdf.password?.encodeToByteArray()
+            logger.debug { "Reading PDF $pdf..." }
             val pdfReader = PdfReader(pdf.restrictedPath!!.toFile().inputStream(), password)
+            logger.debug { "Read PDF $pdf" }
 
             val restrictedFilename = pdf.restrictedPath!!.fileName.toString()
             val unrestrictedFilename = "$restrictedFilename$SUFFIX_PDF_UNRESTRICTED"
             val unrestrictedPath = pdf.restrictedPath!!.resolveSibling(unrestrictedFilename)
             val unrestrictedOutputStream = unrestrictedPath.toFile().outputStream()
 
+            logger.debug { "Writing PDF without encryption $pdf to $unrestrictedPath..." }
             val pdfStamper = PdfStamper(pdfReader, unrestrictedOutputStream)
             pdfStamper.close()
+            logger.debug { "Wrote PDF without encryption $pdf to $unrestrictedPath" }
+
             pdfReader.close()
 
             pdf.unrestrictedPath = unrestrictedPath
@@ -47,11 +52,15 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
 
             successfulItems.incrementAndGet()
         } catch (e: BadPasswordException) {
+            logger.debug { "Removing restrictions from PDF $pdf failed due to a bad password." }
+            pdf.done = true
             pdf.failed = true
             pdf.error = "Bad password"
 
             failedItems.incrementAndGet()
         } catch (e: Exception) {
+            logger.warn(e) { "Removing restrictions from PDF $pdf failed due to an unhandled exception." }
+            pdf.done = true
             pdf.failed = true
             pdf.error = "Unknown (${e.message})"
 
@@ -60,5 +69,4 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
 
         logger.debug { "Removed restrictions from PDF $pdf" }
     }
-
 }
