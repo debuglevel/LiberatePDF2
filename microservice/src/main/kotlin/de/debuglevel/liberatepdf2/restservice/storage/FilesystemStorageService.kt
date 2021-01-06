@@ -32,6 +32,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
     override fun getItem(itemId: UUID): Pdf? {
         logger.debug { "Getting PDF with ID=$itemId..." }
         val pdf = items[itemId]
+        // TODO: throw an exception instead of returning null
         return pdf
     }
 
