@@ -1,5 +1,6 @@
-package de.debuglevel.liberatepdf2.restservice.restrictionsremover
+package de.debuglevel.liberatepdf2.restservice.document
 
+import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
 import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import de.debuglevel.liberatepdf2.restservice.storage.ZipService
 import io.micronaut.context.annotation.Property
@@ -18,7 +19,7 @@ import java.util.concurrent.Executors
 
 @Controller("/api/v1/documents")
 @Tag(name = "documents")
-class RestrictionsRemoveController(
+class DocumentsController(
     private val storageService: StorageService,
     private val restrictionsRemoverService: RestrictionsRemoverService,
     private val zipService: ZipService,
@@ -92,8 +93,6 @@ class RestrictionsRemoveController(
     fun uploadAndRemoveRestrictions(
         file: CompletedFileUpload,
         password: String,
-        //restrictedPdf: PdfDTO,
-        //uriComponentsBuilder: UriComponentsBuilder
     ): HttpResponse<String> {
         logger.debug { "POST / with file=$file, password=$password" }
 
