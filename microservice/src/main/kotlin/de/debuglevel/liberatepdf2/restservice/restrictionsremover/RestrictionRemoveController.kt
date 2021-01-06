@@ -13,6 +13,7 @@ import mu.KotlinLogging
 import java.net.URI
 import java.nio.file.Files
 import java.util.*
+import kotlin.concurrent.thread
 
 //import javax.servlet.http.HttpServletResponse
 
@@ -97,9 +98,13 @@ class RestrictionRemoveController(
         val pdf = storageService.store(file.filename, file.inputStream, password)
         pdf.password = password
 
-        restrictionsRemoverService.removeRestrictions(pdf)
-        val uri = URI("/documents/${pdf.id}")
+        // TODO: this might be a bad idea for heavy load, as it immediately spins up a new thread. A worker queue should be used instead.
+        thread {
+            restrictionsRemoverService.removeRestrictions(pdf)
+        }
 
+        val uri = URI("/documents/${pdf.id}")
+        logger.debug { "Returning PDF id $pdf.id" }
         return HttpResponse.accepted<String>(uri).body(pdf.id.toString())
     }
 
