@@ -19,7 +19,7 @@ import kotlin.concurrent.thread
 
 @Controller("/api/v1/documents")
 @Tag(name = "documents")
-class RestrictionRemoveController(
+class RestrictionsRemoveController(
     private val storageService: StorageService,
     private val restrictionsRemoverService: RestrictionsRemoverService,
     private val zipService: ZipService
