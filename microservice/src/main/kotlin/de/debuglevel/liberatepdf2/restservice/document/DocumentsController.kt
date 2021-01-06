@@ -30,15 +30,16 @@ class DocumentsController(
     private val executor = Executors.newFixedThreadPool(workerThreadsCount)
 
     @Get("/zip{?id}")
+    @Produces("application/zip")
     fun downloadZip(
         ids: Array<UUID>?,
     ): HttpResponse<*> {
         return if (!ids.isNullOrEmpty()) {
             logger.debug { "GET /zip for ${ids.size} documents ${ids.joinToString()}" }
             val zip = zipService.createZip(ids)
-            val filesystemResource = zip.toFile()
+            val systemFile = SystemFile(zip.toFile(), MediaType.of("application/zip"))
 
-            HttpResponse.ok(SystemFile(filesystemResource).attach("unrestricted PDFs.zip"))
+            HttpResponse.ok(systemFile.attach("unrestricted PDFs.zip"))
         } else {
             logger.warn { "GET /zip with missing id parameter" }
             HttpResponse.badRequest("id parameter must be supplied")
