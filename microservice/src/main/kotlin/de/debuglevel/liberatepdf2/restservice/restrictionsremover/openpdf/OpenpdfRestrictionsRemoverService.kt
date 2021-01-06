@@ -14,7 +14,7 @@ import javax.inject.Singleton
  * Removes restrictions from a PDF file using the OpenPDF library.
  */
 @Singleton
-@Requires(property = "app.liberatepdf2.backend", value = "openpdf")
+@Requires(property = "app.liberatepdf2.transformation.backend", value = "openpdf")
 class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
     private val logger = KotlinLogging.logger {}
 

@@ -14,7 +14,7 @@ services:
       - "8081:80"
     environment:
       # number of threads for parallel PDF transformation
-      - APP_LIBERATEPDF2_WORKER_THREADS=4
+      - APP_LIBERATEPDF2_TRANSFORMATION_WORKER_THREADS=4
       # set the maximum size for requests
       - MICRONAUT_SERVER_MAX_REQUEST_SIZE=20mb
       - MICRONAUT_SERVER_MULTIPART_MAX_FILE_SIZE=20mb

@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * Removes restrictions from a PDF file using the command line version of PDFtk.
  */
 @Singleton
-@Requires(property = "app.liberatepdf2.backend", value = "pdftk-cli")
+@Requires(property = "app.liberatepdf2.transformation.backend", value = "pdftk-cli")
 class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
     private val logger = KotlinLogging.logger {}
 

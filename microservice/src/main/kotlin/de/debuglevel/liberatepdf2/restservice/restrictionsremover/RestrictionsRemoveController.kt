@@ -24,7 +24,7 @@ class RestrictionsRemoveController(
     private val storageService: StorageService,
     private val restrictionsRemoverService: RestrictionsRemoverService,
     private val zipService: ZipService,
-    @Property(name = "app.liberatepdf2.worker-threads") workerThreadsCount: Int,
+    @Property(name = "app.liberatepdf2.transformation.worker-threads") workerThreadsCount: Int,
 ) {
     private val logger = KotlinLogging.logger {}
 
