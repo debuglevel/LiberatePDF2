@@ -14,7 +14,7 @@ export class FileListComponent implements OnInit {
 
   transferFiles: TransferFile[] = [];
 
-  doneFilesCommaSeperated!: string;
+  commaSeperatedDoneFiles!: string;
 
   url = this.settingsService.settings.apiUrl;
 
@@ -29,8 +29,8 @@ export class FileListComponent implements OnInit {
       'Reminder: Set log level to verbose in your Browser to see console.debug() messages'
     );
 
-    let timerx = timer(1000, 1000);
-    timerx.subscribe((t: any) => this.checkFiles(t));
+    let fileCheckTimer = timer(1000, 1000);
+    fileCheckTimer.subscribe((t: any) => this.checkFiles(t));
 
     this.getMaximumFileSize();
   }
@@ -44,7 +44,7 @@ export class FileListComponent implements OnInit {
       }
     }
 
-    this.doneFilesCommaSeperated = doneFiles.join(',');
+    this.commaSeperatedDoneFiles = doneFiles.join(',');
   }
 
   checkFiles(t: any): void {
