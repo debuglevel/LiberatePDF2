@@ -13,7 +13,7 @@ buildscript {
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+    id 'org.jetbrains.kotlin.jvm'
 
     // Create start scripts
     // Is executed on "build" task but not on e.g. "jar" task
@@ -62,6 +62,8 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.30' // TODO: remove this if migrated to Kotlin
     runtimeOnly "ch.qos.logback:logback-classic:$logbackVersion"
     runtimeOnly "net.logstash.logback:logstash-logback-encoder:$logstashLogbackVersion"
+
+    implementation project(':kotlin-client')
 }
 
 group = 'de.debuglevel.liberatepdf2'
