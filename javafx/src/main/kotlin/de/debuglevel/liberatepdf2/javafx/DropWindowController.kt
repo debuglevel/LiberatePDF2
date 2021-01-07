@@ -1,318 +1,262 @@
-package de.debuglevel.liberatepdf2.javafx;
+package de.debuglevel.liberatepdf2.javafx
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
-import javafx.util.Duration;
-import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javafx.animation.Animation
+import javafx.animation.KeyFrame
+import javafx.animation.Timeline
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
+import javafx.concurrent.Task
+import javafx.fxml.FXML
+import javafx.scene.control.ListView
+import javafx.scene.control.TextField
+import javafx.scene.input.DragEvent
+import javafx.scene.input.TransferMode
+import javafx.util.Duration
+import org.apache.commons.io.FileUtils
+import org.apache.http.HttpVersion
+import org.apache.http.client.fluent.Request
+import org.apache.http.conn.HttpHostConnectException
+import org.apache.http.entity.mime.HttpMultipartMode
+import org.apache.http.entity.mime.MultipartEntityBuilder
+import org.slf4j.LoggerFactory
+import java.io.IOException
+import java.io.InputStream
+import java.net.SocketException
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+class DropWindowController {
+    private val logger = LoggerFactory.getLogger(DropWindowController::class.java)
 
-public class DropWindowController {
-	private static final Logger logger = LoggerFactory.getLogger(DropWindowController.class);
+    @FXML
+    private var filesListView: ListView<TransferFile>? = null
 
-	private static final String HOST = "http://localhost:8080";
+    @FXML
+    private var passwordTextField: TextField? = null
 
-	private final ExecutorService checkTaskExecutor;
+    private val checkTaskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-	@FXML
-	private ListView<TransferFile> filesListView;
+    private var maximumUploadSize: Long? = null
+    private val transferFiles: ObservableList<TransferFile> = FXCollections.observableList(ArrayList())
+    private val uploadTaskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-	private Long maximumUploadSize;
+    private val HOST = "http://localhost:8080" // TODO: should be configurable
 
-	@FXML
-	private TextField passwordTextField;
-	private final ObservableList<TransferFile> transferFiles;
+    private fun checkFilesStatus() {
+        logger.debug("Checking status of files...")
+        transferFiles.stream()
+            .filter { !it.done && it.id != null }
+            .forEach {
+                checkTaskExecutor.submit(object : Task<Void>() {
+                    @Throws(Exception::class)
+                    override fun call(): Void? {
+                        // check again if pre-conditions for checking status are still met.
+                        // (although conditions were filtered, the queue MIGHT contain duplicates
+                        // if checking the whole queue lasts longer than the checking interval?)
+                        if (!it.done && it.id != null) {
+                            checkFileStatus(it)
+                        }
 
-	private final ExecutorService uploadTaskExecutor;
+                        return null
+                    }
+                })
+            }
+    }
 
-	public DropWindowController() {
-		this.transferFiles = FXCollections.observableList(new ArrayList<TransferFile>());
-		this.uploadTaskExecutor = Executors.newSingleThreadExecutor();
-		this.checkTaskExecutor = Executors.newSingleThreadExecutor();
-	}
+    private fun checkFileStatus(transferFile: TransferFile) {
+        try {
+            val url = "$HOST/v1/documents/${transferFile.id}"
+            logger.debug("Checking status of file $transferFile via $url")
+            val response = Request.Get(url).execute().returnResponse()
+            val statusCode = response.statusLine.statusCode
 
-	private void checkFilesStatus() {
-		logger.info("Checking status of files...");
+            logger.debug("Got status code $statusCode for $transferFile")
+            when (statusCode) {
+                200 -> {
+                    // file was successfully processed
+                    transferFile.status = "done"
+                    transferFile.done = true
+                    saveFile(transferFile, response.entity.content)
+                }
+                260 -> {
+                    // file is still in progress
+                    transferFile.status = "in progress"
+                }
+                560 -> {
+                    // processing failed
+                    transferFile.status = "processing failed"
+                    transferFile.done = true
+                }
+                else -> {
+                    // unknown
+                    transferFile.status = "unknown status code"
+                }
+            }
+            filesListView!!.refresh() // should be better be done via an property. but works good enough.
+        } catch (e: HttpHostConnectException) {
+            logger.error("Connection to host failed: " + e.message)
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+        }
+    }
 
-		this.transferFiles.stream().filter(tf -> (!tf.isDone()) && (tf.getId() != null)).forEach(tf -> {
-			this.checkTaskExecutor.submit(new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					// check again if pre-conditions for checking status are
-					// still met. (although conditions were filtered, the queue
-					// MIGHT contain duplicates if checking the whole queue
-					// lasts longer than the checking interval?)
-					if ((!tf.isDone()) && (tf.getId() != null)) {
-						DropWindowController.this.checkFileStatus(tf);
-					}
+    private fun fetchMaximumUploadSize() {
+        try {
+            logger.debug("Querying service for maximum upload size...")
+            val maximumUploadSizeString = Request.Get("$HOST/v1/status/maximum-upload-size").execute()
+                .returnContent().asString()
 
-					return null;
-				}
-			});
-		});
-	}
+            logger.debug("Maximum upload size is '$maximumUploadSizeString'")
+            maximumUploadSize = java.lang.Long.valueOf(maximumUploadSizeString)
+        } catch (e: HttpHostConnectException) {
+            logger.error("Connection to host failed: " + e.message)
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+        }
+    }
 
-	private void checkFileStatus(final TransferFile transferFile) {
-		try {
-			final String url = HOST + "/v1/documents/" + transferFile.getId();
+    @FXML
+    fun initialize() {
+        filesListView!!.items = transferFiles
+        val fileCheckTimer = Timeline(
+            KeyFrame(Duration.seconds(1.0), { checkFilesStatus() })
+        )
+        fileCheckTimer.cycleCount = Animation.INDEFINITE
+        fileCheckTimer.play()
+        fetchMaximumUploadSize()
+    }
 
-			logger.info("Checking status of file " + transferFile + " via " + url);
+    /**
+     * Checks if the size of the given file meets the restrictions of the server
+     *
+     * @return true if file size is okay (or unknown), false if file is too big
+     */
+    private fun isFileSizeAccepted(path: Path): Boolean {
+        return when (maximumUploadSize) {
+            null -> true
+            else -> Files.size(path) < maximumUploadSize!!
+        }
+    }
 
-			final HttpResponse response = Request.Get(url).execute().returnResponse();
-			final int statusCode = response.getStatusLine().getStatusCode();
+    fun onDragDropped(event: DragEvent) {
+        val dragboard = event.dragboard
+        var success = false
+        if (dragboard.hasFiles()) {
+            val files = dragboard.files
 
-			logger.info("Got status code " + statusCode + " for " + transferFile);
-			if (statusCode == 200) {
-				// file was successfully processed
-				transferFile.setStatus("done");
-				transferFile.setDone(true);
+            val thread = thread {
+                processFiles(files.map { it.toPath() })
+            }
 
-				this.saveFile(transferFile, response.getEntity().getContent());
-			} else if (statusCode == 260) {
-				// file is still in progress
-				transferFile.setStatus("in progress");
-			} else if (statusCode == 560) {
-				// processing failed
-				transferFile.setStatus("processing failed");
-				transferFile.setDone(true);
-			} else {
-				// unknown
-				transferFile.setStatus("unknown status code");
-			}
+            thread.isDaemon = true
+            thread.start()
+            success = true
+        }
+        event.isDropCompleted = success
+        event.consume()
+    }
 
-			this.filesListView.refresh(); // should be better be done via an
-			// property. but works good enough.
-		} catch (final HttpHostConnectException e) {
-			logger.error("Connection to host failed: " + e.getMessage());
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    fun onDragOver(event: DragEvent) {
+        if (event.gestureSource !== filesListView && event.dragboard.hasFiles()) {
+            event.acceptTransferModes(*TransferMode.ANY)
+        }
+        event.consume()
+    }
 
-	private void fetchMaximumUploadSize() {
-		try {
-			logger.info("Querying service for maximum upload size...");
+    private fun processFile(path: Path) {
+        logger.info("Processing file $path")
+        val transferFile = TransferFile(path, "uploading", passwordTextField!!.text)
+        transferFiles.add(transferFile)
 
-			final String maximumUploadSizeString = Request.Get(HOST + "/v1/status/maximum-upload-size").execute()
-					.returnContent().asString();
-			logger.info("Maximum upload size is '" + maximumUploadSizeString + "'");
+        if (isFileSizeAccepted(path)) {
+            val uploadTask = object : Task<String>() {
+                override fun call(): String {
+                    logger.debug("Building POST request for $path...")
+                    val entity = MultipartEntityBuilder.create()
+                        .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                        .setCharset(Charset.defaultCharset())
+                        .addBinaryBody("file", path.toFile())
+                        .addTextBody("password", transferFile.password).build()
 
-			this.maximumUploadSize = Long.valueOf(maximumUploadSizeString);
-		} catch (final HttpHostConnectException e) {
-			logger.error("Connection to host failed: " + e.getMessage());
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+                    logger.debug("Sending POST request for $path...")
+                    return Request.Post("$HOST/v1/documents/")
+                        .useExpectContinue()
+                        .version(HttpVersion.HTTP_1_1)
+                        .body(entity)
+                        .execute()
+                        .returnContent()
+                        .asString()
+                }
+            }
 
-	@FXML
-	public void initialize() {
-		this.filesListView.setItems(this.transferFiles);
+            uploadTask.setOnSucceeded {
+                logger.debug("Upload Task for $path succeeded; got id=${uploadTask.get()}")
+                transferFile.id = uploadTask.get()
+                transferFile.status = "transferred"
 
-		final Timeline fiveSecondsWonder = new Timeline(
-				new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(final ActionEvent event) {
-						DropWindowController.this.checkFilesStatus();
-					}
-				}));
-		fiveSecondsWonder.setCycleCount(Animation.INDEFINITE);
-		fiveSecondsWonder.play();
+                filesListView!!.refresh() // should be better be done via an property. but works good enough.
+            }
 
-		this.fetchMaximumUploadSize();
-	}
+            uploadTask.setOnFailed {
+                logger.warn("Upload Task for $path failed")
+                transferFile.status = "upload failed"
+                if (uploadTask.exceptionProperty().get() is SocketException) {
+                    logger.warn("Exception is SocketException; the file MIGHT be too big.")
+                    uploadTask.exceptionProperty().get().printStackTrace()
 
-	/**
-	 * Checks if the size of the given file meets the restrictions of the server
-	 *
-	 * @return true if file size is okay (or unknown), false if file is too big
-	 */
-	private boolean isFileSizeAccepted(final Path path) {
-		if (this.maximumUploadSize == null) {
-			return true;
-		} else {
-			try {
-				if (Files.size(path) < this.maximumUploadSize) {
-					return true;
-				}
-			} catch (final IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+                    transferFile.status = "upload failed (too big?)"
+                }
 
-		return false;
-	}
+                filesListView!!.refresh() // should be better be done via an property. but works good enough.
+            }
 
-	public void onDragDropped(final DragEvent event) {
-		final Dragboard db = event.getDragboard();
-		boolean success = false;
-		if (db.hasFiles()) {
-			final List<File> files = db.getFiles();
+            logger.debug("Queueing upload task for $path...")
+            uploadTaskExecutor.submit(uploadTask)
+        } else {
+            transferFile.status = "file too big; did not upload"
+        }
+    }
 
-			final Task<Void> processFilesTask = new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					DropWindowController.this
-							.processFiles(files.stream().map(File::toPath).collect(Collectors.toList()));
-					return null;
-				}
-			};
+    private fun processFiles(paths: List<Path>) {
+        logger.debug("Processing ${paths.size} files...")
 
-			// processFilesTask.setOnFailed(e -> {
-			// processFilesTask.exceptionProperty().get().printStackTrace();
-			// });
+        for (path in paths) {
+            if (Files.isDirectory(path)) {
+                logger.debug("$path is a directory")
 
-			final Thread thread = new Thread(processFilesTask);
-			thread.setDaemon(true);
-			thread.start();
+                val extensions =
+                    arrayOf("pdf", "PDF") // TODO: don't know if this is needed or filter is case insensitive
+                val files = FileUtils.listFiles(path.toFile(), extensions, true)
+                logger.debug("Found ${files.size} files in directory $path")
 
-			success = true;
-		}
+                files.forEach { processFile(it.toPath()) }
+            } else if (Files.isRegularFile(path) && Files.isReadable(path)) {
+                logger.debug("$path is a regular and readable file")
+                processFile(path)
+            } else {
+                // do nothing because strange
+            }
+        }
+    }
 
-		event.setDropCompleted(success);
+    private fun saveFile(transferFile: TransferFile, inputStream: InputStream) {
+        try {
+            val originalPath = transferFile.path
+            val destinationFile = originalPath.resolveSibling("${originalPath.fileName} (unrestricted).pdf")
+                .toFile()
 
-		event.consume();
-	}
-
-	public void onDragOver(final DragEvent event) {
-		if ((event.getGestureSource() != this.filesListView) && event.getDragboard().hasFiles()) {
-			event.acceptTransferModes(TransferMode.ANY);
-		}
-
-		event.consume();
-	}
-
-	private void processFile(final Path path) {
-		logger.info("Processing file " + path);
-
-		final TransferFile transferFile = new TransferFile(path, "uploading");
-		this.transferFiles.add(transferFile);
-
-		final String password = this.passwordTextField.getText();
-
-		if (this.isFileSizeAccepted(path) == false) {
-			transferFile.setStatus("file too big");
-		} else {
-			final Task<String> uploadTask = new Task<String>() {
-				@Override
-				protected String call() throws Exception {
-					logger.info("Building POST request for " + path + "...");
-					final HttpEntity entity = MultipartEntityBuilder.create()
-							.setMode(HttpMultipartMode.BROWSER_COMPATIBLE).setCharset(Charset.defaultCharset())
-							.addBinaryBody("file", path.toFile()).addTextBody("password", password).build();
-
-					logger.info("Sending POST request for " + path + "...");
-					return Request.Post(HOST + "/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
-							.body(entity).execute().returnContent().asString();
-				}
-			};
-
-			uploadTask.setOnSucceeded(e -> {
-				try {
-					logger.info("Upload Task for " + path + " succeeded; got ID=" + uploadTask.get());
-					transferFile.setId(uploadTask.get());
-				} catch (InterruptedException | ExecutionException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				transferFile.setStatus("transferred");
-				this.filesListView.refresh(); // should be better be done via an
-				// property. but works good
-				// enough.
-			});
-
-			uploadTask.setOnFailed(e -> {
-				logger.info("Upload Task for " + path + " failed");
-				transferFile.setStatus("upload failed");
-
-				if (uploadTask.exceptionProperty().get() instanceof SocketException) {
-					logger.info("Exception is SocketException; the file MIGHT be too big.");
-					transferFile.setStatus("upload failed (too big?)");
-				}
-
-				this.filesListView.refresh(); // should be better be done via an
-				// property. but works good
-				// enough.
-				uploadTask.exceptionProperty().get().printStackTrace();
-			});
-
-			logger.info("Queueing upload task for " + path + "...");
-			this.uploadTaskExecutor.submit(uploadTask);
-		}
-	}
-
-	private void processFiles(final List<Path> paths) {
-		logger.info("Processing " + paths.size() + " files...");
-
-		for (final Path path : paths) {
-			if (Files.isDirectory(path)) {
-				logger.info(path + " is a directory");
-
-				// String[] extensions = null;
-				final String[] extensions = new String[]{"pdf", "PDF"};
-				final Collection<File> files = FileUtils.listFiles(path.toFile(), extensions, true);
-				logger.info("Found " + files.size() + " files in directory " + path);
-
-				files.stream().forEach(f -> this.processFile(f.toPath()));
-			} else if (Files.isRegularFile(path) && Files.isReadable(path)) {
-				logger.info(path + " is a regular and readable file");
-				this.processFile(path);
-			} else {
-				// do nothing because strange
-			}
-		}
-	}
-
-	private void saveFile(final TransferFile transferFile, final InputStream inputStream) {
-		try {
-			final Path originalPath = transferFile.getPath();
-			final File destinationFile = originalPath.resolveSibling(originalPath.getFileName() + " (unrestricted).pdf")
-					.toFile();
-
-			logger.info("Copying " + transferFile + " to " + destinationFile + "...");
-
-			FileUtils.copyInputStreamToFile(inputStream, destinationFile);
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+            logger.debug("Copying $transferFile to $destinationFile...")
+            FileUtils.copyInputStreamToFile(inputStream, destinationFile)
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+        }
+    }
 }
