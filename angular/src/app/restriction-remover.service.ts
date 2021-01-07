@@ -17,8 +17,7 @@ export class RestrictionRemoverService {
     console.debug('Querying maximum file size...');
     return this.http
       .get(
-        this.settingsService.settings.apiUrl +
-          '/api/v1/status/maximum-upload-size'
+        this.settingsService.settings.apiUrl + '/v1/status/maximum-upload-size'
       )
       .toPromise()
       .then((response) => {
@@ -33,7 +32,7 @@ export class RestrictionRemoverService {
   getStatistics(): Promise<any> {
     console.debug('Querying statistics...');
     return this.http
-      .get(this.settingsService.settings.apiUrl + '/api/v1/status/statistics')
+      .get(this.settingsService.settings.apiUrl + '/v1/status/statistics')
       .toPromise()
       .then((response: any) => response.json())
       .catch(this.handleError);
@@ -54,7 +53,7 @@ export class RestrictionRemoverService {
     console.debug('Sending POST request...');
     this.http
       .post(
-        this.settingsService.settings.apiUrl + '/api/v1/documents/',
+        this.settingsService.settings.apiUrl + '/v1/documents/',
         formData,
         options
       )
@@ -89,7 +88,7 @@ export class RestrictionRemoverService {
     return this.http
       .head(
         this.settingsService.settings.apiUrl +
-          '/api/v1/documents/' +
+          '/v1/documents/' +
           transferFile.id,
         { observe: 'response' }
       )

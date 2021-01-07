@@ -88,7 +88,7 @@ public class DropWindowController {
 
 	private void checkFileStatus(final TransferFile transferFile) {
 		try {
-			final String url = HOST + "/api/v1/documents/" + transferFile.getId();
+			final String url = HOST + "/v1/documents/" + transferFile.getId();
 
 			logger.info("Checking status of file " + transferFile + " via " + url);
 
@@ -128,7 +128,7 @@ public class DropWindowController {
 		try {
 			logger.info("Querying service for maximum upload size...");
 
-			final String maximumUploadSizeString = Request.Get(HOST + "/api/v1/status/maximum-upload-size").execute()
+			final String maximumUploadSizeString = Request.Get(HOST + "/v1/status/maximum-upload-size").execute()
 					.returnContent().asString();
 			logger.info("Maximum upload size is '" + maximumUploadSizeString + "'");
 
@@ -239,7 +239,7 @@ public class DropWindowController {
 							.addBinaryBody("file", path.toFile()).addTextBody("password", password).build();
 
 					logger.info("Sending POST request for " + path + "...");
-					return Request.Post(HOST + "/api/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
+					return Request.Post(HOST + "/v1/documents/").useExpectContinue().version(HttpVersion.HTTP_1_1)
 							.body(entity).execute().returnContent().asString();
 				}
 			};

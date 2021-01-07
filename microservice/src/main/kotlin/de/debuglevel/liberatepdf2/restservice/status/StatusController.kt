@@ -8,7 +8,7 @@ import io.micronaut.http.annotation.Get
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
 
-@Controller("/api/v1/status")
+@Controller("/v1/status")
 @Tag(name = "status")
 class StatusController(
     private val storageService: StorageService,
@@ -17,7 +17,7 @@ class StatusController(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    @Deprecated("superseded by /api/v1/configuration/")
+    @Deprecated("superseded by /v1/configuration/")
     @Get("/maximum-upload-size")
     fun maximumUploadSize(): Long {
         logger.debug { "Received GET request for maximum-upload-size" }

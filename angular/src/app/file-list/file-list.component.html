@@ -85,7 +85,7 @@
               <td>
                 <a
                   class="btn"
-                  href="{{ url }}/api/v1/documents/{{ transferFile.id }}"
+                  href="{{ url }}/v1/documents/{{ transferFile.id }}"
                   >{{ transferFile.name }}</a
                 >
               </td>
@@ -97,9 +97,7 @@
         <div *ngIf="transferFiles.length > 1">
           <a
             class="btn btn-primary"
-            href="{{ url }}/api/v1/documents/zip?ids={{
-              doneFilesCommaSeperated
-            }}"
+            href="{{ url }}/v1/documents/zip?ids={{ doneFilesCommaSeperated }}"
             ><i class="fa fa-download" aria-hidden="true"></i> Download all
             ready files</a
           >
