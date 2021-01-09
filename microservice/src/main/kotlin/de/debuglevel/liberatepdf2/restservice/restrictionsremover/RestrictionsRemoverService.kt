@@ -19,7 +19,7 @@ interface RestrictionsRemoverService {
     /**
      * Count of all items.
      */
-    val itemsCount: Long
+    val itemsCount
         get() = failedItemsCount + successfulItemsCount
 
     /**
