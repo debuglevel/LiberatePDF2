@@ -7,6 +7,7 @@ import de.debuglevel.liberatepdf2.restservice.Pdf
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
 import io.micronaut.context.annotation.Requires
 import mu.KotlinLogging
+import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Singleton
 
@@ -47,8 +48,16 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
 
             pdfReader.close()
 
+            // double check if PDF exists in case something odd happened
+            when {
+                !unrestrictedPath.toFile().isFile ->
+                    throw MissingFileAfterTransformationException(unrestrictedPath.toFile().toString())
+                Files.size(unrestrictedPath) == 0L ->
+                    throw EmptyFileAfterTransformationException(unrestrictedPath.toFile().toString())
+            }
+
             pdf.unrestrictedPath = unrestrictedPath
-            pdf.done = true
+            pdf.failed = false
 
             successfulItems.incrementAndGet()
         } catch (e: BadPasswordException) {
@@ -56,6 +65,18 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
             pdf.done = true
             pdf.failed = true
             pdf.error = "Bad password"
+
+            failedItems.incrementAndGet()
+        } catch (e: MissingFileAfterTransformationException) {
+            pdf.done = true
+            pdf.failed = true
+            pdf.error = "Output file was not found after transformation"
+
+            failedItems.incrementAndGet()
+        } catch (e: EmptyFileAfterTransformationException) {
+            pdf.done = true
+            pdf.failed = true
+            pdf.error = "Output file was zero bytes after transformation"
 
             failedItems.incrementAndGet()
         } catch (e: Exception) {
@@ -69,4 +90,10 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
 
         logger.debug { "Removed restrictions from PDF $pdf" }
     }
+
+    class MissingFileAfterTransformationException(filename: String) :
+        Exception("File $filename not found after transformation")
+
+    class EmptyFileAfterTransformationException(filename: String) :
+        Exception("File $filename has zero bytes after transformation")
 }
