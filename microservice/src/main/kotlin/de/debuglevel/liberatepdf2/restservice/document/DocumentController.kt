@@ -34,8 +34,8 @@ class DocumentController(
 
             HttpResponse.ok(systemFile.attach("unrestricted PDFs.zip"))
         } else {
-            logger.warn { "GET /zip with missing id parameter" }
-            HttpResponse.badRequest("id parameter must be supplied")
+            logger.warn { "GET /zip with missing ids parameter" }
+            HttpResponse.badRequest("ids parameter must be supplied")
         }
     }
 
