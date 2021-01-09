@@ -1,5 +1,6 @@
 package de.debuglevel.liberatepdf2.javafx
 
+import de.debuglevel.liberatepdf2.client.apis.StatusApi
 import javafx.animation.Animation
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
@@ -46,6 +47,8 @@ class DropWindowController {
     private val uploadTaskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
     private val HOST = "http://localhost:8080" // TODO: should be configurable
+
+    private val statusApi = StatusApi(HOST)
 
     private fun checkFilesStatus() {
         logger.debug("Checking status of files...")
@@ -109,11 +112,8 @@ class DropWindowController {
     private fun fetchMaximumUploadSize() {
         try {
             logger.debug("Querying service for maximum upload size...")
-            val maximumUploadSizeString = Request.Get("$HOST/v1/status/maximum-upload-size").execute()
-                .returnContent().asString()
-
-            logger.debug("Maximum upload size is '$maximumUploadSizeString'")
-            maximumUploadSize = java.lang.Long.valueOf(maximumUploadSizeString)
+            maximumUploadSize = statusApi.maximumUploadSize()
+            logger.debug("Maximum upload size is '$maximumUploadSize'")
         } catch (e: HttpHostConnectException) {
             logger.error("Connection to host failed: " + e.message)
         } catch (e: IOException) {
