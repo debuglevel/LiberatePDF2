@@ -23,7 +23,7 @@ class TransformationService(
         logger.debug { "Getting transformation with id=$transformationId..." }
 
         // TODO: things of StorageService should be in TransformationService (respectively a TransformationRepository) at the end
-        val pdf = storageService.getItem(transformationId) ?: throw NotFoundException(transformationId)
+        val pdf = storageService.get(transformationId) ?: throw NotFoundException(transformationId)
 
         val transformation = Transformation(
             id = transformationId,

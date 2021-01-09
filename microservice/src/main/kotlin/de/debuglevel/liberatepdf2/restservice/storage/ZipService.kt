@@ -31,7 +31,7 @@ class ZipService(
 
         return FileSystems.newFileSystem(uri, properties).use { zipFilesystem ->
             for (id in ids) {
-                storageService.getItem(id)?.let { pdf ->
+                storageService.get(id)?.let { pdf ->
                     val pathInZipFile = zipFilesystem.getPath("/${pdf.originalFilename}")
                     logger.debug { "Copying PDF file ${pdf.unrestrictedPath} into $pathInZipFile..." }
                     Files.copy(pdf.unrestrictedPath, pathInZipFile, StandardCopyOption.REPLACE_EXISTING)

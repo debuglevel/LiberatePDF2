@@ -19,7 +19,7 @@ interface StorageService {
      * @param itemId ID of the item
      * @return the Pdf of the item ID, or null if not found
      */
-    fun getItem(itemId: UUID): Pdf?
+    fun get(itemId: UUID): Pdf?
 
     /**
      * Gets the count of stored items.

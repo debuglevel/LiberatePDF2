@@ -29,7 +29,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         return UUID.randomUUID()
     }
 
-    override fun getItem(itemId: UUID): Pdf? {
+    override fun get(itemId: UUID): Pdf? {
         logger.debug { "Getting PDF with ID=$itemId..." }
         val pdf = items[itemId]
         // TODO: throw an exception instead of returning null
