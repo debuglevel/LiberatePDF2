@@ -19,20 +19,12 @@ class TransformationService(
 
     private val executor = Executors.newFixedThreadPool(workerThreadsCount)
 
+    private val transformations = HashMap<UUID, Transformation>()
+
     fun get(transformationId: UUID): Transformation {
         logger.debug { "Getting transformation with id=$transformationId..." }
 
-        // TODO: things of StorageService should be in TransformationService (respectively a TransformationRepository) at the end
-        val pdf = storageService.get(transformationId) ?: throw NotFoundException(transformationId)
-
-        val transformation = Transformation(
-            id = transformationId,
-            originalFilename = pdf.originalFilename,
-            password = pdf.password,
-            finished = pdf.done,
-            failed = pdf.failed,
-            errorMessage = pdf.error,
-        )
+        val transformation = transformations.getOrElse(transformationId) { throw NotFoundException(transformationId) }
 
         logger.debug { "Got transformation with id=$transformationId: $transformation" }
         return transformation
@@ -45,12 +37,12 @@ class TransformationService(
         pdf.password = password
         val transformation = Transformation(
             id = pdf.id,
-            originalFilename = pdf.originalFilename,
-            password = pdf.password,
-            finished = pdf.done,
-            failed = pdf.failed,
-            errorMessage = pdf.error,
+            originalFilename = filename,
+            password = password,
+            finished = false,
         )
+
+        transformations[transformation.id] = transformation
 
         logger.debug { "Submitting restriction removing task to executor..." }
         executor.submit { restrictionsRemoverService.removeRestrictions(pdf) }
