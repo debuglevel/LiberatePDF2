@@ -1,37 +1,100 @@
-group 'de.debuglevel.liberatepdf2'
-version '0.0.1'
+//buildscript {
+//    repositories {
+//        jcenter()
+//    }
+//    dependencies {
+//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin"
+//
+//        // TODO: might be removed when https://hibernate.atlassian.net/browse/HHH-13354 is resolved
+//        //classpath "org.hibernate:hibernate-gradle-plugin:$hibernateGradlePluginVersion"
+//    }
+//}
 
-wrapper {
-    gradleVersion = '4.9'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm'
+
+//    // Create start scripts
+//    // Is executed on "build" task but not on e.g. "jar" task
+//    id 'application'
+
+    // Bundle all dependencies into one fat shadowed jar
+    // (Gets automatically triggered when application plugin is present)
+    id 'com.github.johnrengelman.shadow'
 }
 
-buildscript {
-    ext.kotlin_version = '1.3.61'
-
-    repositories {
-        maven { url "https://repo1.maven.org/maven2" }
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+ext {
+    _group = applicationGroup
+    _module = applicationModule
+    _mainClass = _group + "." + _module + ".Application"
+    _title = applicationTitle
 }
 
-apply plugin: 'kotlin'
+// application plugin configuration
+//applicationName = _title
+//mainClassName = _mainClass
 
 repositories {
-    maven { url "https://repo1.maven.org/maven2" }
-}
-
-test {
-    useJUnitPlatform()
+    //mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2')
+    }
+    mavenCentral()
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     compile "com.squareup.moshi:moshi-kotlin:1.9.2"
     compile "com.squareup.moshi:moshi-adapters:1.9.2"
     compile "com.squareup.okhttp3:okhttp:4.2.2"
     testCompile "io.kotlintest:kotlintest-runner-junit5:3.1.0"
 }
+
+group = 'de.debuglevel.liberatepdf2'
+version = '0.0.1-SNAPSHOT'
+description = 'LiberatePDF2 Kotlin client library'
+sourceCompatibility = '1.8'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+// jar configuration
+jar {
+    // add Manifest to jar
+    manifest {
+        attributes 'Implementation-Title': applicationTitle,
+                'Implementation-Version': version,
+                'Main-Class': _mainClass
+    }
+}
+
+// Appends entries in META-INF/services resources into a single resource. Not sure, if needed.
+// see: https://github.com/johnrengelman/shadow/blob/master/src/main/groovy/com/github/jengelman/gradle/plugins/shadow/transformers/ServiceFileTransformer.groovy
+shadowJar {
+    mergeServiceFiles()
+}
+
+//// deactivate zip generations in distributions folder as they are not very useful and take relatively much build time
+//tasks.distZip.enabled = false
+//tasks.shadowDistZip.enabled = false

@@ -29,7 +29,7 @@ class DocumentsController(
 
     private val executor = Executors.newFixedThreadPool(workerThreadsCount)
 
-    @Get("/zip{?id}")
+    @Get("/zip{?ids}")
     @Produces("application/zip")
     fun downloadZip(
         ids: Array<UUID>?,

@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin"
+
+        // TODO: might be removed when https://hibernate.atlassian.net/browse/HHH-13354 is resolved
+        classpath "org.hibernate:hibernate-gradle-plugin:$hibernateGradlePluginVersion"
+    }
+}
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' apply false
 }
