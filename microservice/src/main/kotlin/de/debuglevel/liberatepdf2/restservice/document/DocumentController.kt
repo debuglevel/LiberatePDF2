@@ -112,9 +112,4 @@ class DocumentController(
         logger.debug { "Returning PDF id=${transformation.id}" }
         return HttpResponse.accepted<String>(uri).body(transformation.id.toString())
     }
-
-    companion object {
-        private const val HTTP_STATUS_FAILED = 560
-        private const val HTTP_STATUS_IN_PROGRESS = 260
-    }
 }
