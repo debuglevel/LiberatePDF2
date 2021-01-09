@@ -1,7 +1,7 @@
 package de.debuglevel.liberatepdf2.restservice.restrictionsremover.pdftk
 
-import de.debuglevel.liberatepdf2.restservice.Pdf
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
+import de.debuglevel.liberatepdf2.restservice.transformation.Transformation
 import io.micronaut.context.annotation.Requires
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
@@ -25,26 +25,26 @@ class PdftkRestrictionsRemoverService : RestrictionsRemoverService {
     private val successfulItems = AtomicLong()
     override val successfulItemsCount = successfulItems.get()
 
-    override fun removeRestrictions(pdf: Pdf) {
-        logger.debug { "Removing restrictions from pdf $pdf..." }
+    override fun removeRestrictions(transformation: Transformation) {
+        logger.debug { "Removing restrictions from pdf $transformation..." }
 
         val unrestrictedPdfPath = removeRestrictions(
-            pdf.restrictedPath!!,
-            pdf.password
+            transformation.restrictedPath,
+            transformation.password
         )
 
         if (unrestrictedPdfPath == null) {
             logger.debug { "Unrestricted PDF path is null; setting failed=true" }
-            pdf.failed = true // TODO: might better throw an exception
-            pdf.done = true
+            transformation.failed = true // TODO: might better throw an exception
+            transformation.finished = true
             failedItems.incrementAndGet()
         } else {
-            pdf.unrestrictedPath = unrestrictedPdfPath
-            pdf.done = true
+            transformation.unrestrictedPath = unrestrictedPdfPath
+            transformation.finished = true
             successfulItems.incrementAndGet()
         }
 
-        logger.debug { "Removed restrictions from pdf $pdf" }
+        logger.debug { "Removed restrictions from pdf $transformation" }
     }
 
     val SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf"

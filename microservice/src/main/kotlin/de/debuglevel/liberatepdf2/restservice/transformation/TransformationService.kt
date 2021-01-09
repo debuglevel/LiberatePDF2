@@ -40,12 +40,13 @@ class TransformationService(
             originalFilename = filename,
             password = password,
             finished = false,
+            restrictedPath = pdf.restrictedPath!!
         )
 
         transformations[transformation.id] = transformation
 
         logger.debug { "Submitting restriction removing task to executor..." }
-        executor.submit { restrictionsRemoverService.removeRestrictions(pdf) }
+        executor.submit { restrictionsRemoverService.removeRestrictions(transformation) }
 
         logger.debug { "Added transformation: $transformation" }
         return transformation

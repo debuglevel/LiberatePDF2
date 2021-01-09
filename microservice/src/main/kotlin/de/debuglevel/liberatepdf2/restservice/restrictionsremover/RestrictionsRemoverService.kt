@@ -1,6 +1,6 @@
 package de.debuglevel.liberatepdf2.restservice.restrictionsremover
 
-import de.debuglevel.liberatepdf2.restservice.Pdf
+import de.debuglevel.liberatepdf2.restservice.transformation.Transformation
 
 /**
  * Removes restrictions from files.
@@ -25,5 +25,5 @@ interface RestrictionsRemoverService {
     /**
      * Remove restrictions from file.
      */
-    fun removeRestrictions(pdf: Pdf)
+    fun removeRestrictions(transformation: Transformation)
 }
