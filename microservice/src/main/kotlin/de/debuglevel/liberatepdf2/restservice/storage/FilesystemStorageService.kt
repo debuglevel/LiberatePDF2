@@ -29,13 +29,6 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         return UUID.randomUUID()
     }
 
-    override fun get(itemId: UUID): Pdf? {
-        logger.debug { "Getting PDF with ID=$itemId..." }
-        val pdf = items[itemId]
-        // TODO: throw an exception instead of returning null
-        return pdf
-    }
-
     @PostConstruct
     override fun initialize() {
         logger.debug { "Initializing storage..." }
@@ -56,6 +49,13 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         } catch (e: IOException) {
             throw StorageService.InitializationException(e)
         }
+    }
+
+    override fun get(itemId: UUID): Pdf? {
+        logger.debug { "Getting PDF with ID=$itemId..." }
+        val pdf = items[itemId]
+        // TODO: throw an exception instead of returning null
+        return pdf
     }
 
     override fun store(filename: String, inputStream: InputStream, password: String): Pdf {
