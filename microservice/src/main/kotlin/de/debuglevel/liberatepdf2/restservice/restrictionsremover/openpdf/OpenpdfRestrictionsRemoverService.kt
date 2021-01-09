@@ -57,6 +57,7 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
             }
 
             pdf.unrestrictedPath = unrestrictedPath
+            pdf.done = true
             pdf.failed = false
 
             successfulItems.incrementAndGet()
