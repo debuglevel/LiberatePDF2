@@ -25,10 +25,6 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         FileUtils.deleteDirectory(properties.locationPath?.toFile())
     }
 
-    private fun generateID(): UUID {
-        return UUID.randomUUID()
-    }
-
     @PostConstruct
     override fun initialize() {
         logger.debug { "Initializing storage..." }
@@ -59,7 +55,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
     }
 
     override fun store(filename: String, inputStream: InputStream, password: String): Pdf {
-        val itemId = generateID()
+        val itemId = UUID.randomUUID()
         logger.debug { "Storing '$filename' as id=${itemId}..." }
 
         val pdf = Pdf(itemId, filename)
