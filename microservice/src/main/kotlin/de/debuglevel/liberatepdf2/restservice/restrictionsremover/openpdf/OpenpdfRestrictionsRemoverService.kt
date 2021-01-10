@@ -1,6 +1,7 @@
 package de.debuglevel.liberatepdf2.restservice.restrictionsremover.openpdf
 
 import com.lowagie.text.exceptions.BadPasswordException
+import com.lowagie.text.exceptions.InvalidPdfException
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfStamper
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
@@ -75,6 +76,12 @@ class OpenpdfRestrictionsRemoverService(
             logger.error(e) { "Output was zero bytes after transformation" }
             transformation.failed = true
             transformation.errorMessage = "Output was zero bytes after transformation"
+
+            failedItems.incrementAndGet()
+        } catch (e: InvalidPdfException) {
+            logger.debug(e) { "File in $transformation seems not to be a valid PDF." }
+            transformation.failed = true
+            transformation.errorMessage = "File is not a valid PDF (${e.message})"
 
             failedItems.incrementAndGet()
         } catch (e: Exception) {
