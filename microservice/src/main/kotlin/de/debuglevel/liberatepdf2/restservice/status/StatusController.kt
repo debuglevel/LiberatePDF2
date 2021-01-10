@@ -33,7 +33,7 @@ class StatusController(
     @Get("/statistics")
     fun statistics(): GetStatisticResponse {
         return GetStatisticResponse(
-            storageService.itemsCount,
+            storageService.storedItemsCount,
             restrictionsRemoverService.itemsCount,
             restrictionsRemoverService.failedItemsCount,
             restrictionsRemoverService.successfulItemsCount,

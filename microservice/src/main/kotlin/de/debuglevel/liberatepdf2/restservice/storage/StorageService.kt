@@ -24,7 +24,7 @@ interface StorageService {
     /**
      * Gets the count of stored items.
      */
-    val itemsCount: Long
+    val storedItemsCount: Long
 
     /**
      * Initializes the storage.

@@ -17,8 +17,8 @@ import javax.inject.Singleton
 class FilesystemStorageService(private val properties: StorageProperties) : StorageService {
     private val logger = KotlinLogging.logger {}
 
-    private val items = HashMap<UUID, Pdf>()
-    override val itemsCount = items.size.toLong()
+    private val storedItems = HashMap<UUID, Pdf>()
+    override val storedItemsCount = storedItems.size.toLong()
 
     override fun deleteAll() {
         logger.debug { "Deleting all files in ${properties.locationPath}" }
@@ -49,7 +49,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
 
     override fun get(itemId: UUID): Pdf? {
         logger.debug { "Getting PDF with ID=$itemId..." }
-        val pdf = items[itemId]
+        val pdf = storedItems[itemId]
         // TODO: throw an exception instead of returning null
         return pdf
     }
@@ -79,7 +79,7 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         }
 
         pdf.restrictedPath = filePath
-        items[itemId] = pdf
+        storedItems[itemId] = pdf
 
         return pdf
     }
