@@ -83,11 +83,11 @@ class DropWindowController {
                     transferFile.done = true
                     saveFile(transferFile, response.entity.content)
                 }
-                260 -> {
+                102 -> {
                     // file is still in progress
                     transferFile.status = "in progress"
                 }
-                560 -> {
+                500 -> {
                     // processing failed
                     transferFile.status = "processing failed"
                     transferFile.done = true
