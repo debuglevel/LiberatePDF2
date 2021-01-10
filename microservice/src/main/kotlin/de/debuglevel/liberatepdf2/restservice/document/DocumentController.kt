@@ -15,7 +15,7 @@ import mu.KotlinLogging
 import java.net.URI
 import java.util.*
 
-@Controller("/api/v1/documents")
+@Controller("/v1/documents")
 @Tag(name = "documents")
 class DocumentController(
     private val zipService: ZipService,
