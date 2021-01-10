@@ -1,9 +1,8 @@
 app:
   liberatepdf2:
     transformation:
-      # the backend to be used for PDF transformations (openpdf, pdftk-cli)
+      # the backend to be used for PDF transformations (only "openpdf" right now)
       backend: "openpdf"
-      #backend: "pdftk-cli"
       # number of threads for parallel PDF transformation
       worker-threads: 4
     storage:
