@@ -35,7 +35,7 @@ export class FileListComponent implements OnInit {
     this.getMaximumFileSize();
   }
 
-  updateDoneFilesCommaSeperated(): void {
+  updateCommaSeperatedDoneFiles(): void {
     let doneFiles: string[] = [];
 
     for (let transferFile of this.transferFiles) {
@@ -54,7 +54,7 @@ export class FileListComponent implements OnInit {
         this.restrictionRemoverService
           .checkFile(transferFile)
           .then((success) => {
-            this.updateDoneFilesCommaSeperated();
+            this.updateCommaSeperatedDoneFiles();
           });
       }
     }
