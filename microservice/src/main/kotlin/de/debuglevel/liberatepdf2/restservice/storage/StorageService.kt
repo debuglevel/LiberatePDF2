@@ -19,7 +19,7 @@ interface StorageService {
      * @param itemId ID of the item
      * @return the Pdf of the item ID, or null if not found
      */
-    fun get(itemId: UUID): Pdf?
+    fun get(itemId: UUID): Pdf
 
     /**
      * Gets the count of stored items.
@@ -44,4 +44,5 @@ interface StorageService {
         Exception("Failed to store file $filename", inner)
 
     data class FileNotFoundException(val msg: String, val inner: Throwable) : Exception(msg, inner)
+    data class NotFoundException(val id: UUID) : Exception("No file found for id=$id")
 }

@@ -47,10 +47,13 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         }
     }
 
-    override fun get(itemId: UUID): Pdf? {
-        logger.debug { "Getting PDF with ID=$itemId..." }
-        val pdf = storedItems[itemId]
-        // TODO: throw an exception instead of returning null
+    override fun get(itemId: UUID): Pdf {
+        logger.debug { "Getting stored file with id=$itemId..." }
+        val pdf = storedItems.getOrElse(itemId) {
+            logger.error { "No file found for id=$itemId" }
+            throw StorageService.NotFoundException(itemId)
+        }
+        logger.debug { "Got stored file with id=$itemId..." }
         return pdf
     }
 

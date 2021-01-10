@@ -19,12 +19,16 @@ class DocumentService(
     fun get(documentId: UUID): Pdf {
         logger.debug { "Getting document with id=$documentId..." }
 
-        val pdf = storageService.get(documentId) ?: throw NotFoundException(documentId)
+        val pdf = try {
+            storageService.get(documentId)
+        } catch (e: StorageService.NotFoundException) {
+            throw NotFoundException(documentId, e)
+        }
 
         logger.debug { "Got document with id=$documentId: $pdf" }
         return pdf
     }
 
-    data class NotFoundException(val documentId: UUID) :
-        Exception("No document found with id=$documentId")
+    data class NotFoundException(val documentId: UUID, val inner: Exception) :
+        Exception("No document found with id=$documentId (inner Exception: $inner)")
 }

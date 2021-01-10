@@ -31,10 +31,13 @@ class ZipService(
 
         return FileSystems.newFileSystem(uri, properties).use { zipFilesystem ->
             for (id in ids) {
-                storageService.get(id)?.let { pdf ->
+                try {
+                    val pdf = storageService.get(id)
                     val pathInZipFile = zipFilesystem.getPath("/${pdf.originalFilename}")
                     logger.debug { "Copying PDF file ${pdf.unrestrictedPath} into $pathInZipFile..." }
                     Files.copy(pdf.unrestrictedPath, pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
+                } catch (e: StorageService.NotFoundException) {
+                    logger.error(e) { "Could not get file for id=$id from storage" }
                 }
             }
             zipPath
