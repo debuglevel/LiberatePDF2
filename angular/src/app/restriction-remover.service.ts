@@ -102,7 +102,7 @@ export class RestrictionRemoverService {
             transferFile.status = 'done';
             transferFile.statusText = 'ready for download';
             transferFile.done = true;
-          } else if (successResponse.status === 260) {
+          } else if (successResponse.status === 102) {
             console.debug(`File is in progress`);
             transferFile.status = 'in-progress';
             transferFile.statusText = 'in progress';
@@ -114,7 +114,7 @@ export class RestrictionRemoverService {
         },
         (errorResponse: any) => {
           console.debug(`Received failure response:`);
-          if (errorResponse.status === 560) {
+          if (errorResponse.status === 500) {
             console.debug(`File has failed`);
             transferFile.status = 'failed';
             transferFile.statusText = 'failed (maybe wrong password?)';
