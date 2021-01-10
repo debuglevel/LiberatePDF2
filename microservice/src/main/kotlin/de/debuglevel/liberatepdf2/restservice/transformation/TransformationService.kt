@@ -31,22 +31,25 @@ class TransformationService(
     }
 
     fun add(filename: String, inputStream: InputStream, password: String?): Transformation {
-        logger.debug { "Adding transformation..." }
+        val id = UUID.randomUUID()
+        logger.debug { "Adding transformation as id=$id..." }
 
-        val pdf = storageService.store(filename, inputStream, password ?: "")
-        pdf.password = password
+        val restrictedStoredFile = storageService.store(filename, inputStream, password ?: "")
+
         val transformation = Transformation(
-            id = pdf.id,
+            id = id,
             originalFilename = filename,
             password = password,
             finished = false,
-            restrictedPath = pdf.restrictedPath!!
+            restrictedStoredFileId = restrictedStoredFile.id
         )
 
         transformations[transformation.id] = transformation
 
         logger.debug { "Submitting restriction removing task to executor..." }
-        executor.submit { restrictionsRemoverService.removeRestrictions(transformation) }
+        executor.submit {
+            restrictionsRemoverService.removeRestrictions(transformation)
+        }
 
         logger.debug { "Added transformation: $transformation" }
         return transformation

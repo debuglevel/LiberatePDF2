@@ -1,6 +1,5 @@
 package de.debuglevel.liberatepdf2.restservice.transformation
 
-import java.nio.file.Path
 import java.util.*
 
 data class Transformation(
@@ -10,6 +9,6 @@ data class Transformation(
     var finished: Boolean,
     var failed: Boolean? = null,
     var errorMessage: String? = null,
-    val restrictedPath: Path,
-    var unrestrictedPath: Path? = null,
+    val restrictedStoredFileId: UUID,
+    var unrestrictedStoredFileId: UUID? = null,
 )

@@ -4,10 +4,11 @@ import com.lowagie.text.exceptions.BadPasswordException
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfStamper
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
+import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import de.debuglevel.liberatepdf2.restservice.transformation.Transformation
 import io.micronaut.context.annotation.Requires
 import mu.KotlinLogging
-import java.nio.file.Files
+import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Singleton
 
@@ -16,7 +17,9 @@ import javax.inject.Singleton
  */
 @Singleton
 @Requires(property = "app.liberatepdf2.transformation.backend", value = "openpdf")
-class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
+class OpenpdfRestrictionsRemoverService(
+    private val storageService: StorageService
+) : RestrictionsRemoverService {
     private val logger = KotlinLogging.logger {}
 
     private val failedItems = AtomicLong()
@@ -30,33 +33,35 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
     override fun removeRestrictions(transformation: Transformation) {
         logger.debug { "Removing restrictions from PDF $transformation..." }
 
+        val restrictedStoredFile = storageService.get(transformation.restrictedStoredFileId)
+
         try {
             val passwordBytes = transformation.password?.encodeToByteArray()
             logger.debug { "Reading PDF $transformation..." }
-            val pdfReader = PdfReader(transformation.restrictedPath.toFile().inputStream(), passwordBytes)
+            val pdfReader = PdfReader(restrictedStoredFile.inputStream, passwordBytes)
             logger.debug { "Read PDF $transformation" }
 
-            val restrictedFilename = transformation.restrictedPath.fileName.toString()
+            val restrictedFilename = restrictedStoredFile.filename.toString()
             val unrestrictedFilename = "$restrictedFilename$SUFFIX_PDF_UNRESTRICTED"
-            val unrestrictedPath = transformation.restrictedPath.resolveSibling(unrestrictedFilename)
-            val unrestrictedOutputStream = unrestrictedPath.toFile().outputStream()
+            val unrestrictedOutputStream = ByteArrayOutputStream()
 
-            logger.debug { "Writing PDF without encryption $transformation to $unrestrictedPath..." }
+            logger.debug { "Writing PDF without encryption $transformation..." }
             val pdfStamper = PdfStamper(pdfReader, unrestrictedOutputStream)
             pdfStamper.close()
-            logger.debug { "Wrote PDF without encryption $transformation to $unrestrictedPath" }
+            logger.debug { "Wrote PDF without encryption $transformation" }
 
             pdfReader.close()
 
-            // double check if PDF exists in case something odd happened
-            when {
-                !unrestrictedPath.toFile().isFile ->
-                    throw MissingFileAfterTransformationException(unrestrictedPath.toFile().toString())
-                Files.size(unrestrictedPath) == 0L ->
-                    throw EmptyFileAfterTransformationException(unrestrictedPath.toFile().toString())
+            // double check if PDF contains some bytes in case something odd happened
+            if (unrestrictedOutputStream.size() == 0) {
+                throw EmptyByteArrayAfterTransformationException()
             }
 
-            transformation.unrestrictedPath = unrestrictedPath
+            val inputStream = unrestrictedOutputStream.toByteArray()
+                .inputStream() // TODO: using PipedOutputStream might be better: https://stackoverflow.com/a/23874232/4764279
+            val unrestrictedStoredFile = storageService.store(unrestrictedFilename, inputStream, "")
+
+            transformation.unrestrictedStoredFileId = unrestrictedStoredFile.id
             transformation.failed = false
 
             successfulItems.incrementAndGet()
@@ -66,16 +71,10 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
             transformation.errorMessage = "Bad password"
 
             failedItems.incrementAndGet()
-        } catch (e: MissingFileAfterTransformationException) {
-            logger.error(e) { "Output file was not found after transformation" }
+        } catch (e: EmptyByteArrayAfterTransformationException) {
+            logger.error(e) { "Output was zero bytes after transformation" }
             transformation.failed = true
-            transformation.errorMessage = "Output file was not found after transformation"
-
-            failedItems.incrementAndGet()
-        } catch (e: EmptyFileAfterTransformationException) {
-            logger.error(e) { "Output file was zero bytes after transformation" }
-            transformation.failed = true
-            transformation.errorMessage = "Output file was zero bytes after transformation"
+            transformation.errorMessage = "Output was zero bytes after transformation"
 
             failedItems.incrementAndGet()
         } catch (e: Exception) {
@@ -91,9 +90,6 @@ class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
         logger.debug { "Removed restrictions from PDF $transformation" }
     }
 
-    class MissingFileAfterTransformationException(filename: String) :
-        Exception("File $filename not found after transformation")
-
-    class EmptyFileAfterTransformationException(filename: String) :
-        Exception("File $filename has zero bytes after transformation")
+    class EmptyByteArrayAfterTransformationException :
+        Exception("ByteArray of OutputStream has zero bytes after transformation")
 }

@@ -11,13 +11,12 @@ import javax.inject.Singleton
 
 @Singleton
 class ZipService(
-    private val storageService: StorageService,
     private val storageProperties: StorageProperties
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun createZip(ids: Array<UUID>): Path {
-        logger.debug { "Creating ZIP file for documents ${ids.joinToString()}..." }
+    fun createZip(storedFiles: Collection<StoredFile>): Path {
+        logger.debug { "Creating ZIP file for ${storedFiles.size} files..." }
 
         val properties: MutableMap<String, String?> = HashMap()
         properties["create"] = "true"
@@ -29,16 +28,12 @@ class ZipService(
         val uri = URI.create("jar:" + zipPath.toUri())
         logger.debug { "URI of ZIP file: $uri" }
 
+        // TODO: create ZIP in memory or even better into an OutputStream
         return FileSystems.newFileSystem(uri, properties).use { zipFilesystem ->
-            for (id in ids) {
-                try {
-                    val pdf = storageService.get(id)
-                    val pathInZipFile = zipFilesystem.getPath("/${pdf.originalFilename}")
-                    logger.debug { "Copying PDF file ${pdf.unrestrictedPath} into $pathInZipFile..." }
-                    Files.copy(pdf.unrestrictedPath, pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
-                } catch (e: StorageService.NotFoundException) {
-                    logger.error(e) { "Could not get file for id=$id from storage" }
-                }
+            for (storedFile in storedFiles) {
+                val pathInZipFile = zipFilesystem.getPath("/${storedFile.filename}")
+                logger.debug { "Copying input stream into $pathInZipFile..." }
+                Files.copy(storedFile.inputStream, pathInZipFile, StandardCopyOption.REPLACE_EXISTING)
             }
             zipPath
         }

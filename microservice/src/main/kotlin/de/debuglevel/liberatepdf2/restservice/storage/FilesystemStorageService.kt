@@ -1,11 +1,12 @@
 package de.debuglevel.liberatepdf2.restservice.storage
 
-import de.debuglevel.liberatepdf2.restservice.Pdf
 import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 import javax.annotation.PostConstruct
 import javax.inject.Singleton
@@ -14,10 +15,12 @@ import javax.inject.Singleton
  * Storage service which uses the file system.
  */
 @Singleton
-class FilesystemStorageService(private val properties: StorageProperties) : StorageService {
+class FilesystemStorageService(
+    private val properties: StorageProperties
+) : StorageService {
     private val logger = KotlinLogging.logger {}
 
-    private val storedItems = HashMap<UUID, Pdf>()
+    private val storedItems = HashMap<UUID, StoredFile>()
     override val storedItemsCount = storedItems.size.toLong()
 
     override fun deleteAll() {
@@ -45,45 +48,75 @@ class FilesystemStorageService(private val properties: StorageProperties) : Stor
         } catch (e: IOException) {
             throw StorageService.InitializationException(e)
         }
+
+        // TODO: would be nice to index the files to restore the storage
     }
 
-    override fun get(itemId: UUID): Pdf {
+    override fun get(itemId: UUID): StoredFile {
         logger.debug { "Getting stored file with id=$itemId..." }
-        val pdf = storedItems.getOrElse(itemId) {
-            logger.error { "No file found for id=$itemId" }
+        val storedFile = storedItems.getOrElse(itemId) {
+            logger.error { "No StoredFile found for id=$itemId" }
             throw StorageService.NotFoundException(itemId)
         }
-        logger.debug { "Got stored file with id=$itemId..." }
-        return pdf
-    }
 
-    override fun store(filename: String, inputStream: InputStream, password: String): Pdf {
-        val itemId = UUID.randomUUID()
-        logger.debug { "Storing '$filename' as id=${itemId}..." }
-
-        val pdf = Pdf(itemId, filename)
-
-        val idFilename = "$itemId.pdf"
-        val filePath = properties.locationPath.resolve(idFilename)
-        try {
-            logger.debug { "Writing file '$filename' to '$filePath'..." }
-            Files.copy(inputStream, filePath)
-
-            // storing password is not necessary for PDFtk, but maybe useful to persist
-            if (password.isNotEmpty()) {
-                val passwordPath = filePath.resolveSibling("${filePath.fileName}.password")
-                logger.debug { "Saving password to $passwordPath..." }
-
-                passwordPath.toFile().writeText(password)
-            }
-        } catch (e: IOException) {
-            logger.error(e) { "Failed to store file $filename" }
-            throw StorageService.StoreException(filename, e)
+        val storedFilePath = properties.locationPath.resolve("${storedFile.id}.pdf")
+        val inputStream = try {
+            storedFilePath.toFile().inputStream()
+        } catch (e: FileNotFoundException) {
+            throw FilesystemFileNotFound(storedFilePath, e)
         }
 
-        pdf.restrictedPath = filePath
-        storedItems[itemId] = pdf
+        val populatedStoredFile = storedFile.copy(inputStream = inputStream)
 
-        return pdf
+        logger.debug { "Got stored file with id=$itemId: $populatedStoredFile" }
+        return populatedStoredFile
     }
+
+    override fun store(filename: String, inputStream: InputStream, password: String): StoredFile {
+        val id = UUID.randomUUID()
+        logger.debug { "Storing '$filename' as id=${id}..." }
+
+        try {
+            val filePath = storeFile(id, inputStream, properties.locationPath)
+            val passwordPath = storePassword(id, password, properties.locationPath)
+
+            val fileSize = filePath.toFile().length()
+            val storedFile = StoredFile(id, filename, fileSize)
+            storedItems[id] = storedFile
+
+            return get(storedFile.id) // call get() to populate inputStream of StoredFile
+        } catch (e: IOException) {
+            logger.error(e) { "Failed to store file $filename ($id)" }
+            throw StorageService.StoreException(filename, e)
+        }
+    }
+
+    private fun storeFile(
+        id: UUID,
+        inputStream: InputStream,
+        storageLocation: Path,
+    ): Path {
+        val filename = "$id.pdf"
+        val path = storageLocation.resolve(filename)
+        logger.debug { "Writing file id=$id to '$path'..." }
+        Files.copy(inputStream, path)
+        logger.debug { "Wrote file id=$id to '$path'" }
+        return path
+    }
+
+    private fun storePassword(
+        id: UUID,
+        password: String,
+        storageLocation: Path,
+    ): Path {
+        val filename = "$id.password"
+        val path = storageLocation.resolve(filename)
+        logger.debug { "Saving password id=$id to $path..." }
+        path.toFile().writeText(password)
+        logger.debug { "Saved password id=$id to $path..." }
+        return path
+    }
+
+    data class FilesystemFileNotFound(val path: Path, val inner: Exception) :
+        Exception("No file found at $path (inner exception: $inner)", inner)
 }
