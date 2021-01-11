@@ -1,6 +1,6 @@
 package de.debuglevel.liberatepdf2.javafx
 
-import de.debuglevel.liberatepdf2.client.apis.StatusApi
+import de.debuglevel.liberatepdf2.restclient.apis.StatusApi
 import javafx.animation.Animation
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
