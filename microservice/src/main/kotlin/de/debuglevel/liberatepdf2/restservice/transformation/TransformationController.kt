@@ -20,7 +20,7 @@ class TransformationController(
     private val logger = KotlinLogging.logger {}
 
     @Get("/{transformationId}")
-    fun getOne(
+    fun getOneTransformation(
         transformationId: UUID,
     ): HttpResponse<*> {
         logger.debug { "GET / or HEAD / for transformation id=$transformationId" }
@@ -38,7 +38,7 @@ class TransformationController(
 
     @Post("/")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    fun postOne(
+    fun postOneTransformation(
         file: CompletedFileUpload,
         password: String,
     ): HttpResponse<*> {
