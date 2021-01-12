@@ -17,6 +17,8 @@ else
     LOCALDIR=$PWD
 fi
 
+echo 
+echo "== Kotlin"
 echo "== Creating temporary directory..."
 mkdir -p openapi/kotlin
 echo "== Generating source files..."
@@ -31,6 +33,7 @@ cp -a openapi/kotlin/src/main/. javafx/src/main/
 echo "== Deleting temporary files..."
 rm -rf openapi
 
+echo "== TypeScript Angular"
 echo "== Creating temporary directory..."
 mkdir -p openapi/angular
 echo "== Generating source files..."
@@ -41,7 +44,7 @@ docker run --rm -v ${LOCALDIR}:/local openapitools/openapi-generator-cli \
   -o /local/openapi/angular \
   --additional-properties=fileNaming=kebab-case
 echo "== Copying source files..."
-#cp -a openapi/angular/. angular/.
+cp -a openapi/angular/. angular/src/app/restclient/
 echo "== Deleting temporary files..."
-#rm -rf openapi
+rm -rf openapi
 
