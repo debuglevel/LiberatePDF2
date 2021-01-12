@@ -11,8 +11,22 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RestrictionRemoverService } from './restriction-remover.service';
 import { SettingsHttpService } from './settings-http.service';
 
+import {
+  ApiModule,
+  Configuration,
+  ConfigurationParameters,
+} from './restclient';
+
 export function app_Init(settingsHttpService: SettingsHttpService) {
   return () => settingsHttpService.initializeApp();
+}
+
+export function apiConfigFactory(): Configuration {
+  const params: ConfigurationParameters = {
+    // set configuration parameters here.
+    basePath: 'http://localhost:8080',
+  };
+  return new Configuration(params);
 }
 
 @NgModule({
@@ -23,6 +37,7 @@ export function app_Init(settingsHttpService: SettingsHttpService) {
     HttpClientModule,
     //NgbModule.forRoot(),
     NgbModule,
+    ApiModule.forRoot(apiConfigFactory),
   ],
   providers: [
     RestrictionRemoverService,
