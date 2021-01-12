@@ -3,18 +3,32 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SettingsService } from './settings.service';
+import { StatusService } from './restclient/api/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RestrictionRemoverService {
   constructor(
+    private statusService: StatusService,
     private http: HttpClient,
     private settingsService: SettingsService
   ) {}
 
   getMaximumFileSize(): Promise<number> {
     console.debug('Querying maximum file size...');
+
+    return this.statusService
+      .maximumUploadSize()
+      .toPromise()
+      .then((response) => {
+        console.debug(
+          `Queried maximum upload size: ${response} (${Number(response)})`
+        );
+        return Number(response);
+      })
+      .catch(this.handleError);
+
     return this.http
       .get(
         this.settingsService.settings.apiUrl + '/v1/status/maximum-upload-size'
@@ -28,6 +42,22 @@ export class RestrictionRemoverService {
       })
       .catch(this.handleError);
   }
+
+  // getMaximumFileSize(): Promise<number> {
+  //   console.debug('Querying maximum file size...');
+  //   return this.http
+  //     .get(
+  //       this.settingsService.settings.apiUrl + '/v1/status/maximum-upload-size'
+  //     )
+  //     .toPromise()
+  //     .then((response) => {
+  //       console.debug(
+  //         `Queried maximum upload size: ${response} (${Number(response)})`
+  //       );
+  //       return Number(response);
+  //     })
+  //     .catch(this.handleError);
+  // }
 
   getStatistics(): Promise<any> {
     console.debug('Querying statistics...');
