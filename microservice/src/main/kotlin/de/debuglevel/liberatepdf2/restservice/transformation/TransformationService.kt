@@ -11,6 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class TransformationService(
+    private val transformationRepository: TransformationRepository,
     private val storageService: StorageService,
     private val restrictionsRemoverService: RestrictionsRemoverService,
     @Property(name = "app.liberatepdf2.transformation.worker-threads") workerThreadsCount: Int,
@@ -19,40 +20,40 @@ class TransformationService(
 
     private val executor = Executors.newFixedThreadPool(workerThreadsCount)
 
-    private val transformations = HashMap<UUID, Transformation>()
-
     fun get(transformationId: UUID): Transformation {
         logger.debug { "Getting transformation with id=$transformationId..." }
 
-        val transformation = transformations.getOrElse(transformationId) { throw NotFoundException(transformationId) }
+        val transformation = transformationRepository.findById(transformationId).orElseThrow {
+            logger.debug { "Getting transformation with id='$transformationId' failed" }
+            NotFoundException(transformationId)
+        }
 
         logger.debug { "Got transformation with id=$transformationId: $transformation" }
         return transformation
     }
 
     fun add(filename: String, inputStream: InputStream, password: String?): Transformation {
-        val id = UUID.randomUUID()
-        logger.debug { "Adding transformation as id=$id..." }
+        logger.debug { "Adding transformation..." }
 
         val restrictedStoredFile = storageService.store(filename, inputStream, password ?: "")
 
         val transformation = Transformation(
-            id = id,
+            id = null,
             originalFilename = filename,
             password = password,
             finished = false,
             restrictedStoredFileId = restrictedStoredFile.id
         )
 
-        transformations[transformation.id] = transformation
+        val savedTransformation = transformationRepository.save(transformation)
 
         logger.debug { "Submitting restriction removing task to executor..." }
         executor.submit {
-            restrictionsRemoverService.removeRestrictions(transformation)
+            restrictionsRemoverService.removeRestrictions(savedTransformation)
         }
 
-        logger.debug { "Added transformation: $transformation" }
-        return transformation
+        logger.debug { "Added transformation: $savedTransformation" }
+        return savedTransformation
     }
 
     data class NotFoundException(val transformationId: UUID) :

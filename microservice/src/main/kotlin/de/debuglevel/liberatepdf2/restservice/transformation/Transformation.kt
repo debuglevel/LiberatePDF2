@@ -1,9 +1,15 @@
 package de.debuglevel.liberatepdf2.restservice.transformation
 
 import java.util.*
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
 
+@Entity
 data class Transformation(
-    val id: UUID,
+    @Id
+    @GeneratedValue
+    val id: UUID?,
     val originalFilename: String,
     val password: String?,
     var finished: Boolean,
