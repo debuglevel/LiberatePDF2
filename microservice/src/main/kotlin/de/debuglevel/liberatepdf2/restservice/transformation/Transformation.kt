@@ -9,12 +9,12 @@ import javax.persistence.Id
 data class Transformation(
     @Id
     @GeneratedValue
-    val id: UUID?,
-    val originalFilename: String,
-    val password: String?,
+    var id: UUID?,
+    var originalFilename: String,
+    var password: String?,
     var finished: Boolean,
     var failed: Boolean? = null,
     var errorMessage: String? = null,
-    val restrictedStoredFileId: UUID,
+    var restrictedStoredFileId: UUID,
     var unrestrictedStoredFileId: UUID? = null,
 )

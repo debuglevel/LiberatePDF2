@@ -49,11 +49,37 @@ class TransformationService(
 
         logger.debug { "Submitting restriction removing task to executor..." }
         executor.submit {
-            restrictionsRemoverService.removeRestrictions(savedTransformation)
+            try {
+                restrictionsRemoverService.removeRestrictions(savedTransformation)
+                update(savedTransformation.id!!, savedTransformation)
+            } catch (e: Exception) {
+                logger.error(e) { "Unhandled exception occurred in restriction removing task" }
+            }
         }
 
         logger.debug { "Added transformation: $savedTransformation" }
         return savedTransformation
+    }
+
+    fun update(id: UUID, transformation: Transformation): Transformation {
+        logger.debug { "Updating transformation '$transformation' with id='$id'..." }
+
+        // an object must be known to Hibernate (i.e. retrieved first) to get updated;
+        // it would be a "detached entity" otherwise.
+        val updateTransformation = this.get(id).apply {
+            originalFilename = transformation.originalFilename
+            password = transformation.password
+            finished = transformation.finished
+            failed = transformation.failed
+            errorMessage = transformation.errorMessage
+            restrictedStoredFileId = transformation.restrictedStoredFileId
+            unrestrictedStoredFileId = transformation.unrestrictedStoredFileId
+        }
+
+        val updatedTransformation = transformationRepository.update(updateTransformation)
+
+        logger.debug { "Updated character: $updatedTransformation with id='$id'" }
+        return updatedTransformation
     }
 
     data class NotFoundException(val transformationId: UUID) :
