@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SettingsService } from './settings.service';
-import { StatusService } from './restclient/api/api';
+import { StatusService, ConfigurationService } from './restclient/api/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RestrictionRemoverService {
   constructor(
+    private configurationService: ConfigurationService,
     private statusService: StatusService,
     private http: HttpClient,
     private settingsService: SettingsService
@@ -18,12 +19,14 @@ export class RestrictionRemoverService {
   getMaximumFileSize(): Promise<number> {
     console.debug('Querying maximum upload size...');
 
-    return this.statusService
-      .maximumUploadSize()
+    return this.configurationService
+      .getConfiguration()
       .toPromise()
-      .then((maximumUploadSize) => {
-        console.debug(`Queried maximum upload size: ${maximumUploadSize}`);
-        return maximumUploadSize;
+      .then((configuration) => {
+        console.debug(
+          `Queried maximum upload size: ${configuration.maximumMultipartUploadSize}`
+        );
+        return configuration.maximumMultipartUploadSize;
       })
       .catch(this.handleError);
   }
