@@ -3,13 +3,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SettingsService } from './settings.service';
-import { StatusService, ConfigurationService } from './restclient/api/api';
+import {
+  StatusService,
+  ConfigurationService,
+  DocumentsService,
+  TransformationsService,
+} from './restclient/api/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RestrictionRemoverService {
   constructor(
+    private transformationsService: TransformationsService,
     private configurationService: ConfigurationService,
     private statusService: StatusService,
     private http: HttpClient,
@@ -48,44 +54,24 @@ export class RestrictionRemoverService {
   uploadDocument(transferFile: TransferFile) {
     console.debug('Uploading document...');
 
-    let formData: FormData = new FormData();
-    formData.append('file', transferFile.file, transferFile.file.name);
-    formData.append('password', transferFile.password);
+    this.transformationsService
+      .postOneTransformation(transferFile.file, transferFile.password)
+      .toPromise()
+      .then((postTransformationResponse: any) => {
+        console.debug('Got response on POST request:');
+        console.debug(postTransformationResponse);
 
-    const options = {
-      headers: new HttpHeaders().append('Accept', 'text/plain'),
-      responseType: 'text' as 'text',
-    };
-
-    console.debug('Sending POST request...');
-    this.http
-      .post(
-        this.settingsService.settings.apiUrl + '/v1/documents/',
-        formData,
-        options
-      )
-      .pipe(
-        map((res: any) => {
-          console.debug('Got response on POST request:');
-          console.debug(res);
-          return res;
-        })
-        //.catch(this.handleError)
-      )
-      .subscribe(
-        (data: any) => {
-          console.log('Success on uploading file');
-          transferFile.id = data;
-          transferFile.status = 'uploaded';
-          transferFile.statusText = 'uploaded';
-        },
-        (error: any) => {
-          console.error('An error occurred:');
-          console.error(error);
-          transferFile.status = 'upload-failed';
-          transferFile.statusText = 'upload failed';
-        }
-      );
+        console.log('Success on uploading file');
+        transferFile.id = postTransformationResponse.id;
+        transferFile.status = 'uploaded';
+        transferFile.statusText = 'uploaded';
+      })
+      .catch((error: any) => {
+        console.error('Error occurred on uploading file');
+        console.error(error);
+        transferFile.status = 'upload-failed';
+        transferFile.statusText = 'upload failed';
+      });
   }
 
   checkFile(transferFile: TransferFile): Promise<void> {
