@@ -50,7 +50,11 @@ export class FileListComponent implements OnInit {
   checkFiles(t: any): void {
     console.debug('Checking files...');
     for (let transferFile of this.transferFiles) {
-      if (transferFile.done === false && transferFile.status !== 'uploading') {
+      if (
+        transferFile.done === false &&
+        transferFile.status !== 'uploading' &&
+        transferFile.status !== 'upload-failed'
+      ) {
         this.restrictionRemoverService
           .checkFile(transferFile)
           .then((success) => {
