@@ -36,8 +36,9 @@ export class FileListComponent implements OnInit {
   }
 
   updateCommaSeperatedDoneFiles(): void {
-    let doneFiles: string[] = [];
+    console.debug('updateCommaSeperatedDoneFiles()...');
 
+    let doneFiles: string[] = [];
     for (let transferFile of this.transferFiles) {
       if (transferFile.done === true && transferFile.status === 'done') {
         doneFiles.push(String(transferFile.id));
