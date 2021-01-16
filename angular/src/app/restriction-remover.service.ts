@@ -21,11 +21,9 @@ export class RestrictionRemoverService {
     return this.statusService
       .maximumUploadSize()
       .toPromise()
-      .then((response) => {
-        console.debug(
-          `Queried maximum upload size: ${response} (${Number(response)})`
-        );
-        return Number(response);
+      .then((maximumUploadSize) => {
+        console.debug(`Queried maximum upload size: ${maximumUploadSize}`);
+        return maximumUploadSize;
       })
       .catch(this.handleError);
 
