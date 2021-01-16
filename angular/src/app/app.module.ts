@@ -18,8 +18,8 @@ import {
   ConfigurationParameters,
 } from './restclient';
 
-export function app_Init(settingsHttpService: SettingsHttpService) {
-  console.debug('app_Init...');
+export function initializeSettings(settingsHttpService: SettingsHttpService) {
+  console.debug('initializeSettings...');
   return () => settingsHttpService.initializeApp();
 }
 
@@ -48,7 +48,7 @@ export function initializeApiConfiguration(
     RestrictionRemoverService,
     {
       provide: APP_INITIALIZER,
-      useFactory: app_Init,
+      useFactory: initializeSettings,
       deps: [SettingsHttpService],
       multi: true,
     },
