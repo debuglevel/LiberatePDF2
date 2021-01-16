@@ -26,19 +26,6 @@ export class RestrictionRemoverService {
         return maximumUploadSize;
       })
       .catch(this.handleError);
-
-    return this.http
-      .get(
-        this.settingsService.settings.apiUrl + '/v1/status/maximum-upload-size'
-      )
-      .toPromise()
-      .then((response) => {
-        console.debug(
-          `Queried maximum upload size: ${response} (${Number(response)})`
-        );
-        return Number(response);
-      })
-      .catch(this.handleError);
   }
 
   // getMaximumFileSize(): Promise<number> {
