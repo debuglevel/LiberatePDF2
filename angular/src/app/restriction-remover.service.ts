@@ -17,9 +17,7 @@ export class RestrictionRemoverService {
   constructor(
     private transformationsService: TransformationsService,
     private configurationService: ConfigurationService,
-    private statusService: StatusService,
-    private http: HttpClient,
-    private settingsService: SettingsService
+    private statusService: StatusService
   ) {}
 
   getMaximumFileSize(): Promise<number> {
