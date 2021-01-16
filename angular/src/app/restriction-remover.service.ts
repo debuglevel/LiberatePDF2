@@ -30,11 +30,14 @@ export class RestrictionRemoverService {
 
   getStatistics(): Promise<any> {
     console.debug('Querying statistics...');
-    return this.http
-      .get(this.settingsService.settings.apiUrl + '/v1/status/statistics')
+
+    return this.statusService
+      .statistics()
       .toPromise()
-      .then((response: any) => {
-        return response;
+      .then((statistics) => {
+        console.debug(`Queried statistics:`);
+        console.debug(statistics);
+        return statistics;
       })
       .catch(this.handleError);
   }
