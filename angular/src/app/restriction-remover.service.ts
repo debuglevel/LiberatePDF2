@@ -75,50 +75,42 @@ export class RestrictionRemoverService {
   }
 
   checkFile(transferFile: TransferFile): Promise<void> {
-    console.debug(`Checking file ${transferFile.id}...`);
+    console.debug(`Checking transformation ${transferFile.id}...`);
 
-    console.debug(`Sending HEAD request...`);
-    return this.http
-      .head(
-        this.settingsService.settings.apiUrl +
-          '/v1/documents/' +
-          transferFile.id,
-        { observe: 'response' }
-      )
+    return this.transformationsService
+      .getOneTransformation(transferFile.id!)
       .toPromise()
-      .then(
-        (successResponse: any) => {
-          console.debug(`Received successful response:`);
-          console.debug(successResponse);
-          if (successResponse.status === 200) {
-            console.debug(`File is done; ready for download`);
-            transferFile.status = 'done';
-            transferFile.statusText = 'ready for download';
-            transferFile.done = true;
-          } else if (successResponse.status === 102) {
-            console.debug(`File is in progress`);
-            transferFile.status = 'in-progress';
-            transferFile.statusText = 'in progress';
-          } else {
-            console.debug(`File is in unknown state`);
-            transferFile.status = 'unknown';
-            transferFile.statusText = 'unknown';
-          }
-        },
-        (errorResponse: any) => {
-          console.debug(`Received failure response:`);
-          if (errorResponse.status === 500) {
-            console.debug(`File has failed`);
-            transferFile.status = 'failed';
-            transferFile.statusText = 'failed (maybe wrong password?)';
-            transferFile.done = true;
-          } else {
-            console.debug(`File is in unknown state`);
-            transferFile.status = 'unknown';
-            transferFile.statusText = 'unknown';
-          }
+      .then((getTransformationResponse: any) => {
+        console.debug(
+          `Got response on GET /transformation/${transferFile.id}:`
+        );
+        console.debug(getTransformationResponse);
+
+        if (getTransformationResponse.finished == false) {
+          transferFile.status = 'in-progress';
+          transferFile.statusText = 'in progress';
+          transferFile.done = false;
+        } else if (
+          getTransformationResponse.finished &&
+          getTransformationResponse.failed == false
+        ) {
+          transferFile.status = 'done';
+          transferFile.statusText = 'ready for download';
+          transferFile.done = true;
+        } else if (
+          getTransformationResponse.finished &&
+          getTransformationResponse.failed == true
+        ) {
+          transferFile.status = 'failed';
+          transferFile.statusText = `failed (${getTransformationResponse.errorMessage})`;
+          transferFile.done = true;
+        } else {
+          console.error('Transformation is in unhandled state');
+          console.error(getTransformationResponse);
+          transferFile.status = 'unknown';
+          transferFile.statusText = 'unknown';
         }
-      )
+      })
       .catch(this.handleError);
   }
 
