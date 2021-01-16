@@ -33,7 +33,9 @@ export class RestrictionRemoverService {
     return this.http
       .get(this.settingsService.settings.apiUrl + '/v1/status/statistics')
       .toPromise()
-      .then((response: any) => response.json())
+      .then((response: any) => {
+        return response;
+      })
       .catch(this.handleError);
   }
 
