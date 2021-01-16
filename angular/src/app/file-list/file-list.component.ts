@@ -46,6 +46,7 @@ export class FileListComponent implements OnInit {
     }
 
     this.commaSeperatedDoneFiles = doneFiles.join(',');
+    console.debug('commaSeperatedDoneFiles=' + this.commaSeperatedDoneFiles);
   }
 
   checkFiles(t: any): void {
