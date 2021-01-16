@@ -28,22 +28,6 @@ export class RestrictionRemoverService {
       .catch(this.handleError);
   }
 
-  // getMaximumFileSize(): Promise<number> {
-  //   console.debug('Querying maximum file size...');
-  //   return this.http
-  //     .get(
-  //       this.settingsService.settings.apiUrl + '/v1/status/maximum-upload-size'
-  //     )
-  //     .toPromise()
-  //     .then((response) => {
-  //       console.debug(
-  //         `Queried maximum upload size: ${response} (${Number(response)})`
-  //       );
-  //       return Number(response);
-  //     })
-  //     .catch(this.handleError);
-  // }
-
   getStatistics(): Promise<any> {
     console.debug('Querying statistics...');
     return this.http
