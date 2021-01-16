@@ -1,5 +1,7 @@
-package de.debuglevel.liberatepdf2.restservice.storage
+package de.debuglevel.liberatepdf2.restservice.storage.filesystem
 
+import de.debuglevel.liberatepdf2.restservice.storage.StorageService
+import de.debuglevel.liberatepdf2.restservice.storage.StoredFile
 import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
 import java.io.FileNotFoundException

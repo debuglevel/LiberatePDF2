@@ -1,4 +1,4 @@
-package de.debuglevel.liberatepdf2.restservice.storage
+package de.debuglevel.liberatepdf2.restservice.storage.filesystem
 
 import io.micronaut.context.annotation.ConfigurationProperties
 import java.nio.file.Paths

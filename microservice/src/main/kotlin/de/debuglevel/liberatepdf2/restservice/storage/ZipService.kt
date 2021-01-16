@@ -1,5 +1,6 @@
 package de.debuglevel.liberatepdf2.restservice.storage
 
+import de.debuglevel.liberatepdf2.restservice.storage.filesystem.StorageProperties
 import mu.KotlinLogging
 import java.net.URI
 import java.nio.file.FileSystems
