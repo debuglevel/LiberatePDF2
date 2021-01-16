@@ -24,7 +24,7 @@ export class FileListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.debug('Initializing...');
+    console.debug('Initializing file-list.component...');
     console.log(
       'Reminder: Set log level to verbose in your Browser to see console.debug() messages'
     );
