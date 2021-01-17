@@ -20,9 +20,9 @@ class TransformationController(
     private val logger = KotlinLogging.logger {}
 
     @Get("/{transformationId}")
-    fun getOne(
+    fun getOneTransformation(
         transformationId: UUID,
-    ): HttpResponse<*> {
+    ): HttpResponse<GetTransformationResponse> {
         logger.debug { "GET / or HEAD / for transformation id=$transformationId" }
 
         return try {
@@ -32,16 +32,16 @@ class TransformationController(
             HttpResponse.ok(getTransformationResponse)
         } catch (e: TransformationService.NotFoundException) {
             logger.debug { "No transformation with id=$transformationId found" }
-            HttpResponse.notFound("No transformation found for id=$transformationId")
+            HttpResponse.notFound<GetTransformationResponse>()
         }
     }
 
     @Post("/")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    fun postOne(
+    fun postOneTransformation(
         file: CompletedFileUpload,
         password: String,
-    ): HttpResponse<*> {
+    ): HttpResponse<PostTransformationResponse> {
         logger.debug { "POST / with file=$file, password=$password" }
 
         val transformation = transformationService.add(

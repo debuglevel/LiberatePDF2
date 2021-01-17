@@ -12,7 +12,11 @@ The frontend is made with Angular. It connects to a REST backend written in Kotl
 
 The simplest method would be starting the `docker-compose.yml` with `docker-compose up --build` which spins up a Nginx container at `http://localhost:8082` which serves the angular client, and the REST backend container at `http://localhost:8081`.
 
+### Angular
 For building the angular client and the REST service without Docker, see the `README.md` in their subdirectories.
+
+### Update generated REST API libraries
+To update the generated REST API library sources, run `./generate-openapi.libraries.sh`
 
 ## Configuration
 
