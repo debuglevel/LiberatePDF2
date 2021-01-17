@@ -17,7 +17,6 @@ import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
 import javafx.util.Duration
 import org.apache.commons.io.FileUtils
-import org.apache.http.client.fluent.Request
 import org.apache.http.conn.HttpHostConnectException
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -38,8 +37,6 @@ class DropWindowController {
     @FXML
     private var passwordTextField: TextField? = null
 
-    private val checkTaskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
-
     private var maximumUploadSize: Long? = null
     private val transferFiles: ObservableList<TransferFile> = FXCollections.observableList(ArrayList())
     private val uploadTaskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -51,60 +48,17 @@ class DropWindowController {
     private val transformationsApi = TransformationsApi(HOST)
     private val documentsApi = DocumentsApi(HOST)
 
-    private fun checkFilesStatus() {
-        logger.debug("Checking status of files...")
-        transferFiles.stream()
-            .filter { !it.done && it.id != null }
-            .forEach {
-                checkTaskExecutor.submit(object : Task<Void>() {
-                    @Throws(Exception::class)
-                    override fun call(): Void? {
-                        // check again if pre-conditions for checking status are still met.
-                        // (although conditions were filtered, the queue MIGHT contain duplicates
-                        // if checking the whole queue lasts longer than the checking interval?)
-                        if (!it.done && it.id != null) {
-                            checkFileStatus(it)
-                        }
+    private val statusChecker: StatusChecker = StatusChecker()
 
-                        return null
-                    }
-                })
-            }
-    }
-
-    private fun checkFileStatus(transferFile: TransferFile) {
-        try {
-            logger.debug("Checking status of file $transferFile")
-
-            val getTransformationResponse = transformationsApi.getOneTransformation(UUID.fromString(transferFile.id))
-            val finished = getTransformationResponse.finished!!
-            val failed = getTransformationResponse.failed!!
-            val errorMessage = getTransformationResponse.errorMessage
-
-            if (!finished) {
-                // file is still in progress
-                transferFile.status = "in progress"
-            } else if (finished && !failed) {
-                // file was successfully processed
-                transferFile.status = "done"
-                transferFile.done = true
-                saveFile(transferFile)
-            } else if (finished && failed) {
-                // processing failed
-                transferFile.status = "processing failed"
-                transferFile.done = true
-            } else {
-                // unknown
-                transferFile.status = "unknown status code"
-            }
-
-            filesListView!!.refresh() // should be better be done via an property. but works good enough.
-        } catch (e: HttpHostConnectException) {
-            logger.error("Connection to host failed: " + e.message)
-        } catch (e: IOException) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
-        }
+    @FXML
+    fun initialize() {
+        filesListView!!.items = transferFiles
+        val fileCheckTimer = Timeline(
+            KeyFrame(Duration.seconds(1.0), { statusChecker.checkFilesStatus(transferFiles, filesListView!!) })
+        )
+        fileCheckTimer.cycleCount = Animation.INDEFINITE
+        fileCheckTimer.play()
+        fetchMaximumUploadSize()
     }
 
     private fun fetchMaximumUploadSize() {
@@ -118,17 +72,6 @@ class DropWindowController {
             // TODO Auto-generated catch block
             e.printStackTrace()
         }
-    }
-
-    @FXML
-    fun initialize() {
-        filesListView!!.items = transferFiles
-        val fileCheckTimer = Timeline(
-            KeyFrame(Duration.seconds(1.0), { checkFilesStatus() })
-        )
-        fileCheckTimer.cycleCount = Animation.INDEFINITE
-        fileCheckTimer.play()
-        fetchMaximumUploadSize()
     }
 
     /**
@@ -231,28 +174,6 @@ class DropWindowController {
             } else {
                 // do nothing because strange
             }
-        }
-    }
-
-    private fun saveFile(transferFile: TransferFile) {
-        // TODO: throws exception
-        //val x = documentsApi.getOne(UUID.fromString(transferFile.id))
-
-        val url = "$HOST/v1/documents/${transferFile.id}"
-        logger.debug("Getting document $transferFile via $url")
-        val response = Request.Get(url).execute().returnResponse()
-        val inputStream = response.entity.content
-
-        try {
-            val originalPath = transferFile.path
-            val destinationFile = originalPath.resolveSibling("${originalPath.fileName} (unrestricted).pdf")
-                .toFile()
-
-            logger.debug("Copying $transferFile to $destinationFile...")
-            FileUtils.copyInputStreamToFile(inputStream, destinationFile)
-        } catch (e: IOException) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
         }
     }
 }
