@@ -12,9 +12,9 @@ import org.apache.commons.io.FileUtils
 import org.apache.http.conn.HttpHostConnectException
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.net.SocketException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -38,47 +38,45 @@ class FileUploader {
         passwordTextField: TextField?,
         filesListView: ListView<TransferFile>?
     ) {
-        logger.info("Processing file $path")
+        logger.info("Uploading file $path...")
         val transferFile = TransferFile(path, "uploading", passwordTextField!!.text)
         transferFiles.add(transferFile)
 
-        if (isFileSizeAccepted(path)) {
-            val uploadTask = object : Task<String>() {
-                override fun call(): String {
-                    val postTransformationResponse = transformationsApi.postOneTransformation(
-                        path.toFile(),
-                        transferFile.password
-                    )
-                    return postTransformationResponse.id.toString()
-                }
-            }
-
-            uploadTask.setOnSucceeded {
-                logger.debug("Upload Task for $path succeeded; got id=${uploadTask.get()}")
-                transferFile.id = uploadTask.get()
-                transferFile.status = "transferred"
-
-                filesListView!!.refresh() // should be better be done via an property. but works good enough.
-            }
-
-            uploadTask.setOnFailed {
-                logger.warn("Upload Task for $path failed")
-                transferFile.status = "upload failed"
-                if (uploadTask.exceptionProperty().get() is SocketException) {
-                    logger.warn("Exception is SocketException; the file MIGHT be too big.")
-                    uploadTask.exceptionProperty().get().printStackTrace()
-
-                    transferFile.status = "upload failed (too big?)"
-                }
-
-                filesListView!!.refresh() // should be better be done via an property. but works good enough.
-            }
-
-            logger.debug("Queueing upload task for $path...")
-            uploadTaskExecutor.submit(uploadTask)
-        } else {
+        if (!isFileSizeAccepted(path)) {
             transferFile.status = "file too big; did not upload"
+            return
         }
+
+        val uploadTask = object : Task<UUID>() {
+            override fun call(): UUID {
+                logger.debug("Uploading file $path...")
+                val postTransformationResponse = transformationsApi.postOneTransformation(
+                    path.toFile(),
+                    transferFile.password
+                )
+                logger.debug("Uploaded file $path: ${postTransformationResponse.id!!}")
+                return postTransformationResponse.id
+            }
+        }
+
+        uploadTask.setOnSucceeded {
+            logger.debug("Uploading task for $path succeeded; got id=${uploadTask.get()}")
+            transferFile.id = uploadTask.get()
+            transferFile.status = "transferred"
+
+            filesListView!!.refresh() // should be better be done via an property. but works good enough.
+        }
+
+        uploadTask.setOnFailed {
+            logger.warn("Uploading task for $path failed")
+            transferFile.status = "upload failed"
+
+            filesListView!!.refresh() // should be better be done via an property. but works good enough.
+        }
+
+        logger.debug("Queueing uploading task for $path...")
+        uploadTaskExecutor.submit(uploadTask)
+        logger.debug("Queued uploading task for $path")
     }
 
     fun uploadFiles(
@@ -87,14 +85,13 @@ class FileUploader {
         passwordTextField: TextField?,
         filesListView: ListView<TransferFile>?
     ) {
-        logger.debug("Processing ${paths.size} files...")
+        logger.debug("Uploading ${paths.size} files...")
 
         for (path in paths) {
             if (Files.isDirectory(path)) {
                 logger.debug("$path is a directory")
 
-                val extensions =
-                    arrayOf("pdf", "PDF") // TODO: don't know if this is needed or filter is case insensitive
+                val extensions = arrayOf("pdf", "PDF") // CAVEAT: filter is NOT case insensitive
                 val files = FileUtils.listFiles(path.toFile(), extensions, true)
                 logger.debug("Found ${files.size} files in directory $path")
 
@@ -103,6 +100,7 @@ class FileUploader {
                 logger.debug("$path is a regular and readable file")
                 uploadFile(path, transferFiles, passwordTextField, filesListView)
             } else {
+                logger.warn("strange case")
                 // do nothing because strange
             }
         }
@@ -114,13 +112,14 @@ class FileUploader {
      * @return true if file size is okay (or unknown), false if file is too big
      */
     private fun isFileSizeAccepted(path: Path): Boolean {
+        logger.debug("Checking if file size is accepted by service...")
         return when (maximumUploadSize) {
             null -> true
             else -> Files.size(path) < maximumUploadSize!!
         }
     }
 
-    fun fetchMaximumUploadSize() {
+    fun initializeMaximumUploadSize() {
         try {
             logger.debug("Querying service for maximum upload size...")
             maximumUploadSize = configurationApi.getConfiguration().maximumMultipartUploadSize

@@ -48,7 +48,7 @@ class DropWindowController {
         )
         fileCheckTimer.cycleCount = Animation.INDEFINITE
         fileCheckTimer.play()
-        fileUploader.fetchMaximumUploadSize()
+        fileUploader.initializeMaximumUploadSize()
     }
 
     fun onDragDropped(event: DragEvent) {

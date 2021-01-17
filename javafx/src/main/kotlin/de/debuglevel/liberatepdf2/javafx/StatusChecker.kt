@@ -12,7 +12,6 @@ import org.apache.http.client.fluent.Request
 import org.apache.http.conn.HttpHostConnectException
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -37,7 +36,7 @@ class StatusChecker {
         transferFiles.stream()
             .filter { !it.done && it.id != null }
             .forEach {
-                checkTaskExecutor.submit(object : Task<Void>() {
+                val statusCheckTask = object : Task<Void>() {
                     @Throws(Exception::class)
                     override fun call(): Void? {
                         // check again if pre-conditions for checking status are still met.
@@ -49,7 +48,9 @@ class StatusChecker {
 
                         return null
                     }
-                })
+                }
+
+                checkTaskExecutor.submit(statusCheckTask)
             }
     }
 
@@ -58,9 +59,9 @@ class StatusChecker {
         filesListView: ListView<TransferFile>
     ) {
         try {
-            logger.debug("Checking status of file $transferFile")
+            logger.debug("Checking status of file $transferFile...")
 
-            val getTransformationResponse = transformationsApi.getOneTransformation(UUID.fromString(transferFile.id))
+            val getTransformationResponse = transformationsApi.getOneTransformation(transferFile.id!!)
             val finished = getTransformationResponse.finished!!
             val failed = getTransformationResponse.failed!!
             val errorMessage = getTransformationResponse.errorMessage
@@ -92,6 +93,8 @@ class StatusChecker {
     }
 
     private fun saveFile(transferFile: TransferFile) {
+        logger.debug("Saving file $transferFile...")
+
         // TODO: throws exception
         //val x = documentsApi.getOne(UUID.fromString(transferFile.id))
 
