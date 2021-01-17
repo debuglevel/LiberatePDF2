@@ -76,11 +76,10 @@ class DropWindowController {
         try {
             logger.debug("Checking status of file $transferFile")
 
-            val result =
-                transformationsApi.getOneTransformation(UUID.fromString(transferFile.id)) as Map<String, Object>
-            val finished = result["finished"] as Boolean
-            val failed = result["failed"] as Boolean
-            val errorMessage = result.getOrDefault("errorMessage", null) as String?
+            val getTransformationResponse = transformationsApi.getOneTransformation(UUID.fromString(transferFile.id))
+            val finished = getTransformationResponse.finished!!
+            val failed = getTransformationResponse.failed!!
+            val errorMessage = getTransformationResponse.errorMessage
 
             if (!finished) {
                 // file is still in progress
@@ -177,12 +176,11 @@ class DropWindowController {
         if (isFileSizeAccepted(path)) {
             val uploadTask = object : Task<String>() {
                 override fun call(): String {
-                    val response = transformationsApi.postOneTransformation(
+                    val postTransformationResponse = transformationsApi.postOneTransformation(
                         path.toFile(),
                         transferFile.password
-                    ) as Map<String, Object>
-                    val id = UUID.fromString(response["id"] as String)
-                    return id.toString()
+                    )
+                    return postTransformationResponse.id.toString()
                 }
             }
 
