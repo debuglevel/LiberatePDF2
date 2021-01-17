@@ -8,6 +8,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
+import io.micronaut.http.server.types.files.FileCustomizableResponseType
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.http.server.types.files.SystemFile
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -28,7 +29,7 @@ class DocumentController(
     @Produces("application/zip")
     fun downloadZip(
         ids: Array<UUID>?,
-    ): HttpResponse<*> {
+    ): HttpResponse<FileCustomizableResponseType> {
         return if (!ids.isNullOrEmpty()) {
             logger.debug { "GET /zip for ${ids.size} documents: ${ids.joinToString()}" }
             val storedFiles = ids.map { storageService.get(it) }
@@ -38,14 +39,14 @@ class DocumentController(
             HttpResponse.ok(systemFile.attach("unrestricted PDFs.zip"))
         } else {
             logger.warn { "GET /zip with missing ids parameter" }
-            HttpResponse.badRequest("ids parameter must be supplied")
+            HttpResponse.badRequest()
         }
     }
 
     @Get("/{documentId}")
     fun getOne(
         documentId: UUID,
-    ): HttpResponse<*> {
+    ): HttpResponse<FileCustomizableResponseType> {
         logger.debug { "GET / or HEAD / for document id=$documentId" }
 
         // TODO: API v2 should just return a 404 if unrestricted file is not ready, and download it if ready.
@@ -57,13 +58,11 @@ class DocumentController(
             if (!transformation.finished) {
                 // the request exists, but was not transformed by now
                 logger.debug { "Transformation with id=${documentId} found, but transformation.finished=false (not processed by now)" }
-                HttpResponse.status<String>(HttpStatus.PROCESSING)
-                    .body("The transformation was not processed by now. Please try again later.")
+                HttpResponse.status(HttpStatus.PROCESSING)
             } else if (transformation.failed!!) {
                 // the request exists, but transformation failed
                 logger.debug { "Transformation with id=${documentId} found, but transformation failed." }
-                HttpResponse.status<String>(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("The transformation failed: ${transformation.errorMessage}")
+                HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
             } else {
                 val storedFile = storageService.get(transformation.unrestrictedStoredFileId!!)
                 val streamedFile = StreamedFile(storedFile.inputStream, MediaType.of("application/pdf"))
@@ -71,7 +70,7 @@ class DocumentController(
             }
         } catch (e: TransformationService.NotFoundException) {
             logger.debug { "Transformation with id=${documentId} not found." }
-            HttpResponse.notFound("Transformation with id=${documentId} not found")
+            HttpResponse.notFound()
         }
     }
 

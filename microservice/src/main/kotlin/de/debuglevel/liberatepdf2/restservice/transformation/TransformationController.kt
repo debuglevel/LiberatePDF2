@@ -22,7 +22,7 @@ class TransformationController(
     @Get("/{transformationId}")
     fun getOneTransformation(
         transformationId: UUID,
-    ): HttpResponse<*> {
+    ): HttpResponse<GetTransformationResponse> {
         logger.debug { "GET / or HEAD / for transformation id=$transformationId" }
 
         return try {
@@ -32,7 +32,7 @@ class TransformationController(
             HttpResponse.ok(getTransformationResponse)
         } catch (e: TransformationService.NotFoundException) {
             logger.debug { "No transformation with id=$transformationId found" }
-            HttpResponse.notFound("No transformation found for id=$transformationId")
+            HttpResponse.notFound<GetTransformationResponse>()
         }
     }
 
@@ -41,7 +41,7 @@ class TransformationController(
     fun postOneTransformation(
         file: CompletedFileUpload,
         password: String,
-    ): HttpResponse<*> {
+    ): HttpResponse<PostTransformationResponse> {
         logger.debug { "POST / with file=$file, password=$password" }
 
         val transformation = transformationService.add(
