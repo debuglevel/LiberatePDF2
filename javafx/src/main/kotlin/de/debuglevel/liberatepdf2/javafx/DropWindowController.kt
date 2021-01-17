@@ -17,15 +17,11 @@ import javafx.scene.input.DragEvent
 import javafx.scene.input.TransferMode
 import javafx.util.Duration
 import org.apache.commons.io.FileUtils
-import org.apache.http.HttpVersion
 import org.apache.http.client.fluent.Request
 import org.apache.http.conn.HttpHostConnectException
-import org.apache.http.entity.mime.HttpMultipartMode
-import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.net.SocketException
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -181,21 +177,12 @@ class DropWindowController {
         if (isFileSizeAccepted(path)) {
             val uploadTask = object : Task<String>() {
                 override fun call(): String {
-                    logger.debug("Building POST request for $path...")
-                    val entity = MultipartEntityBuilder.create()
-                        .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-                        .setCharset(Charset.defaultCharset())
-                        .addBinaryBody("file", path.toFile())
-                        .addTextBody("password", transferFile.password).build()
-
-                    logger.debug("Sending POST request for $path...")
-                    return Request.Post("$HOST/v1/documents/")
-                        .useExpectContinue()
-                        .version(HttpVersion.HTTP_1_1)
-                        .body(entity)
-                        .execute()
-                        .returnContent()
-                        .asString()
+                    val response = transformationsApi.postOneTransformation(
+                        path.toFile(),
+                        transferFile.password
+                    ) as Map<String, Object>
+                    val id = UUID.fromString(response["id"] as String)
+                    return id.toString()
                 }
             }
 
