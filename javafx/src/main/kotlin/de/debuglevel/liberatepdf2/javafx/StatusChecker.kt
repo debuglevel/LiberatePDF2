@@ -28,8 +28,12 @@ class StatusChecker {
     private val transformationsApi = TransformationsApi(HOST)
     private val documentsApi = DocumentsApi(HOST)
 
-    fun checkFilesStatus(transferFiles: ObservableList<TransferFile>, filesListView: ListView<TransferFile>) {
+    fun checkFilesStatus(
+        transferFiles: ObservableList<TransferFile>,
+        filesListView: ListView<TransferFile>
+    ) {
         logger.debug("Checking status of files...")
+
         transferFiles.stream()
             .filter { !it.done && it.id != null }
             .forEach {
@@ -49,7 +53,10 @@ class StatusChecker {
             }
     }
 
-    private fun checkFileStatus(transferFile: TransferFile, filesListView: ListView<TransferFile>) {
+    private fun checkFileStatus(
+        transferFile: TransferFile,
+        filesListView: ListView<TransferFile>
+    ) {
         try {
             logger.debug("Checking status of file $transferFile")
 
