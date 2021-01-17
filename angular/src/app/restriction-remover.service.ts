@@ -55,12 +55,12 @@ export class RestrictionRemoverService {
     this.transformationsService
       .postOneTransformation(transferFile.file, transferFile.password)
       .toPromise()
-      .then((postTransformationResponse: any) => {
+      .then((postTransformationResponse) => {
         console.debug('Got response on POST request:');
         console.debug(postTransformationResponse);
 
         console.log('Success on uploading file');
-        transferFile.id = postTransformationResponse.id;
+        transferFile.id = postTransformationResponse.id!;
         transferFile.status = 'uploaded';
         transferFile.statusText = 'uploaded';
       })
@@ -78,7 +78,7 @@ export class RestrictionRemoverService {
     return this.transformationsService
       .getOneTransformation(transferFile.id!)
       .toPromise()
-      .then((getTransformationResponse: any) => {
+      .then((getTransformationResponse) => {
         console.debug(
           `Got response on GET /transformation/${transferFile.id}:`
         );
