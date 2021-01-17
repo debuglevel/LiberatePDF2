@@ -1,7 +1,9 @@
 package de.debuglevel.liberatepdf2.javafx
 
 import de.debuglevel.liberatepdf2.restclient.apis.ConfigurationApi
+import de.debuglevel.liberatepdf2.restclient.apis.DocumentsApi
 import de.debuglevel.liberatepdf2.restclient.apis.StatusApi
+import de.debuglevel.liberatepdf2.restclient.apis.TransformationsApi
 import javafx.animation.Animation
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
@@ -22,7 +24,6 @@ import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.io.InputStream
 import java.net.SocketException
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -47,10 +48,12 @@ class DropWindowController {
     private val transferFiles: ObservableList<TransferFile> = FXCollections.observableList(ArrayList())
     private val uploadTaskExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    private val HOST = "http://localhost:8080" // TODO: should be configurable
+    private val HOST = "http://localhost:8081" // TODO: should be configurable
 
     private val statusApi = StatusApi(HOST)
     private val configurationApi = ConfigurationApi(HOST)
+    private val transformationsApi = TransformationsApi(HOST)
+    private val documentsApi = DocumentsApi(HOST)
 
     private fun checkFilesStatus() {
         logger.debug("Checking status of files...")
@@ -75,33 +78,31 @@ class DropWindowController {
 
     private fun checkFileStatus(transferFile: TransferFile) {
         try {
-            val url = "$HOST/v1/documents/${transferFile.id}"
-            logger.debug("Checking status of file $transferFile via $url")
-            val response = Request.Get(url).execute().returnResponse()
-            val statusCode = response.statusLine.statusCode
+            logger.debug("Checking status of file $transferFile")
 
-            logger.debug("Got status code $statusCode for $transferFile")
-            when (statusCode) {
-                200 -> {
-                    // file was successfully processed
-                    transferFile.status = "done"
-                    transferFile.done = true
-                    saveFile(transferFile, response.entity.content)
-                }
-                102 -> {
-                    // file is still in progress
-                    transferFile.status = "in progress"
-                }
-                500 -> {
-                    // processing failed
-                    transferFile.status = "processing failed"
-                    transferFile.done = true
-                }
-                else -> {
-                    // unknown
-                    transferFile.status = "unknown status code"
-                }
+            val result =
+                transformationsApi.getOneTransformation(UUID.fromString(transferFile.id)) as Map<String, Object>
+            val finished = result["finished"] as Boolean
+            val failed = result["failed"] as Boolean
+            val errorMessage = result.getOrDefault("errorMessage", null) as String?
+
+            if (!finished) {
+                // file is still in progress
+                transferFile.status = "in progress"
+            } else if (finished && !failed) {
+                // file was successfully processed
+                transferFile.status = "done"
+                transferFile.done = true
+                saveFile(transferFile)
+            } else if (finished && failed) {
+                // processing failed
+                transferFile.status = "processing failed"
+                transferFile.done = true
+            } else {
+                // unknown
+                transferFile.status = "unknown status code"
             }
+
             filesListView!!.refresh() // should be better be done via an property. but works good enough.
         } catch (e: HttpHostConnectException) {
             logger.error("Connection to host failed: " + e.message)
@@ -248,7 +249,15 @@ class DropWindowController {
         }
     }
 
-    private fun saveFile(transferFile: TransferFile, inputStream: InputStream) {
+    private fun saveFile(transferFile: TransferFile) {
+        // TODO: throws exception
+        //val x = documentsApi.getOne(UUID.fromString(transferFile.id))
+
+        val url = "$HOST/v1/documents/${transferFile.id}"
+        logger.debug("Getting document $transferFile via $url")
+        val response = Request.Get(url).execute().returnResponse()
+        val inputStream = response.entity.content
+
         try {
             val originalPath = transferFile.path
             val destinationFile = originalPath.resolveSibling("${originalPath.fileName} (unrestricted).pdf")
