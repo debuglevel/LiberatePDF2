@@ -13,5 +13,7 @@ git_push.sh
 index.ts
 model/get-configuration-response.ts
 model/get-statistic-response.ts
+model/get-transformation-response.ts
 model/models.ts
+model/post-transformation-response.ts
 variables.ts

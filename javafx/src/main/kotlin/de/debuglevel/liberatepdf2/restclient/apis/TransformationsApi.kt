@@ -11,6 +11,8 @@
 */
 package de.debuglevel.liberatepdf2.restclient.apis
 
+import de.debuglevel.liberatepdf2.restclient.models.GetTransformationResponse
+import de.debuglevel.liberatepdf2.restclient.models.PostTransformationResponse
 
 import de.debuglevel.liberatepdf2.restclient.infrastructure.ApiClient
 import de.debuglevel.liberatepdf2.restclient.infrastructure.ClientException
@@ -36,14 +38,14 @@ class TransformationsApi(basePath: kotlin.String = defaultBasePath) : ApiClient(
     * 
     * 
     * @param transformationId  
-    * @return kotlin.Any
+    * @return GetTransformationResponse
     * @throws UnsupportedOperationException If the API returns an informational or redirection response
     * @throws ClientException If the API returns a client error response
     * @throws ServerException If the API returns a server error response
     */
     @Suppress("UNCHECKED_CAST")
     @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getOneTransformation(transformationId: java.util.UUID) : kotlin.Any {
+    fun getOneTransformation(transformationId: java.util.UUID) : GetTransformationResponse {
         val localVariableBody: kotlin.Any? = null
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
@@ -53,13 +55,13 @@ class TransformationsApi(basePath: kotlin.String = defaultBasePath) : ApiClient(
             query = localVariableQuery,
             headers = localVariableHeaders
         )
-        val localVarResponse = request<kotlin.Any>(
+        val localVarResponse = request<GetTransformationResponse>(
             localVariableConfig,
             localVariableBody
         )
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.Any
+            ResponseType.Success -> (localVarResponse as Success<*>).data as GetTransformationResponse
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -78,14 +80,14 @@ class TransformationsApi(basePath: kotlin.String = defaultBasePath) : ApiClient(
     * 
     * @param file  (optional)
     * @param password  (optional)
-    * @return kotlin.Any
+    * @return PostTransformationResponse
     * @throws UnsupportedOperationException If the API returns an informational or redirection response
     * @throws ClientException If the API returns a client error response
     * @throws ServerException If the API returns a server error response
     */
     @Suppress("UNCHECKED_CAST")
     @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun postOneTransformation(file: java.io.File?, password: kotlin.String?) : kotlin.Any {
+    fun postOneTransformation(file: java.io.File?, password: kotlin.String?) : PostTransformationResponse {
         val localVariableBody: kotlin.Any? = mapOf("file" to file, "password" to password)
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf("Content-Type" to "multipart/form-data")
@@ -95,13 +97,13 @@ class TransformationsApi(basePath: kotlin.String = defaultBasePath) : ApiClient(
             query = localVariableQuery,
             headers = localVariableHeaders
         )
-        val localVarResponse = request<kotlin.Any>(
+        val localVarResponse = request<PostTransformationResponse>(
             localVariableConfig,
             localVariableBody
         )
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.Any
+            ResponseType.Success -> (localVarResponse as Success<*>).data as PostTransformationResponse
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
