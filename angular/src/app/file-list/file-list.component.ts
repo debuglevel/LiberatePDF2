@@ -24,7 +24,7 @@ export class FileListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.debug('Initializing...');
+    console.debug('Initializing file-list.component...');
     console.log(
       'Reminder: Set log level to verbose in your Browser to see console.debug() messages'
     );
@@ -36,8 +36,9 @@ export class FileListComponent implements OnInit {
   }
 
   updateCommaSeperatedDoneFiles(): void {
-    let doneFiles: string[] = [];
+    console.debug('updateCommaSeperatedDoneFiles()...');
 
+    let doneFiles: string[] = [];
     for (let transferFile of this.transferFiles) {
       if (transferFile.done === true && transferFile.status === 'done') {
         doneFiles.push(String(transferFile.id));
@@ -45,12 +46,17 @@ export class FileListComponent implements OnInit {
     }
 
     this.commaSeperatedDoneFiles = doneFiles.join(',');
+    console.debug('commaSeperatedDoneFiles=' + this.commaSeperatedDoneFiles);
   }
 
   checkFiles(t: any): void {
     console.debug('Checking files...');
     for (let transferFile of this.transferFiles) {
-      if (transferFile.done === false && transferFile.status !== 'uploading') {
+      if (
+        transferFile.done === false &&
+        transferFile.status !== 'uploading' &&
+        transferFile.status !== 'upload-failed'
+      ) {
         this.restrictionRemoverService
           .checkFile(transferFile)
           .then((success) => {

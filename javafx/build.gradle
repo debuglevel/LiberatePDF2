@@ -62,6 +62,13 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.30' // TODO: remove this if migrated to Kotlin
     runtimeOnly "ch.qos.logback:logback-classic:$logbackVersion"
     runtimeOnly "net.logstash.logback:logstash-logback-encoder:$logstashLogbackVersion"
+
+    // OpenAPI Kotlin generator
+    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
+    implementation "com.squareup.moshi:moshi-adapters:1.9.2"
+    implementation "com.squareup.okhttp3:okhttp:4.2.2"
 }
 
 group = 'de.debuglevel.liberatepdf2'

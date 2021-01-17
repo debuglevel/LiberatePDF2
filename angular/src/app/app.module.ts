@@ -10,9 +10,28 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RestrictionRemoverService } from './restriction-remover.service';
 import { SettingsHttpService } from './settings-http.service';
+import { SettingsService } from './settings.service';
 
-export function app_Init(settingsHttpService: SettingsHttpService) {
+import {
+  ApiModule,
+  Configuration,
+  ConfigurationParameters,
+} from './restclient';
+
+export function initializeSettings(settingsHttpService: SettingsHttpService) {
+  console.debug('initializeSettings...');
   return () => settingsHttpService.initializeApp();
+}
+
+export function initializeApiConfiguration(
+  settingsHttpService: SettingsHttpService,
+  settingsService: SettingsService
+): Configuration {
+  console.debug('initializeApiConfiguration...');
+  const params: ConfigurationParameters = {
+    basePath: settingsService.settings.apiUrl,
+  };
+  return new Configuration(params);
 }
 
 @NgModule({
@@ -23,14 +42,21 @@ export function app_Init(settingsHttpService: SettingsHttpService) {
     HttpClientModule,
     //NgbModule.forRoot(),
     NgbModule,
+    ApiModule,
   ],
   providers: [
     RestrictionRemoverService,
     {
       provide: APP_INITIALIZER,
-      useFactory: app_Init,
+      useFactory: initializeSettings,
       deps: [SettingsHttpService],
       multi: true,
+    },
+    {
+      provide: Configuration,
+      useFactory: initializeApiConfiguration,
+      deps: [SettingsHttpService, SettingsService],
+      multi: false,
     },
   ],
   bootstrap: [AppComponent],
