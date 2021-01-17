@@ -11,18 +11,8 @@
 */
 package de.debuglevel.liberatepdf2.restclient.apis
 
-
-import de.debuglevel.liberatepdf2.restclient.infrastructure.ApiClient
-import de.debuglevel.liberatepdf2.restclient.infrastructure.ClientException
-import de.debuglevel.liberatepdf2.restclient.infrastructure.ClientError
-import de.debuglevel.liberatepdf2.restclient.infrastructure.ServerException
-import de.debuglevel.liberatepdf2.restclient.infrastructure.ServerError
-import de.debuglevel.liberatepdf2.restclient.infrastructure.MultiValueMap
-import de.debuglevel.liberatepdf2.restclient.infrastructure.RequestConfig
-import de.debuglevel.liberatepdf2.restclient.infrastructure.RequestMethod
-import de.debuglevel.liberatepdf2.restclient.infrastructure.ResponseType
-import de.debuglevel.liberatepdf2.restclient.infrastructure.Success
-import de.debuglevel.liberatepdf2.restclient.infrastructure.toMultiValue
+import de.debuglevel.liberatepdf2.restclient.infrastructure.*
+import de.debuglevel.liberatepdf2.restclient.models.StreamedFile
 
 class DocumentsApi(basePath: kotlin.String = defaultBasePath) : ApiClient(basePath) {
     companion object {
@@ -79,33 +69,33 @@ class DocumentsApi(basePath: kotlin.String = defaultBasePath) : ApiClient(basePa
     }
 
     /**
-    * 
-    * 
-    * @param documentId  
-    * @return kotlin.Any
-    * @throws UnsupportedOperationException If the API returns an informational or redirection response
-    * @throws ClientException If the API returns a client error response
-    * @throws ServerException If the API returns a server error response
-    */
+     *
+     *
+     * @param documentId
+     * @return StreamedFile
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
     @Suppress("UNCHECKED_CAST")
     @Throws(UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun getOne(documentId: java.util.UUID) : kotlin.Any {
+    fun getOne(documentId: java.util.UUID): StreamedFile {
         val localVariableBody: kotlin.Any? = null
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         val localVariableConfig = RequestConfig(
             RequestMethod.GET,
-            "/v1/documents/{documentId}".replace("{"+"documentId"+"}", "$documentId"),
+            "/v1/documents/{documentId}".replace("{" + "documentId" + "}", "$documentId"),
             query = localVariableQuery,
             headers = localVariableHeaders
         )
-        val localVarResponse = request<kotlin.Any>(
+        val localVarResponse = request<StreamedFile>(
             localVariableConfig,
             localVariableBody
         )
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.Any
+            ResponseType.Success -> (localVarResponse as Success<*>).data as StreamedFile
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {

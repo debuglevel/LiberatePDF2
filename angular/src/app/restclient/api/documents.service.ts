@@ -17,6 +17,7 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
+import { StreamedFile } from '../model/models';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -149,10 +150,10 @@ export class DocumentsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getOne(documentId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<object>;
-    public getOne(documentId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<object>>;
-    public getOne(documentId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<object>>;
-    public getOne(documentId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+    public getOne(documentId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<StreamedFile>;
+    public getOne(documentId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<HttpResponse<StreamedFile>>;
+    public getOne(documentId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<HttpEvent<StreamedFile>>;
+    public getOne(documentId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<any> {
         if (documentId === null || documentId === undefined) {
             throw new Error('Required parameter documentId was null or undefined when calling getOne.');
         }
@@ -163,7 +164,7 @@ export class DocumentsService {
         if (httpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
-                'application/json'
+                'application/pdf'
             ];
             httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -177,7 +178,7 @@ export class DocumentsService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<object>(`${this.configuration.basePath}/v1/documents/${encodeURIComponent(String(documentId))}`,
+        return this.httpClient.get<StreamedFile>(`${this.configuration.basePath}/v1/documents/${encodeURIComponent(String(documentId))}`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

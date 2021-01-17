@@ -8,7 +8,6 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
-import io.micronaut.http.server.types.files.FileCustomizableResponseType
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.http.server.types.files.SystemFile
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -29,7 +28,7 @@ class DocumentController(
     @Produces("application/zip")
     fun downloadZip(
         ids: Array<UUID>?,
-    ): HttpResponse<FileCustomizableResponseType> {
+    ): HttpResponse<SystemFile> {
         return if (!ids.isNullOrEmpty()) {
             logger.debug { "GET /zip for ${ids.size} documents: ${ids.joinToString()}" }
             val storedFiles = ids.map { storageService.get(it) }
@@ -43,10 +42,11 @@ class DocumentController(
         }
     }
 
+    @Produces("application/pdf")
     @Get("/{documentId}")
     fun getOne(
         documentId: UUID,
-    ): HttpResponse<FileCustomizableResponseType> {
+    ): HttpResponse<StreamedFile> {
         logger.debug { "GET / or HEAD / for document id=$documentId" }
 
         // TODO: API v2 should just return a 404 if unrestricted file is not ready, and download it if ready.
