@@ -17,6 +17,13 @@ else
     LOCALDIR=$PWD
 fi
 
+echo
+echo "== Backend"
+echo "== Generating OpenAPI specs..."
+cd microservice
+./gradlew classes
+cd ..
+
 echo 
 echo "== Kotlin"
 echo "== Creating temporary directory..."
