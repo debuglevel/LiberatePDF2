@@ -10,6 +10,9 @@ import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.http.server.types.files.SystemFile
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
 import java.net.URI
@@ -26,6 +29,8 @@ class DocumentController(
 
     @Get("/zip{?ids}")
     @Produces("application/zip")
+    @ApiResponse(responseCode = "200", description = "Download of the ZIP with the given IDs", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM, schema = Schema(type = "string", format = "binary"))]
+    )
     fun downloadZip(
         ids: Array<UUID>?,
     ): HttpResponse<SystemFile> {
@@ -44,6 +49,7 @@ class DocumentController(
 
     @Produces("application/pdf")
     @Get("/{documentId}")
+    @ApiResponse(responseCode = "200", description = "Download of the document", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM, schema = Schema(type = "string", format = "binary"))])
     fun getOne(
         documentId: UUID,
     ): HttpResponse<StreamedFile> {
