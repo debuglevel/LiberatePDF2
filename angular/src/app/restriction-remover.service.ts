@@ -9,6 +9,7 @@ import {
   DocumentsService,
   TransformationsService,
 } from './restclient/api/api';
+import { GetStatisticResponse } from './restclient';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,7 @@ export class RestrictionRemoverService {
       .catch(this.handleError);
   }
 
-  getStatistics(): Promise<any> {
+  getStatistics(): Promise<GetStatisticResponse> {
     console.debug('Querying statistics...');
 
     return this.statusService

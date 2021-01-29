@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { GetStatisticResponse } from '../restclient';
 import { RestrictionRemoverService } from '../restriction-remover.service';
 //import 'rxjs/add/operator/map';
 //import 'rxjs/add/operator/toPromise';
@@ -18,8 +19,10 @@ export class StatisticsComponent implements OnInit {
   }
 
   getStatistics(): void {
-    this.restrictionRemoverService.getStatistics().then((json: any) => {
-      this.statisticsJson = JSON.stringify(json, null, '\t');
-    });
+    this.restrictionRemoverService
+      .getStatistics()
+      .then((statistics: GetStatisticResponse) => {
+        this.statisticsJson = JSON.stringify(statistics, null, '\t');
+      });
   }
 }
