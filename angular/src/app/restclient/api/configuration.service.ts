@@ -113,7 +113,7 @@ export class ConfigurationService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<GetConfigurationResponse>(`${this.configuration.basePath}/api/v1/configuration`,
+        return this.httpClient.get<GetConfigurationResponse>(`${this.configuration.basePath}/v1/configuration`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

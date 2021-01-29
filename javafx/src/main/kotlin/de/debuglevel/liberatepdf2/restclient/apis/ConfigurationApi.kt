@@ -49,7 +49,7 @@ class ConfigurationApi(basePath: kotlin.String = defaultBasePath) : ApiClient(ba
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         val localVariableConfig = RequestConfig(
             RequestMethod.GET,
-            "/api/v1/configuration",
+            "/v1/configuration",
             query = localVariableQuery,
             headers = localVariableHeaders
         )

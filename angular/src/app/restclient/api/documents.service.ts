@@ -17,7 +17,6 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
-import { StreamedFile } from '../model/models';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -102,10 +101,10 @@ export class DocumentsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public downloadZip(ids?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/zip'}): Observable<object>;
-    public downloadZip(ids?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/zip'}): Observable<HttpResponse<object>>;
-    public downloadZip(ids?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/zip'}): Observable<HttpEvent<object>>;
-    public downloadZip(ids?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/zip'}): Observable<any> {
+    public downloadZip(ids?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<Blob>;
+    public downloadZip(ids?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<HttpResponse<Blob>>;
+    public downloadZip(ids?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<HttpEvent<Blob>>;
+    public downloadZip(ids?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<any> {
 
         let queryParameters = new HttpParams({encoder: this.encoder});
         if (ids !== undefined && ids !== null) {
@@ -119,7 +118,7 @@ export class DocumentsService {
         if (httpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
-                'application/zip'
+                'application/octet-stream'
             ];
             httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -128,15 +127,10 @@ export class DocumentsService {
         }
 
 
-        let responseType: 'text' | 'json' = 'json';
-        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
-            responseType = 'text';
-        }
-
-        return this.httpClient.get<object>(`${this.configuration.basePath}/v1/documents/zip`,
+        return this.httpClient.get(`${this.configuration.basePath}/v1/documents/zip`,
             {
                 params: queryParameters,
-                responseType: <any>responseType,
+                responseType: "blob",
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -150,10 +144,10 @@ export class DocumentsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getOne(documentId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<StreamedFile>;
-    public getOne(documentId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<HttpResponse<StreamedFile>>;
-    public getOne(documentId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<HttpEvent<StreamedFile>>;
-    public getOne(documentId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/pdf'}): Observable<any> {
+    public getOne(documentId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<Blob>;
+    public getOne(documentId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<HttpResponse<Blob>>;
+    public getOne(documentId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<HttpEvent<Blob>>;
+    public getOne(documentId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/octet-stream'}): Observable<any> {
         if (documentId === null || documentId === undefined) {
             throw new Error('Required parameter documentId was null or undefined when calling getOne.');
         }
@@ -164,7 +158,7 @@ export class DocumentsService {
         if (httpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
-                'application/pdf'
+                'application/octet-stream'
             ];
             httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -173,14 +167,9 @@ export class DocumentsService {
         }
 
 
-        let responseType: 'text' | 'json' = 'json';
-        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
-            responseType = 'text';
-        }
-
-        return this.httpClient.get<StreamedFile>(`${this.configuration.basePath}/v1/documents/${encodeURIComponent(String(documentId))}`,
+        return this.httpClient.get(`${this.configuration.basePath}/v1/documents/${encodeURIComponent(String(documentId))}`,
             {
-                responseType: <any>responseType,
+                responseType: "blob",
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
