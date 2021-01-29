@@ -35,11 +35,14 @@ docker run --rm -v ${LOCALDIR}:/local openapitools/openapi-generator-cli \
   -g kotlin \
   -o /local/openapi/kotlin \
   --additional-properties=packageName=de.debuglevel.liberatepdf2.restclient,groupId=de.debuglevel.liberatepdf2,artifactVersion=0.0.1
+echo "== Removing existing source files..."
+rm -rf javafx/src/main/kotlin/de/debuglevel/liberatepdf2/restclient
 echo "== Copying source files..."
 cp -a openapi/kotlin/src/main/. javafx/src/main/
 echo "== Deleting temporary files..."
 rm -rf openapi
 
+echo 
 echo "== TypeScript Angular"
 echo "== Creating temporary directory..."
 mkdir -p openapi/angular
@@ -50,6 +53,8 @@ docker run --rm -v ${LOCALDIR}:/local openapitools/openapi-generator-cli \
   -g typescript-angular \
   -o /local/openapi/angular \
   --additional-properties=fileNaming=kebab-case
+echo "== Removing existing source files..."
+rm -rf angular/src/app/restclient
 echo "== Copying source files..."
 cp -a openapi/angular/. angular/src/app/restclient/
 echo "== Deleting temporary files..."
