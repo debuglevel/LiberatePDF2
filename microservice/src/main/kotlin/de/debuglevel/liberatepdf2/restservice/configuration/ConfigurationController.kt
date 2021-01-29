@@ -5,7 +5,7 @@ import io.micronaut.http.annotation.Get
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
 
-@Controller("/api/v1/configuration")
+@Controller("/v1/configuration")
 @Tag(name = "configuration")
 class ConfigurationController(
     private val configurationService: ConfigurationService,
