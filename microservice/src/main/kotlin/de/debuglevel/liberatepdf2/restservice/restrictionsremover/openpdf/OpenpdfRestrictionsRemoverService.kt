@@ -24,10 +24,12 @@ class OpenpdfRestrictionsRemoverService(
     private val logger = KotlinLogging.logger {}
 
     private val failedItems = AtomicLong()
-    override val failedItemsCount = failedItems.get()
+    override val failedItemsCount: Long
+        get() = failedItems.get()
 
     private val successfulItems = AtomicLong()
-    override val successfulItemsCount = successfulItems.get()
+    override val successfulItemsCount: Long
+        get() = successfulItems.get()
 
     val SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf"
 
