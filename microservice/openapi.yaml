@@ -1,0 +1,244 @@
+openapi: 3.0.1
+info:
+  title: LiberatePDF2 Microservice
+  description: Microservice for LiberatePDF2
+  contact:
+    name: Marc Kohaupt
+    url: http://debuglevel.de
+  license:
+    name: Unlicense
+    url: https://unlicense.org/
+  version: "0.1"
+paths:
+  /v1/configuration:
+    get:
+      tags:
+        - configuration
+      operationId: getConfiguration
+      parameters: [ ]
+      responses:
+        default:
+          description: getConfiguration default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetConfigurationResponse'
+  /v1/documents/zip:
+    get:
+      tags:
+        - documents
+      operationId: downloadZip
+      parameters:
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+            nullable: true
+      responses:
+        "200":
+          description: Download of the ZIP with the given IDs
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /v1/documents/{documentId}:
+    get:
+      tags:
+        - documents
+      operationId: getOne
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Download of the document
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /v1/documents:
+    post:
+      tags:
+        - documents
+      operationId: postOne
+      parameters: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  nullable: false
+                password:
+                  type: string
+                  nullable: false
+        required: true
+      responses:
+        default:
+          description: postOne default response
+          content:
+            text/plain:
+              schema:
+                type: string
+      deprecated: true
+  /v1/status/maximum-upload-size:
+    get:
+      tags:
+        - status
+      operationId: maximumUploadSize
+      parameters: [ ]
+      responses:
+        default:
+          description: maximumUploadSize default response
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+      deprecated: true
+  /v1/status/ping:
+    get:
+      tags:
+        - status
+      operationId: ping
+      parameters: [ ]
+      responses:
+        default:
+          description: ping default response
+          content:
+            application/json:
+              schema:
+                type: string
+  /v1/status/statistics:
+    get:
+      tags:
+        - status
+      operationId: statistics
+      parameters: [ ]
+      responses:
+        default:
+          description: statistics default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStatisticResponse'
+  /v1/transformations/{transformationId}:
+    get:
+      tags:
+        - transformations
+      operationId: getOneTransformation
+      parameters:
+        - name: transformationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        default:
+          description: getOneTransformation default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTransformationResponse'
+  /v1/transformations:
+    post:
+      tags:
+        - transformations
+      operationId: postOneTransformation
+      parameters: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  nullable: false
+                password:
+                  type: string
+                  nullable: false
+        required: true
+      responses:
+        default:
+          description: postOneTransformation default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostTransformationResponse'
+components:
+  schemas:
+    GetConfigurationResponse:
+      type: object
+      properties:
+        maximumMultipartUploadSize:
+          type: integer
+          format: int64
+        maximumRequestSize:
+          type: integer
+          format: int64
+        maximumMultipartFileSize:
+          type: integer
+          format: int64
+        multipartEnabled:
+          type: boolean
+    GetStatisticResponse:
+      type: object
+      properties:
+        storedItems:
+          type: integer
+          format: int64
+        processedItems:
+          type: integer
+          format: int64
+        failedItems:
+          type: integer
+          format: int64
+        successfulItems:
+          type: integer
+          format: int64
+    GetTransformationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        originalFilename:
+          type: string
+        finished:
+          type: boolean
+        failed:
+          type: boolean
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+    PostTransformationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        originalFilename:
+          type: string
+        finished:
+          type: boolean
+        failed:
+          type: boolean
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
