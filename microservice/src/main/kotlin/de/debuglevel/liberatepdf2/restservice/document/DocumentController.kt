@@ -1,6 +1,5 @@
 package de.debuglevel.liberatepdf2.restservice.document
 
-import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import de.debuglevel.liberatepdf2.restservice.storage.ZipService
 import de.debuglevel.liberatepdf2.restservice.transformation.TransformationService
 import io.micronaut.http.HttpResponse
@@ -9,12 +8,12 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
-import io.micronaut.http.server.types.files.SystemFile
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import mu.KotlinLogging
+import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
 
@@ -23,24 +22,40 @@ import java.util.*
 class DocumentController(
     private val zipService: ZipService,
     private val transformationService: TransformationService,
-    private val storageService: StorageService,
 ) {
     private val logger = KotlinLogging.logger {}
 
     @Get("/zip{?ids}")
     @Produces("application/zip")
-    @ApiResponse(responseCode = "200", description = "Download of the ZIP with the given IDs", content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM, schema = Schema(type = "string", format = "binary"))]
+    @ApiResponse(
+        responseCode = "200",
+        description = "Download of the ZIP with the given IDs",
+        content = [Content(
+            mediaType = MediaType.APPLICATION_OCTET_STREAM,
+            schema = Schema(type = "string", format = "binary")
+        )]
     )
     fun downloadZip(
         ids: Array<UUID>?,
-    ): HttpResponse<SystemFile> {
+    ): HttpResponse<StreamedFile> {
         return if (!ids.isNullOrEmpty()) {
             logger.debug { "GET /zip for ${ids.size} documents: ${ids.joinToString()}" }
-            val storedFiles = ids.map { storageService.get(it) }
-            val zipPath = zipService.createZip(storedFiles)
-            val systemFile = SystemFile(zipPath.toFile(), MediaType.of("application/zip"))
 
-            HttpResponse.ok(systemFile.attach("unrestricted PDFs.zip"))
+            val zipItems = ids.map {
+                val transformation = transformationService.get(it)
+                ZipService.ZipItem(
+                    "${transformation.originalFilename}.unrestricted.pdf",
+                    transformation.unrestrictedFile!!.inputStream()
+                )
+            }
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            zipService.writeZip(zipItems.toSet(), byteArrayOutputStream)
+            val byteArrayInputStream = byteArrayOutputStream.toByteArray().inputStream()
+
+            val streamedFile = StreamedFile(byteArrayInputStream, MediaType.of("application/zip"))
+
+            HttpResponse.ok(streamedFile.attach("unrestricted PDFs.zip"))
         } else {
             logger.warn { "GET /zip with missing ids parameter" }
             HttpResponse.badRequest()
@@ -70,11 +85,12 @@ class DocumentController(
                 logger.debug { "Transformation with id=${documentId} found, but transformation failed." }
                 HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
             } else {
-                val storedFile = storageService.get(transformation.unrestrictedStoredFileId!!)
-                val streamedFile = StreamedFile(storedFile.inputStream, MediaType.of("application/pdf"))
-                HttpResponse.ok(streamedFile.attach(storedFile.filename))
+                val streamedFile =
+                    StreamedFile(transformation.unrestrictedFile!!.inputStream(), MediaType.of("application/pdf"))
+                val originalFilename = "${transformation.originalFilename}.unrestricted.pdf"
+                HttpResponse.ok(streamedFile.attach(originalFilename))
             }
-        } catch (e: TransformationService.NotFoundException) {
+        } catch (e: TransformationService.ItemNotFoundException) {
             logger.debug { "Transformation with id=${documentId} not found." }
             HttpResponse.notFound()
         }

@@ -30,7 +30,7 @@ class TransformationController(
             val getTransformationResponse = GetTransformationResponse(transformation)
             logger.debug { "Returning PostTransformationResponse $getTransformationResponse..." }
             HttpResponse.ok(getTransformationResponse)
-        } catch (e: TransformationService.NotFoundException) {
+        } catch (e: TransformationService.ItemNotFoundException) {
             logger.debug { "No transformation with id=$transformationId found" }
             HttpResponse.notFound<GetTransformationResponse>()
         }
@@ -41,7 +41,7 @@ class TransformationController(
     fun postOneTransformation(
         file: CompletedFileUpload,
         password: String,
-    ): HttpResponse<PostTransformationResponse> {
+    ): HttpResponse<AddTransformationResponse> {
         logger.debug { "POST / with file=$file, password=$password" }
 
         val transformation = transformationService.add(
@@ -51,8 +51,8 @@ class TransformationController(
         )
 
         val uri = URI("/transformations/${transformation.id}")
-        val postTransformationResponse = PostTransformationResponse(transformation)
-        logger.debug { "Returning PostTransformationResponse $postTransformationResponse..." }
-        return HttpResponse.accepted<PostTransformationResponse>(uri).body(postTransformationResponse)
+        val addTransformationResponse = AddTransformationResponse(transformation)
+        logger.debug { "Returning PostTransformationResponse $addTransformationResponse..." }
+        return HttpResponse.accepted<AddTransformationResponse>(uri).body(addTransformationResponse)
     }
 }

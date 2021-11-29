@@ -178,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostTransformationResponse'
+                $ref: '#/components/schemas/AddTransformationResponse'
 components:
   schemas:
     GetConfigurationResponse:
@@ -226,7 +226,7 @@ components:
         errorMessage:
           type: string
           nullable: true
-    PostTransformationResponse:
+    AddTransformationResponse:
       type: object
       properties:
         id:

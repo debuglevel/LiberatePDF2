@@ -5,7 +5,6 @@ import com.lowagie.text.exceptions.InvalidPdfException
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfStamper
 import de.debuglevel.liberatepdf2.restservice.restrictionsremover.RestrictionsRemoverService
-import de.debuglevel.liberatepdf2.restservice.storage.StorageService
 import de.debuglevel.liberatepdf2.restservice.transformation.Transformation
 import io.micronaut.context.annotation.Requires
 import mu.KotlinLogging
@@ -18,9 +17,7 @@ import javax.inject.Singleton
  */
 @Singleton
 @Requires(property = "app.liberatepdf2.transformation.backend", value = "openpdf")
-class OpenpdfRestrictionsRemoverService(
-    private val storageService: StorageService
-) : RestrictionsRemoverService {
+class OpenpdfRestrictionsRemoverService : RestrictionsRemoverService {
     private val logger = KotlinLogging.logger {}
 
     private val failedItems = AtomicLong()
@@ -31,21 +28,15 @@ class OpenpdfRestrictionsRemoverService(
     override val successfulItemsCount: Long
         get() = successfulItems.get()
 
-    val SUFFIX_PDF_UNRESTRICTED = ".unrestricted.pdf"
-
     override fun removeRestrictions(transformation: Transformation) {
         logger.debug { "Removing restrictions from PDF $transformation..." }
-
-        val restrictedStoredFile = storageService.get(transformation.restrictedStoredFileId)
 
         try {
             val passwordBytes = transformation.password?.encodeToByteArray()
             logger.debug { "Reading PDF $transformation..." }
-            val pdfReader = PdfReader(restrictedStoredFile.inputStream, passwordBytes)
+            val pdfReader = PdfReader(transformation.restrictedFile.inputStream(), passwordBytes)
             logger.debug { "Read PDF $transformation" }
 
-            val restrictedFilename = restrictedStoredFile.filename.toString()
-            val unrestrictedFilename = "$restrictedFilename$SUFFIX_PDF_UNRESTRICTED"
             val unrestrictedOutputStream = ByteArrayOutputStream()
 
             logger.debug { "Writing PDF without encryption $transformation..." }
@@ -60,11 +51,7 @@ class OpenpdfRestrictionsRemoverService(
                 throw EmptyByteArrayAfterTransformationException()
             }
 
-            val inputStream = unrestrictedOutputStream.toByteArray()
-                .inputStream() // TODO: using PipedOutputStream might be better: https://stackoverflow.com/a/23874232/4764279
-            val unrestrictedStoredFile = storageService.store(unrestrictedFilename, inputStream, "")
-
-            transformation.unrestrictedStoredFileId = unrestrictedStoredFile.id
+            transformation.unrestrictedFile = unrestrictedOutputStream.toByteArray()
             transformation.failed = false
 
             successfulItems.incrementAndGet()

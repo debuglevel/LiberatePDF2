@@ -2,7 +2,7 @@ package de.debuglevel.liberatepdf2.restservice.transformation
 
 import java.util.*
 
-data class PostTransformationResponse(
+data class AddTransformationResponse(
     val id: UUID,
     val originalFilename: String,
     val finished: Boolean,
@@ -10,7 +10,7 @@ data class PostTransformationResponse(
     val errorMessage: String? = null,
 ) {
     constructor(transformation: Transformation) : this(
-        id = transformation.id,
+        id = transformation.id!!,
         originalFilename = transformation.originalFilename,
         finished = transformation.finished,
         failed = transformation.failed,
