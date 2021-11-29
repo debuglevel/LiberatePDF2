@@ -156,6 +156,9 @@ dependencies {
     implementation platform("com.github.librepdf:openpdf:$openpdfVersion")
     implementation "com.github.librepdf:openpdf:$openpdfVersion"
     implementation "org.bouncycastle:bcprov-jdk15on"
+
+    // PDFBox
+    implementation "org.apache.pdfbox:pdfbox:$pdfboxVersion"
 }
 
 // Java configuration

@@ -1,8 +1,8 @@
 app:
   liberatepdf2:
     transformation:
-      # the backend to be used for PDF transformations (only "openpdf" right now)
-      backend: "openpdf"
+      # The backend to be used for PDF transformations ("openpdf" or "pdfbox")
+      backend: "pdfbox"
       # number of threads for parallel PDF transformation
       worker-threads: 4
   security:
