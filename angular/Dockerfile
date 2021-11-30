@@ -1,5 +1,5 @@
 ## Building stage
-FROM node:14.7.0-alpine AS builder
+FROM node:17.1.0-alpine3.13 AS builder
 WORKDIR /src/
 
 # cache dependencies
