@@ -44,7 +44,8 @@ class DocumentController(
             val zipItems = ids.map {
                 val transformation = transformationService.get(it)
                 ZipService.ZipItem(
-                    "${transformation.originalFilename}.unrestricted.pdf",
+                    // Include ID to get unique filenames
+                    "${transformation.originalFilename}.unrestricted.${transformation.id}.pdf",
                     transformation.unrestrictedFile!!.inputStream()
                 )
             }
