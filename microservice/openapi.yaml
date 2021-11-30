@@ -13,9 +13,9 @@ paths:
   /v1/configuration:
     get:
       tags:
-        - configuration
+      - configuration
       operationId: getConfiguration
-      parameters: [ ]
+      parameters: []
       responses:
         default:
           description: getConfiguration default response
@@ -26,16 +26,16 @@ paths:
   /v1/documents/zip:
     get:
       tags:
-        - documents
+      - documents
       operationId: downloadZip
       parameters:
-        - name: ids
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
-            nullable: true
+      - name: ids
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+          nullable: true
       responses:
         "200":
           description: Download of the ZIP with the given IDs
@@ -47,15 +47,15 @@ paths:
   /v1/documents/{documentId}:
     get:
       tags:
-        - documents
+      - documents
       operationId: getOne
       parameters:
-        - name: documentId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Download of the document
@@ -67,9 +67,9 @@ paths:
   /v1/documents:
     post:
       tags:
-        - documents
+      - documents
       operationId: postOne
-      parameters: [ ]
+      parameters: []
       requestBody:
         content:
           multipart/form-data:
@@ -95,9 +95,9 @@ paths:
   /v1/status/maximum-upload-size:
     get:
       tags:
-        - status
+      - status
       operationId: maximumUploadSize
-      parameters: [ ]
+      parameters: []
       responses:
         default:
           description: maximumUploadSize default response
@@ -110,9 +110,9 @@ paths:
   /v1/status/ping:
     get:
       tags:
-        - status
+      - status
       operationId: ping
-      parameters: [ ]
+      parameters: []
       responses:
         default:
           description: ping default response
@@ -123,9 +123,9 @@ paths:
   /v1/status/statistics:
     get:
       tags:
-        - status
+      - status
       operationId: statistics
-      parameters: [ ]
+      parameters: []
       responses:
         default:
           description: statistics default response
@@ -136,15 +136,15 @@ paths:
   /v1/transformations/{transformationId}:
     get:
       tags:
-        - transformations
+      - transformations
       operationId: getOneTransformation
       parameters:
-        - name: transformationId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: transformationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         default:
           description: getOneTransformation default response
@@ -155,9 +155,9 @@ paths:
   /v1/transformations:
     post:
       tags:
-        - transformations
+      - transformations
       operationId: postOneTransformation
-      parameters: [ ]
+      parameters: []
       requestBody:
         content:
           multipart/form-data:
