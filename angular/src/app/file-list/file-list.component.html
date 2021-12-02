@@ -1,5 +1,5 @@
 <div>
-  <div class="introduction">
+  <div>
     <p>
       Sometimes you've got a PDF that has some restrictions (e.g. unable to copy
       text from it, print it or comment it).
@@ -13,8 +13,8 @@
     <li>
       <div class="form-group">
         <label
-          >If the next PDFs you upload need an password to be viewed,<br />
-          enter it here (leave empty if none is needed):
+          >If the next PDFs you upload need a password to be viewed, enter it
+          here (leave empty if none is needed):
           <input
             type="text"
             class="form-control"
@@ -25,8 +25,8 @@
       </div>
     </li>
     <li>
-      <div class="form-group">
-        <p class="header">Select the PDF you want to be unrestricted.</p>
+      <div>
+        <p>Select the PDFs you want to be unrestricted.</p>
         <ul>
           <li>The selected PDFs will be uploaded immediately.</li>
           <li>
@@ -36,8 +36,7 @@
             >
           </li>
           <li>
-            The original and processed PDFs will be stored on the server<br />
-            for
+            The original and processed PDFs will be stored on the server for
             <span
               class="tooltip-available"
               title="1) we would like to try some data mining 2) and preserve knowledge in case of 'de-publication'"
@@ -45,22 +44,23 @@
             >.
           </li>
         </ul>
-        <br />
-        <label
-          class="btn"
-          [ngClass]="
-            transferFiles.length === 0 ? 'btn-primary' : 'btn-secondary'
-          "
-          ><i class="fa fa-upload" aria-hidden="true"></i> Browse and upload
-          PDFs<input
-            hidden="hidden"
-            type="file"
-            (change)="onFileChanged($event, password.value)"
-            placeholder="Upload file"
-            accept=".pdf"
-            multiple="multiple"
-          />
-        </label>
+
+        <div class="form-group">
+          <label
+            class="btn"
+            [ngClass]="
+              transferFiles.length === 0 ? 'btn-primary' : 'btn-secondary'
+            "
+            >Browse and upload PDFs<input
+              hidden="hidden"
+              type="file"
+              (change)="onFileChanged($event, password.value)"
+              placeholder="Upload file"
+              accept=".pdf"
+              multiple="multiple"
+            />
+          </label>
+        </div>
       </div>
     </li>
 
@@ -99,23 +99,10 @@
           <a
             class="btn btn-primary"
             href="{{ url }}/v1/documents/zip?ids={{ commaSeperatedDoneFiles }}"
-            ><i class="fa fa-download" aria-hidden="true"></i> Download all
-            ready files</a
+            >Download all ready files</a
           >
         </div>
       </div>
     </li>
   </ol>
 </div>
-
-<!-- 
-<div>
-	<h2>Maximum file size</h2>
-	<p>Check out, what's the maximum file size allowed for upload.</p>
-	<button class="btn btn-secondary" (click)="getMaximumFileSize();">Get
-		Maximum File Size</button>
-	<p *ngIf="maximumFileSize">
-		<label>Maximum File Size:</label> <span>{{maximumFileSize/1024/1024}}
-			MB</span>
-	</p>
-</div> -->
